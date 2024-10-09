@@ -32,4 +32,26 @@ defmodule BillionOak.CustomerFixtures do
 
     organization
   end
+
+  @doc """
+  Generate a account.
+  """
+  def account_fixture(attrs \\ %{}) do
+    {:ok, account} =
+      attrs
+      |> Enum.into(%{
+        city: "some city",
+        country_code: "some country_code",
+        enrolled_at: ~U[2024-10-08 01:05:00Z],
+        name: "some name",
+        number: "some number",
+        phone1: "some phone1",
+        phone2: "some phone2",
+        state: "some state",
+        status: "some status"
+      })
+      |> BillionOak.Customer.create_account()
+
+    account
+  end
 end

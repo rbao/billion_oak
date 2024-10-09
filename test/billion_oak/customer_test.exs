@@ -112,4 +112,74 @@ defmodule BillionOak.CustomerTest do
       assert %Ecto.Changeset{} = Customer.change_organization(organization)
     end
   end
+
+  describe "accounts" do
+    alias BillionOak.Customer.Account
+
+    import BillionOak.CustomerFixtures
+
+    @invalid_attrs %{name: nil, status: nil, state: nil, number: nil, country_code: nil, phone1: nil, phone2: nil, city: nil, enrolled_at: nil}
+
+    test "list_accounts/0 returns all accounts" do
+      account = account_fixture()
+      assert Customer.list_accounts() == [account]
+    end
+
+    test "get_account!/1 returns the account with given id" do
+      account = account_fixture()
+      assert Customer.get_account!(account.id) == account
+    end
+
+    test "create_account/1 with valid data creates a account" do
+      valid_attrs = %{name: "some name", status: "some status", state: "some state", number: "some number", country_code: "some country_code", phone1: "some phone1", phone2: "some phone2", city: "some city", enrolled_at: ~U[2024-10-08 01:05:00Z]}
+
+      assert {:ok, %Account{} = account} = Customer.create_account(valid_attrs)
+      assert account.name == "some name"
+      assert account.status == "some status"
+      assert account.state == "some state"
+      assert account.number == "some number"
+      assert account.country_code == "some country_code"
+      assert account.phone1 == "some phone1"
+      assert account.phone2 == "some phone2"
+      assert account.city == "some city"
+      assert account.enrolled_at == ~U[2024-10-08 01:05:00Z]
+    end
+
+    test "create_account/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Customer.create_account(@invalid_attrs)
+    end
+
+    test "update_account/2 with valid data updates the account" do
+      account = account_fixture()
+      update_attrs = %{name: "some updated name", status: "some updated status", state: "some updated state", number: "some updated number", country_code: "some updated country_code", phone1: "some updated phone1", phone2: "some updated phone2", city: "some updated city", enrolled_at: ~U[2024-10-09 01:05:00Z]}
+
+      assert {:ok, %Account{} = account} = Customer.update_account(account, update_attrs)
+      assert account.name == "some updated name"
+      assert account.status == "some updated status"
+      assert account.state == "some updated state"
+      assert account.number == "some updated number"
+      assert account.country_code == "some updated country_code"
+      assert account.phone1 == "some updated phone1"
+      assert account.phone2 == "some updated phone2"
+      assert account.city == "some updated city"
+      assert account.enrolled_at == ~U[2024-10-09 01:05:00Z]
+    end
+
+    test "update_account/2 with invalid data returns error changeset" do
+      account = account_fixture()
+      assert {:error, %Ecto.Changeset{}} = Customer.update_account(account, @invalid_attrs)
+      assert account == Customer.get_account!(account.id)
+    end
+
+    test "delete_account/1 deletes the account" do
+      account = account_fixture()
+      assert {:ok, %Account{}} = Customer.delete_account(account)
+      assert_raise Ecto.NoResultsError, fn -> Customer.get_account!(account.id) end
+    end
+
+    test "change_account/1 returns a account changeset" do
+      account = account_fixture()
+      assert %Ecto.Changeset{} = Customer.change_account(account)
+    end
+  end
 end
