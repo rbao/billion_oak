@@ -3,14 +3,14 @@ defmodule BillionOak.CustomerTest do
 
   alias BillionOak.Customer
 
-  describe "customer_companies" do
+  describe "companies" do
     alias BillionOak.Customer.Company
 
     import BillionOak.CustomerFixtures
 
     @invalid_attrs %{name: nil}
 
-    test "list_companies/0 returns all customer_companies" do
+    test "list_companies/0 returns all companies" do
       company = company_fixture()
       assert Customer.list_companies() == [company]
     end
@@ -57,14 +57,14 @@ defmodule BillionOak.CustomerTest do
     end
   end
 
-  describe "customer_organizations" do
+  describe "organizations" do
     alias BillionOak.Customer.Organization
 
     import BillionOak.CustomerFixtures
 
     @invalid_attrs %{name: nil, org_structure_last_ingested_at: nil}
 
-    test "list_organizations/0 returns all customer_organizations" do
+    test "list_organizations/0 returns all organizations" do
       organization = organization_fixture()
       assert Customer.list_organizations() == [organization]
     end
