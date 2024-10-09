@@ -246,4 +246,60 @@ defmodule BillionOak.CustomerTest do
       assert %Ecto.Changeset{} = Customer.change_ingestion(ingestion)
     end
   end
+
+  describe "account_records" do
+    alias BillionOak.Customer.AccountRecord
+
+    import BillionOak.CustomerFixtures
+
+    @invalid_attrs %{dedupe_id: nil, content: nil}
+
+    test "list_account_records/0 returns all account_records" do
+      account_record = account_record_fixture()
+      assert Customer.list_account_records() == [account_record]
+    end
+
+    test "get_account_record!/1 returns the account_record with given id" do
+      account_record = account_record_fixture()
+      assert Customer.get_account_record!(account_record.id) == account_record
+    end
+
+    test "create_account_record/1 with valid data creates a account_record" do
+      valid_attrs = %{dedupe_id: "some dedupe_id", content: %{}}
+
+      assert {:ok, %AccountRecord{} = account_record} = Customer.create_account_record(valid_attrs)
+      assert account_record.dedupe_id == "some dedupe_id"
+      assert account_record.content == %{}
+    end
+
+    test "create_account_record/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Customer.create_account_record(@invalid_attrs)
+    end
+
+    test "update_account_record/2 with valid data updates the account_record" do
+      account_record = account_record_fixture()
+      update_attrs = %{dedupe_id: "some updated dedupe_id", content: %{}}
+
+      assert {:ok, %AccountRecord{} = account_record} = Customer.update_account_record(account_record, update_attrs)
+      assert account_record.dedupe_id == "some updated dedupe_id"
+      assert account_record.content == %{}
+    end
+
+    test "update_account_record/2 with invalid data returns error changeset" do
+      account_record = account_record_fixture()
+      assert {:error, %Ecto.Changeset{}} = Customer.update_account_record(account_record, @invalid_attrs)
+      assert account_record == Customer.get_account_record!(account_record.id)
+    end
+
+    test "delete_account_record/1 deletes the account_record" do
+      account_record = account_record_fixture()
+      assert {:ok, %AccountRecord{}} = Customer.delete_account_record(account_record)
+      assert_raise Ecto.NoResultsError, fn -> Customer.get_account_record!(account_record.id) end
+    end
+
+    test "change_account_record/1 returns a account_record changeset" do
+      account_record = account_record_fixture()
+      assert %Ecto.Changeset{} = Customer.change_account_record(account_record)
+    end
+  end
 end

@@ -73,4 +73,19 @@ defmodule BillionOak.CustomerFixtures do
 
     ingestion
   end
+
+  @doc """
+  Generate a account_record.
+  """
+  def account_record_fixture(attrs \\ %{}) do
+    {:ok, account_record} =
+      attrs
+      |> Enum.into(%{
+        content: %{},
+        dedupe_id: "some dedupe_id"
+      })
+      |> BillionOak.Customer.create_account_record()
+
+    account_record
+  end
 end

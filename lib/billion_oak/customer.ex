@@ -389,4 +389,100 @@ defmodule BillionOak.Customer do
   def change_ingestion(%Ingestion{} = ingestion, attrs \\ %{}) do
     Ingestion.changeset(ingestion, attrs)
   end
+
+  alias BillionOak.Customer.AccountRecord
+
+  @doc """
+  Returns the list of account_records.
+
+  ## Examples
+
+      iex> list_account_records()
+      [%AccountRecord{}, ...]
+
+  """
+  def list_account_records do
+    Repo.all(AccountRecord)
+  end
+
+  @doc """
+  Gets a single account_record.
+
+  Raises `Ecto.NoResultsError` if the Account record does not exist.
+
+  ## Examples
+
+      iex> get_account_record!(123)
+      %AccountRecord{}
+
+      iex> get_account_record!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_account_record!(id), do: Repo.get!(AccountRecord, id)
+
+  @doc """
+  Creates a account_record.
+
+  ## Examples
+
+      iex> create_account_record(%{field: value})
+      {:ok, %AccountRecord{}}
+
+      iex> create_account_record(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_account_record(attrs \\ %{}) do
+    %AccountRecord{}
+    |> AccountRecord.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a account_record.
+
+  ## Examples
+
+      iex> update_account_record(account_record, %{field: new_value})
+      {:ok, %AccountRecord{}}
+
+      iex> update_account_record(account_record, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_account_record(%AccountRecord{} = account_record, attrs) do
+    account_record
+    |> AccountRecord.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a account_record.
+
+  ## Examples
+
+      iex> delete_account_record(account_record)
+      {:ok, %AccountRecord{}}
+
+      iex> delete_account_record(account_record)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_account_record(%AccountRecord{} = account_record) do
+    Repo.delete(account_record)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking account_record changes.
+
+  ## Examples
+
+      iex> change_account_record(account_record)
+      %Ecto.Changeset{data: %AccountRecord{}}
+
+  """
+  def change_account_record(%AccountRecord{} = account_record, attrs \\ %{}) do
+    AccountRecord.changeset(account_record, attrs)
+  end
 end
