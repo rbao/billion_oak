@@ -21,7 +21,7 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "create_company/1 with valid data creates a company" do
-      valid_attrs = %{name: "some name"}
+      valid_attrs = %{name: "some name", alias: "some alias"}
 
       assert {:ok, %Company{} = company} = Customer.create_company(valid_attrs)
       assert company.name == "some name"

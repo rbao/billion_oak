@@ -3,6 +3,7 @@ defmodule BillionOak.Customer.Company do
 
   schema "customer_companies" do
     field :name, :string
+    field :alias, :string
 
     timestamps(type: :utc_datetime)
   end
@@ -12,6 +13,6 @@ defmodule BillionOak.Customer.Company do
     company
     |> changeset()
     |> cast(attrs, castable_fields())
-    |> validate_required([:name])
+    |> validate_required([:name, :alias])
   end
 end

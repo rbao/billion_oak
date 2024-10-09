@@ -11,7 +11,8 @@ defmodule BillionOak.CustomerFixtures do
     {:ok, company} =
       attrs
       |> Enum.into(%{
-        name: "some name"
+        name: "some name",
+        alias: "some alias"
       })
       |> BillionOak.Customer.create_company()
 
