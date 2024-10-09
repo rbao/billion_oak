@@ -16,6 +16,19 @@ defmodule BillionOak.Schema do
       def id_prefix, do: unquote(id_prefix)
       def prefix_id(id), do: "#{unquote(id_prefix)}_" <> id
 
+      def castable_fields do
+        __struct__()
+        |> Map.from_struct()
+        |> Map.drop(__schema__(:associations))
+        |> Map.drop([
+          :__meta__,
+          :id,
+          :inserted_at,
+          :updated_at
+        ])
+        |> Map.keys()
+      end
+
       def changeset(%{id: nil} = struct), do: change(struct, id: generate_id())
       def changeset(struct), do: change(struct)
     end
