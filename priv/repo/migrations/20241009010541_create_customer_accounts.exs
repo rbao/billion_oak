@@ -4,6 +4,8 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
   def change do
     create table(:customer_accounts, primary_key: false) do
       add :id, :string, primary_key: true
+      add :company_id, :string, null: false
+      add :organization_id, :string, null: false
       add :number, :string, null: false
       add :status, :string, null: false
       add :country_code, :string
@@ -16,5 +18,8 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
 
       timestamps(type: :utc_datetime)
     end
+
+    create index(:customer_accounts, :company_id)
+    create index(:customer_accounts, :organization_id)
   end
 end

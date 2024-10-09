@@ -11,7 +11,7 @@ defmodule BillionOak.Customer.Company do
   def changeset(company, attrs) do
     company
     |> changeset()
-    |> cast(attrs, [:name])
+    |> cast(attrs, castable_fields())
     |> validate_required([:name])
   end
 end

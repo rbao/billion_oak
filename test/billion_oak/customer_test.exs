@@ -75,7 +75,13 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "create_organization/1 with valid data creates a organization" do
-      valid_attrs = %{name: "some name", org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]}
+      company = company_fixture()
+
+      valid_attrs = %{
+        name: "some name",
+        org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z],
+        company_id: company.id
+      }
 
       assert {:ok, %Organization{} = organization} = Customer.create_organization(valid_attrs)
       assert organization.name == "some name"
@@ -88,16 +94,25 @@ defmodule BillionOak.CustomerTest do
 
     test "update_organization/2 with valid data updates the organization" do
       organization = organization_fixture()
-      update_attrs = %{name: "some updated name", org_structure_last_ingested_at: ~U[2024-10-08 23:37:00Z]}
 
-      assert {:ok, %Organization{} = organization} = Customer.update_organization(organization, update_attrs)
+      update_attrs = %{
+        name: "some updated name",
+        org_structure_last_ingested_at: ~U[2024-10-08 23:37:00Z]
+      }
+
+      assert {:ok, %Organization{} = organization} =
+               Customer.update_organization(organization, update_attrs)
+
       assert organization.name == "some updated name"
       assert organization.org_structure_last_ingested_at == ~U[2024-10-08 23:37:00Z]
     end
 
     test "update_organization/2 with invalid data returns error changeset" do
       organization = organization_fixture()
-      assert {:error, %Ecto.Changeset{}} = Customer.update_organization(organization, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Customer.update_organization(organization, @invalid_attrs)
+
       assert organization == Customer.get_organization!(organization.id)
     end
 
@@ -118,7 +133,17 @@ defmodule BillionOak.CustomerTest do
 
     import BillionOak.CustomerFixtures
 
-    @invalid_attrs %{name: nil, status: nil, state: nil, number: nil, country_code: nil, phone1: nil, phone2: nil, city: nil, enrolled_at: nil}
+    @invalid_attrs %{
+      name: nil,
+      status: nil,
+      state: nil,
+      number: nil,
+      country_code: nil,
+      phone1: nil,
+      phone2: nil,
+      city: nil,
+      enrolled_at: nil
+    }
 
     test "list_accounts/0 returns all accounts" do
       account = account_fixture()
@@ -131,7 +156,21 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "create_account/1 with valid data creates a account" do
-      valid_attrs = %{name: "some name", status: "some status", state: "some state", number: "some number", country_code: "some country_code", phone1: "some phone1", phone2: "some phone2", city: "some city", enrolled_at: ~U[2024-10-08 01:05:00Z]}
+      organization = organization_fixture()
+
+      valid_attrs = %{
+        organization_id: organization.id,
+        company_id: organization.company_id,
+        name: "some name",
+        status: "some status",
+        state: "some state",
+        number: "some number",
+        country_code: "some country_code",
+        phone1: "some phone1",
+        phone2: "some phone2",
+        city: "some city",
+        enrolled_at: ~U[2024-10-08 01:05:00Z]
+      }
 
       assert {:ok, %Account{} = account} = Customer.create_account(valid_attrs)
       assert account.name == "some name"
@@ -151,7 +190,18 @@ defmodule BillionOak.CustomerTest do
 
     test "update_account/2 with valid data updates the account" do
       account = account_fixture()
-      update_attrs = %{name: "some updated name", status: "some updated status", state: "some updated state", number: "some updated number", country_code: "some updated country_code", phone1: "some updated phone1", phone2: "some updated phone2", city: "some updated city", enrolled_at: ~U[2024-10-09 01:05:00Z]}
+
+      update_attrs = %{
+        name: "some updated name",
+        status: "some updated status",
+        state: "some updated state",
+        number: "some updated number",
+        country_code: "some updated country_code",
+        phone1: "some updated phone1",
+        phone2: "some updated phone2",
+        city: "some updated city",
+        enrolled_at: ~U[2024-10-09 01:05:00Z]
+      }
 
       assert {:ok, %Account{} = account} = Customer.update_account(account, update_attrs)
       assert account.name == "some updated name"
@@ -188,7 +238,14 @@ defmodule BillionOak.CustomerTest do
 
     import BillionOak.CustomerFixtures
 
-    @invalid_attrs %{status: nil, format: nil, url: nil, schema: nil, sha256: nil, size_bytes: nil}
+    @invalid_attrs %{
+      status: nil,
+      format: nil,
+      url: nil,
+      schema: nil,
+      sha256: nil,
+      size_bytes: nil
+    }
 
     test "list_ingestions/0 returns all ingestions" do
       ingestion = ingestion_fixture()
@@ -201,7 +258,18 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "create_ingestion/1 with valid data creates a ingestion" do
-      valid_attrs = %{status: "some status", format: "some format", url: "some url", schema: "some schema", sha256: "some sha256", size_bytes: "some size_bytes"}
+      organization = organization_fixture()
+
+      valid_attrs = %{
+        organization_id: organization.id,
+        company_id: organization.company_id,
+        status: "some status",
+        format: "some format",
+        url: "some url",
+        schema: "some schema",
+        sha256: "some sha256",
+        size_bytes: "some size_bytes"
+      }
 
       assert {:ok, %Ingestion{} = ingestion} = Customer.create_ingestion(valid_attrs)
       assert ingestion.status == "some status"
@@ -218,7 +286,15 @@ defmodule BillionOak.CustomerTest do
 
     test "update_ingestion/2 with valid data updates the ingestion" do
       ingestion = ingestion_fixture()
-      update_attrs = %{status: "some updated status", format: "some updated format", url: "some updated url", schema: "some updated schema", sha256: "some updated sha256", size_bytes: "some updated size_bytes"}
+
+      update_attrs = %{
+        status: "some updated status",
+        format: "some updated format",
+        url: "some updated url",
+        schema: "some updated schema",
+        sha256: "some updated sha256",
+        size_bytes: "some updated size_bytes"
+      }
 
       assert {:ok, %Ingestion{} = ingestion} = Customer.update_ingestion(ingestion, update_attrs)
       assert ingestion.status == "some updated status"
@@ -265,9 +341,19 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "create_account_record/1 with valid data creates a account_record" do
-      valid_attrs = %{dedupe_id: "some dedupe_id", content: %{}}
+      account = account_fixture()
 
-      assert {:ok, %AccountRecord{} = account_record} = Customer.create_account_record(valid_attrs)
+      valid_attrs = %{
+        account_id: account.id,
+        company_id: account.company_id,
+        organization_id: account.organization_id,
+        dedupe_id: "some dedupe_id",
+        content: %{}
+      }
+
+      assert {:ok, %AccountRecord{} = account_record} =
+               Customer.create_account_record(valid_attrs)
+
       assert account_record.dedupe_id == "some dedupe_id"
       assert account_record.content == %{}
     end
@@ -280,14 +366,19 @@ defmodule BillionOak.CustomerTest do
       account_record = account_record_fixture()
       update_attrs = %{dedupe_id: "some updated dedupe_id", content: %{}}
 
-      assert {:ok, %AccountRecord{} = account_record} = Customer.update_account_record(account_record, update_attrs)
+      assert {:ok, %AccountRecord{} = account_record} =
+               Customer.update_account_record(account_record, update_attrs)
+
       assert account_record.dedupe_id == "some updated dedupe_id"
       assert account_record.content == %{}
     end
 
     test "update_account_record/2 with invalid data returns error changeset" do
       account_record = account_record_fixture()
-      assert {:error, %Ecto.Changeset{}} = Customer.update_account_record(account_record, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Customer.update_account_record(account_record, @invalid_attrs)
+
       assert account_record == Customer.get_account_record!(account_record.id)
     end
 

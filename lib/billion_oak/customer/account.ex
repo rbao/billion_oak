@@ -1,5 +1,6 @@
 defmodule BillionOak.Customer.Account do
   use BillionOak.Schema, id_prefix: "acct"
+  alias BillionOak.Customer.{Company, Organization}
 
   schema "customer_accounts" do
     field :name, :string
@@ -13,13 +14,16 @@ defmodule BillionOak.Customer.Account do
     field :enrolled_at, :utc_datetime
 
     timestamps(type: :utc_datetime)
+
+    belongs_to :company, Company
+    belongs_to :organization, Organization
   end
 
   @doc false
   def changeset(account, attrs) do
     account
     |> changeset()
-    |> cast(attrs, [:number, :status, :country_code, :name, :phone1, :phone2, :city, :state, :enrolled_at])
-    |> validate_required([:number, :status, :country_code, :name, :phone1, :phone2, :city, :state, :enrolled_at])
+    |> cast(attrs, castable_fields())
+    |> validate_required([:number, :status, :name, :company_id, :organization_id])
   end
 end
