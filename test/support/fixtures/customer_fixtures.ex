@@ -54,4 +54,23 @@ defmodule BillionOak.CustomerFixtures do
 
     account
   end
+
+  @doc """
+  Generate a ingestion.
+  """
+  def ingestion_fixture(attrs \\ %{}) do
+    {:ok, ingestion} =
+      attrs
+      |> Enum.into(%{
+        format: "some format",
+        schema: "some schema",
+        sha256: "some sha256",
+        size_bytes: "some size_bytes",
+        status: "some status",
+        url: "some url"
+      })
+      |> BillionOak.Customer.create_ingestion()
+
+    ingestion
+  end
 end

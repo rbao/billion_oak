@@ -182,4 +182,68 @@ defmodule BillionOak.CustomerTest do
       assert %Ecto.Changeset{} = Customer.change_account(account)
     end
   end
+
+  describe "ingestions" do
+    alias BillionOak.Customer.Ingestion
+
+    import BillionOak.CustomerFixtures
+
+    @invalid_attrs %{status: nil, format: nil, url: nil, schema: nil, sha256: nil, size_bytes: nil}
+
+    test "list_ingestions/0 returns all ingestions" do
+      ingestion = ingestion_fixture()
+      assert Customer.list_ingestions() == [ingestion]
+    end
+
+    test "get_ingestion!/1 returns the ingestion with given id" do
+      ingestion = ingestion_fixture()
+      assert Customer.get_ingestion!(ingestion.id) == ingestion
+    end
+
+    test "create_ingestion/1 with valid data creates a ingestion" do
+      valid_attrs = %{status: "some status", format: "some format", url: "some url", schema: "some schema", sha256: "some sha256", size_bytes: "some size_bytes"}
+
+      assert {:ok, %Ingestion{} = ingestion} = Customer.create_ingestion(valid_attrs)
+      assert ingestion.status == "some status"
+      assert ingestion.format == "some format"
+      assert ingestion.url == "some url"
+      assert ingestion.schema == "some schema"
+      assert ingestion.sha256 == "some sha256"
+      assert ingestion.size_bytes == "some size_bytes"
+    end
+
+    test "create_ingestion/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Customer.create_ingestion(@invalid_attrs)
+    end
+
+    test "update_ingestion/2 with valid data updates the ingestion" do
+      ingestion = ingestion_fixture()
+      update_attrs = %{status: "some updated status", format: "some updated format", url: "some updated url", schema: "some updated schema", sha256: "some updated sha256", size_bytes: "some updated size_bytes"}
+
+      assert {:ok, %Ingestion{} = ingestion} = Customer.update_ingestion(ingestion, update_attrs)
+      assert ingestion.status == "some updated status"
+      assert ingestion.format == "some updated format"
+      assert ingestion.url == "some updated url"
+      assert ingestion.schema == "some updated schema"
+      assert ingestion.sha256 == "some updated sha256"
+      assert ingestion.size_bytes == "some updated size_bytes"
+    end
+
+    test "update_ingestion/2 with invalid data returns error changeset" do
+      ingestion = ingestion_fixture()
+      assert {:error, %Ecto.Changeset{}} = Customer.update_ingestion(ingestion, @invalid_attrs)
+      assert ingestion == Customer.get_ingestion!(ingestion.id)
+    end
+
+    test "delete_ingestion/1 deletes the ingestion" do
+      ingestion = ingestion_fixture()
+      assert {:ok, %Ingestion{}} = Customer.delete_ingestion(ingestion)
+      assert_raise Ecto.NoResultsError, fn -> Customer.get_ingestion!(ingestion.id) end
+    end
+
+    test "change_ingestion/1 returns a ingestion changeset" do
+      ingestion = ingestion_fixture()
+      assert %Ecto.Changeset{} = Customer.change_ingestion(ingestion)
+    end
+  end
 end
