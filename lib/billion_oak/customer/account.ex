@@ -1,6 +1,6 @@
 defmodule BillionOak.Customer.Account do
   use BillionOak.Schema, id_prefix: "acct"
-  alias BillionOak.Customer.{Company, Organization}
+  alias BillionOak.Customer.{Company, Organization, Account}
 
   schema "customer_accounts" do
     field :is_root, :boolean, default: false
@@ -20,6 +20,8 @@ defmodule BillionOak.Customer.Account do
 
     belongs_to :company, Company
     belongs_to :organization, Organization
+    belongs_to :enroller, Account
+    belongs_to :sponsor, Account
   end
 
   @doc false
@@ -27,6 +29,6 @@ defmodule BillionOak.Customer.Account do
     account
     |> changeset()
     |> cast(attrs, castable_fields())
-    |> validate_required([:number, :sponsor_number, :enroller_number, :status, :name, :company_id, :organization_id])
+    |> validate_required([:number, :status, :name, :company_id, :organization_id])
   end
 end

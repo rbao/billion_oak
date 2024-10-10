@@ -8,8 +8,10 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
       add :company_id, :string, null: false
       add :organization_id, :string, null: false
       add :number, :string, null: false
-      add :enroller_number, :string, null: false
-      add :sponsor_number, :string, null: false
+      add :enroller_number, :string
+      add :enroller_id, :string
+      add :sponsor_number, :string
+      add :sponsor_id, :string
       add :status, :string, null: false
       add :country_code, :string
       add :name, :string, null: false
