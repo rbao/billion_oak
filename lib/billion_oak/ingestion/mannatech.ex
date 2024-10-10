@@ -1,29 +1,22 @@
 defmodule BillionOak.Ingestion.Mannatech do
-  alias BillionOak.Customer
+  alias BillionOak.{Customer, Filestore}
 
   def ingest_accounts(basename) do
-    stream = stream_content(basename)
-
-    stream
+    basename
+    |> s3_key()
+    |> Filestore.stream_s3_file()
     |> CSV.decode(headers: true, separator: ?\t)
-    |> Stream.chunk_every(500)
     |> Stream.map(&account_params/1)
-    |> Stream.chunk_every(500)
-    |> Stream.each(fn params_chunk ->
-      Customer.create_or_update_accounts(params_chunk)
-    end)
+    |> Stream.each(fn params -> IO.inspect(params) end)
+    # |> Stream.chunk_every(500)
+    # |> Stream.each(fn params_chunk ->
+    #   Customer.create_or_update_accounts(params_chunk)
+    # end)
     |> Stream.run()
   end
 
-  defp stream_content(basename) do
-    bucket = System.fetch_env!("AWS_S3_BUCKET")
-    key = "ingestion/mannatech/mtku/#{basename}"
-
-    ExAws.S3.download_file(bucket, key, :memory, chunk_size: 100)
-    |> ExAws.stream!()
-  end
-
-  defp account_status("ACTIVE"), do: :active
+  defp account_status("RECENT"), do: :active
+  defp account_status("FORMER"), do: :inactive
   defp account_status("INACTIVE"), do: :inactive
   defp account_status("TERMINATED"), do: :terminated
 
@@ -47,4 +40,6 @@ defmodule BillionOak.Ingestion.Mannatech do
       enrolled_at: enrolled_at(row["ENROLLMENTDATE"])
     }
   end
+
+  defp s3_key(basename), do: "ingestion/mannatech/mtku/#{basename}"
 end
