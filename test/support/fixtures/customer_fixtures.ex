@@ -53,10 +53,12 @@ defmodule BillionOak.CustomerFixtures do
         enrolled_at: ~U[2024-10-08 01:05:00Z],
         name: "some name",
         number: "some number",
+        sponsor_number: "some sponsor_number",
+        enroller_number: "some enroller_number",
         phone1: "some phone1",
         phone2: "some phone2",
         state: "some state",
-        status: "some status"
+        status: :active
       })
       |> BillionOak.Customer.create_account()
 

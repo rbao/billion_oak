@@ -159,10 +159,12 @@ defmodule BillionOak.CustomerTest do
       organization = organization_fixture()
 
       valid_attrs = %{
+        enroller_number: "some enroller_number",
+        sponsor_number: "some sponsor_number",
         organization_id: organization.id,
         company_id: organization.company_id,
         name: "some name",
-        status: "some status",
+        status: :active,
         state: "some state",
         number: "some number",
         country_code: "some country_code",
@@ -174,7 +176,7 @@ defmodule BillionOak.CustomerTest do
 
       assert {:ok, %Account{} = account} = Customer.create_account(valid_attrs)
       assert account.name == "some name"
-      assert account.status == "some status"
+      assert account.status == :active
       assert account.state == "some state"
       assert account.number == "some number"
       assert account.country_code == "some country_code"
@@ -193,7 +195,7 @@ defmodule BillionOak.CustomerTest do
 
       update_attrs = %{
         name: "some updated name",
-        status: "some updated status",
+        status: :inactive,
         state: "some updated state",
         number: "some updated number",
         country_code: "some updated country_code",
@@ -205,7 +207,7 @@ defmodule BillionOak.CustomerTest do
 
       assert {:ok, %Account{} = account} = Customer.update_account(account, update_attrs)
       assert account.name == "some updated name"
-      assert account.status == "some updated status"
+      assert account.status == :inactive
       assert account.state == "some updated state"
       assert account.number == "some updated number"
       assert account.country_code == "some updated country_code"

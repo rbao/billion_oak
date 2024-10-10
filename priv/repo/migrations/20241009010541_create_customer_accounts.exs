@@ -4,9 +4,12 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
   def change do
     create table(:customer_accounts, primary_key: false) do
       add :id, :string, primary_key: true
+      add :is_root, :boolean, null: false
       add :company_id, :string, null: false
       add :organization_id, :string, null: false
       add :number, :string, null: false
+      add :enroller_number, :string, null: false
+      add :sponsor_number, :string, null: false
       add :status, :string, null: false
       add :country_code, :string
       add :name, :string, null: false
