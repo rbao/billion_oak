@@ -28,3 +28,6 @@ billion_oak-*.tar
 # Environment variables
 .env
 !.env.example
+
+# Ignore macOS files
+.DS_Store
