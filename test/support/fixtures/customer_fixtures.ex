@@ -30,6 +30,7 @@ defmodule BillionOak.CustomerFixtures do
       |> Enum.into(%{
         company_id: company.id,
         name: "some name",
+        root_account_number: "some root_account_number",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]
       })
       |> BillionOak.Customer.create_organization()
