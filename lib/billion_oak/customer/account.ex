@@ -4,7 +4,7 @@ defmodule BillionOak.Customer.Account do
 
   schema "customer_accounts" do
     field :name, :string
-    field :status, :string
+    field :status, Ecto.Enum, values: [:active, :inactive, :terminated]
     field :state, :string
     field :number, :string
     field :country_code, :string
