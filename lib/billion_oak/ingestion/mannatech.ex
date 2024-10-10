@@ -1,18 +1,19 @@
 defmodule BillionOak.Ingestion.Mannatech do
   alias BillionOak.{Customer, Filestore}
+  use OK.Pipe
 
   def ingest_accounts(basename) do
-    basename
-    |> s3_key()
-    |> Filestore.stream_s3_file()
-    |> CSV.decode(headers: true, separator: ?\t)
-    |> Stream.map(&account_params/1)
-    |> Stream.each(fn params -> IO.inspect(params) end)
+    {:ok, basename}
+    ~> s3_key()
+    ~>> Filestore.stream_s3_file()
+    ~> CSV.decode(headers: true, separator: ?\t)
+    ~> Stream.map(&account_params/1)
+    ~> Stream.each(fn params -> IO.inspect(params) end)
     # |> Stream.chunk_every(500)
     # |> Stream.each(fn params_chunk ->
     #   Customer.create_or_update_accounts(params_chunk)
     # end)
-    |> Stream.run()
+    ~> Stream.run()
   end
 
   defp account_status("RECENT"), do: :active
