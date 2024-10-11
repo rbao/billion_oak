@@ -82,7 +82,7 @@ defmodule BillionOak.CustomerFixtures do
         sha256: "some sha256",
         size_bytes: "some size_bytes",
         status: "some status",
-        url: "some url"
+        s3_key: "some s3_key"
       })
       |> BillionOak.Customer.create_ingestion()
 

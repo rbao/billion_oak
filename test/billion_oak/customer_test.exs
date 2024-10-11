@@ -244,7 +244,7 @@ defmodule BillionOak.CustomerTest do
     @invalid_attrs %{
       status: nil,
       format: nil,
-      url: nil,
+      s3_key: nil,
       schema: nil,
       sha256: nil,
       size_bytes: nil
@@ -268,7 +268,7 @@ defmodule BillionOak.CustomerTest do
         company_id: organization.company_id,
         status: "some status",
         format: "some format",
-        url: "some url",
+        s3_key: "some s3_key",
         schema: "some schema",
         sha256: "some sha256",
         size_bytes: "some size_bytes"
@@ -277,7 +277,7 @@ defmodule BillionOak.CustomerTest do
       assert {:ok, %Ingestion{} = ingestion} = Customer.create_ingestion(valid_attrs)
       assert ingestion.status == "some status"
       assert ingestion.format == "some format"
-      assert ingestion.url == "some url"
+      assert ingestion.s3_key == "some s3_key"
       assert ingestion.schema == "some schema"
       assert ingestion.sha256 == "some sha256"
       assert ingestion.size_bytes == "some size_bytes"
@@ -293,7 +293,7 @@ defmodule BillionOak.CustomerTest do
       update_attrs = %{
         status: "some updated status",
         format: "some updated format",
-        url: "some updated url",
+        s3_key: "some updated s3_key",
         schema: "some updated schema",
         sha256: "some updated sha256",
         size_bytes: "some updated size_bytes"
@@ -302,7 +302,7 @@ defmodule BillionOak.CustomerTest do
       assert {:ok, %Ingestion{} = ingestion} = Customer.update_ingestion(ingestion, update_attrs)
       assert ingestion.status == "some updated status"
       assert ingestion.format == "some updated format"
-      assert ingestion.url == "some updated url"
+      assert ingestion.s3_key == "some updated s3_key"
       assert ingestion.schema == "some updated schema"
       assert ingestion.sha256 == "some updated sha256"
       assert ingestion.size_bytes == "some updated size_bytes"

@@ -5,7 +5,7 @@ defmodule BillionOak.Customer.Ingestion do
   schema "customer_ingestions" do
     field :status, :string
     field :format, :string
-    field :url, :string
+    field :s3_key, :string
     field :schema, :string
     field :sha256, :string
     field :size_bytes, :string
@@ -23,7 +23,7 @@ defmodule BillionOak.Customer.Ingestion do
     |> cast(attrs, castable_fields())
     |> validate_required([
       :status,
-      :url,
+      :s3_key,
       :sha256,
       :size_bytes,
       :format,

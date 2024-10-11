@@ -7,7 +7,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerIngestions do
       add :company_id, :string, null: false
       add :organization_id, :string, null: false
       add :status, :string
-      add :url, :string
+      add :s3_key, :string
       add :sha256, :string
       add :size_bytes, :string
       add :format, :string
