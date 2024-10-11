@@ -35,7 +35,7 @@ defmodule BillionOak.Customer do
       ** (Ecto.NoResultsError)
 
   """
-  def get_company!(id), do: Repo.get!(Company, id)
+  def get_company!(alias), do: Repo.get_by!(Company, alias: alias)
 
   @doc """
   Creates a company.
