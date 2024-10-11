@@ -3,7 +3,7 @@ defmodule BillionOak.Customer.Ingestion do
   alias BillionOak.Customer.{Company, Organization}
 
   schema "customer_ingestions" do
-    field :status, :string
+    field :status, Ecto.Enum, values: [:running, :succeeded, :failed], default: :running
     field :format, :string
     field :s3_key, :string
     field :schema, :string

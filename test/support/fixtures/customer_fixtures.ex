@@ -30,6 +30,7 @@ defmodule BillionOak.CustomerFixtures do
       |> Enum.into(%{
         company_id: company.id,
         name: "some name",
+        alias: "some alias",
         root_account_number: "some root_account_number",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]
       })
@@ -81,7 +82,7 @@ defmodule BillionOak.CustomerFixtures do
         schema: "some schema",
         sha256: "some sha256",
         size_bytes: "some size_bytes",
-        status: "some status",
+        status: :running,
         s3_key: "some s3_key"
       })
       |> BillionOak.Customer.create_ingestion()

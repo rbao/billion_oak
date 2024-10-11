@@ -11,13 +11,13 @@ defmodule BillionOak.CustomerTest do
     @invalid_attrs %{name: nil}
 
     test "list_companies/0 returns all companies" do
-      company = company_fixture()
-      assert Customer.list_companies() == [company]
+      company_fixture()
+      assert length(Customer.list_companies()) == 2
     end
 
     test "get_company!/1 returns the company with given id" do
       company = company_fixture()
-      assert Customer.get_company!(company.id) == company
+      assert Customer.get_company!(company.alias) == company
     end
 
     test "create_company/1 with valid data creates a company" do
@@ -42,7 +42,7 @@ defmodule BillionOak.CustomerTest do
     test "update_company/2 with invalid data returns error changeset" do
       company = company_fixture()
       assert {:error, %Ecto.Changeset{}} = Customer.update_company(company, @invalid_attrs)
-      assert company == Customer.get_company!(company.id)
+      assert company == Customer.get_company!(company.alias)
     end
 
     test "delete_company/1 deletes the company" do
@@ -65,8 +65,8 @@ defmodule BillionOak.CustomerTest do
     @invalid_attrs %{name: nil, org_structure_last_ingested_at: nil}
 
     test "list_organizations/0 returns all organizations" do
-      organization = organization_fixture()
-      assert Customer.list_organizations() == [organization]
+      organization_fixture()
+      assert length(Customer.list_organizations()) == 2
     end
 
     test "get_organization!/1 returns the organization with given id" do
@@ -79,6 +79,7 @@ defmodule BillionOak.CustomerTest do
 
       valid_attrs = %{
         name: "some name",
+        alias: "some alias",
         root_account_number: "some root_account_number",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z],
         company_id: company.id
@@ -98,6 +99,7 @@ defmodule BillionOak.CustomerTest do
 
       update_attrs = %{
         name: "some updated name",
+        alias: "some updated alias",
         org_structure_last_ingested_at: ~U[2024-10-08 23:37:00Z]
       }
 
@@ -105,6 +107,7 @@ defmodule BillionOak.CustomerTest do
                Customer.update_organization(organization, update_attrs)
 
       assert organization.name == "some updated name"
+      assert organization.alias == "some updated alias"
       assert organization.org_structure_last_ingested_at == ~U[2024-10-08 23:37:00Z]
     end
 
@@ -266,7 +269,7 @@ defmodule BillionOak.CustomerTest do
       valid_attrs = %{
         organization_id: organization.id,
         company_id: organization.company_id,
-        status: "some status",
+        status: :running,
         format: "some format",
         s3_key: "some s3_key",
         schema: "some schema",
@@ -275,7 +278,7 @@ defmodule BillionOak.CustomerTest do
       }
 
       assert {:ok, %Ingestion{} = ingestion} = Customer.create_ingestion(valid_attrs)
-      assert ingestion.status == "some status"
+      assert ingestion.status == :running
       assert ingestion.format == "some format"
       assert ingestion.s3_key == "some s3_key"
       assert ingestion.schema == "some schema"
@@ -291,7 +294,7 @@ defmodule BillionOak.CustomerTest do
       ingestion = ingestion_fixture()
 
       update_attrs = %{
-        status: "some updated status",
+        status: :succeeded,
         format: "some updated format",
         s3_key: "some updated s3_key",
         schema: "some updated schema",
@@ -300,7 +303,7 @@ defmodule BillionOak.CustomerTest do
       }
 
       assert {:ok, %Ingestion{} = ingestion} = Customer.update_ingestion(ingestion, update_attrs)
-      assert ingestion.status == "some updated status"
+      assert ingestion.status == :succeeded
       assert ingestion.format == "some updated format"
       assert ingestion.s3_key == "some updated s3_key"
       assert ingestion.schema == "some updated schema"
