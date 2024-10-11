@@ -1,8 +1,8 @@
-defmodule BillionOak.Customer.Ingestion do
-  use BillionOak.Schema, id_prefix: "ing"
+defmodule BillionOak.Ingestion.Attempt do
+  use BillionOak.Schema, id_prefix: "inatp"
   alias BillionOak.Customer.{Company, Organization}
 
-  schema "customer_ingestions" do
+  schema "ingestion_attempts" do
     field :status, Ecto.Enum, values: [:running, :succeeded, :failed], default: :running
     field :format, :string
     field :s3_key, :string

@@ -1,20 +1,32 @@
 defmodule BillionOak.Ingestion.Mannatech do
-  alias BillionOak.{Customer, Filestore}
+  alias BillionOak.{Repo, Customer, Filestore}
+  alias BillionOak.Ingestion.Attempt
   use OK.Pipe
 
   def ingest_accounts(organization_alias, basename) do
     s3_key = s3_key(organization_alias, basename)
+    attempt = mark_started!(organization_alias, s3_key)
 
-    {:ok, s3_key}
-    ~>> Filestore.stream_s3_file()
-    ~> CSV.decode(headers: true, separator: ?\t)
-    ~> Stream.map(&account_params/1)
-    ~> Stream.each(fn params -> IO.inspect(params) end)
-    # |> Stream.chunk_every(500)
-    # |> Stream.each(fn params_chunk ->
-    #   Customer.create_or_update_accounts(params_chunk)
-    # end)
-    ~> Stream.run()
+    result =
+      {:ok, s3_key}
+      ~>> Filestore.stream_s3_file()
+      ~> CSV.decode(headers: true, separator: ?\t)
+      ~> Stream.map(&account_params/1)
+      ~> Stream.each(fn params -> IO.inspect(params) end)
+      |> Stream.chunk_every(500)
+      |> Stream.each(fn params_chunk ->
+        Customer.create_or_update_accounts(params_chunk)
+      end)
+      ~> Stream.run()
+
+    case result do
+      {:ok, _} = success ->
+        mark_succeeded!(attempt)
+        success
+      {:error, _} = error ->
+        mark_failed!(attempt)
+        error
+    end
   end
 
   defp account_status("RECENT"), do: :active
@@ -43,24 +55,33 @@ defmodule BillionOak.Ingestion.Mannatech do
     }
   end
 
-  defp s3_key(organization_alias, basename), do: "ingestion/#{organization_alias}/mtku/#{basename}"
+  defp s3_key(organization_alias, basename),
+    do: "ingestion/#{organization_alias}/mtku/#{basename}"
 
-  # Move Ingestion schema to Ingestion.Attempt
-  defp start_ingestion(organization_alias, s3_key) do
+  defp mark_started!(organization_alias, s3_key) do
     company = Customer.get_company!("mannatech")
     organization = Customer.get_organization!(organization_alias)
 
-    ingestion_params = %{
+    params = %{
       s3_key: s3_key,
       company_id: company.id,
       organization_id: organization.id,
-      format: "mtku",
+      format: "mtku"
     }
+    %Attempt{}
+    |> Attempt.changeset(params)
+    |> Repo.insert!()
+  end
 
-    with {:ok, _} <- Customer.create_ingestion(ingestion_params) do
-      Filestore.stream_s3_file(s3_key)
-    else
-      err -> err
-    end
+  defp mark_succeeded!(attempt) do
+    attempt
+    |> Attempt.changeset(%{status: :succeeded})
+    |> Repo.update!()
+  end
+
+  defp mark_failed!(attempt) do
+    attempt
+    |> Attempt.changeset(%{status: :failed})
+    |> Repo.update!()
   end
 end

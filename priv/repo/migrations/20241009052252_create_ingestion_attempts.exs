@@ -1,8 +1,8 @@
-defmodule BillionOak.Repo.Migrations.CreateCustomerIngestions do
+defmodule BillionOak.Repo.Migrations.CreateIngestionAttempts do
   use Ecto.Migration
 
   def change do
-    create table(:customer_ingestions, primary_key: false) do
+    create table(:ingestion_attempts, primary_key: false) do
       add :id, :string, primary_key: true
       add :company_id, :string, null: false
       add :organization_id, :string, null: false
@@ -16,7 +16,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerIngestions do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:customer_ingestions, :company_id)
-    create index(:customer_ingestions, :organization_id)
+    create index(:ingestion_attempts, :company_id)
+    create index(:ingestion_attempts, :organization_id)
   end
 end
