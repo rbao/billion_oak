@@ -2,9 +2,10 @@ defmodule BillionOak.Ingestion.Mannatech do
   alias BillionOak.{Customer, Filestore}
   use OK.Pipe
 
-  def ingest_accounts(basename) do
-    {:ok, basename}
-    ~> s3_key()
+  def ingest_accounts(organization_alias, basename) do
+    s3_key = s3_key(organization_alias, basename)
+
+    {:ok, s3_key}
     ~>> Filestore.stream_s3_file()
     ~> CSV.decode(headers: true, separator: ?\t)
     ~> Stream.map(&account_params/1)
@@ -42,5 +43,24 @@ defmodule BillionOak.Ingestion.Mannatech do
     }
   end
 
-  defp s3_key(basename), do: "ingestion/mannatech/mtku/#{basename}"
+  defp s3_key(organization_alias, basename), do: "ingestion/#{organization_alias}/mtku/#{basename}"
+
+  # Move Ingestion schema to Ingestion.Attempt
+  defp start_ingestion(organization_alias, s3_key) do
+    company = Customer.get_company!("mannatech")
+    organization = Customer.get_organization!(organization_alias)
+
+    ingestion_params = %{
+      s3_key: s3_key,
+      company_id: company.id,
+      organization_id: organization.id,
+      format: "mtku",
+    }
+
+    with {:ok, _} <- Customer.create_ingestion(ingestion_params) do
+      Filestore.stream_s3_file(s3_key)
+    else
+      err -> err
+    end
+  end
 end
