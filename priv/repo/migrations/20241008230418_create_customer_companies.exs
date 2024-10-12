@@ -7,7 +7,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerCompanies do
       add :alias, :string, null: false
       add :name, :string, null: false
 
-      timestamps(type: :utc_datetime)
+      timestamps()
     end
 
     create unique_index(:customer_companies, [:alias])

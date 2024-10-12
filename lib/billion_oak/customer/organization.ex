@@ -8,7 +8,7 @@ defmodule BillionOak.Customer.Organization do
     field :root_account_number, :string
     field :org_structure_last_ingested_at, :utc_datetime
 
-    timestamps(type: :utc_datetime)
+    timestamps()
 
     belongs_to :company, Company
   end

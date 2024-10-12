@@ -13,7 +13,7 @@ defmodule BillionOak.Repo.Migrations.CreateIngestionAttempts do
       add :format, :string
       add :schema, :string
 
-      timestamps(type: :utc_datetime)
+      timestamps()
     end
 
     create index(:ingestion_attempts, :company_id)

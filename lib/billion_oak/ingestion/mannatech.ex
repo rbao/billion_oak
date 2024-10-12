@@ -11,11 +11,11 @@ defmodule BillionOak.Ingestion.Mannatech do
       {:ok, s3_key}
       ~>> Filestore.stream_s3_file()
       ~> CSV.decode(headers: true, separator: ?\t)
-      ~> Stream.map(&account_params/1)
-      ~> Stream.each(fn params -> IO.inspect(params) end)
+      ~> Stream.map(&account_attrs/1)
+      ~> Stream.each(fn attrs -> IO.inspect(attrs) end)
       |> Stream.chunk_every(500)
-      |> Stream.each(fn params_chunk ->
-        Customer.create_or_update_accounts(params_chunk)
+      |> Stream.each(fn attrs_chunk ->
+        Customer.create_or_update_accounts(attrs_chunk)
       end)
       ~> Stream.run()
 
@@ -41,7 +41,7 @@ defmodule BillionOak.Ingestion.Mannatech do
     end
   end
 
-  defp account_params({:ok, row}) do
+  defp account_attrs({:ok, row}) do
     %{
       status: account_status(row["STATUS"]),
       number: row["CTLNO"],
@@ -62,14 +62,14 @@ defmodule BillionOak.Ingestion.Mannatech do
     company = Customer.get_company!("mannatech")
     organization = Customer.get_organization!(organization_alias)
 
-    params = %{
+    attrs = %{
       s3_key: s3_key,
       company_id: company.id,
       organization_id: organization.id,
       format: "mtku"
     }
     %Attempt{}
-    |> Attempt.changeset(params)
+    |> Attempt.changeset(attrs)
     |> Repo.insert!()
   end
 

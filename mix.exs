@@ -51,7 +51,9 @@ defmodule BillionOak.MixProject do
       {:hackney, "~> 1.20.1"}, # aws uses hackney
       {:csv, "~> 3.2"},
       {:timex, "~> 3.7.11"},
-      {:ok, "~> 2.2.0"}
+      {:ok, "~> 2.2.0"},
+      {:ex_machina, "~> 2.8.0", only: :test},
+      {:faker, "~> 0.18.0", only: :test}
     ]
   end
 

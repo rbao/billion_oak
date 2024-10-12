@@ -1,6 +1,6 @@
 defmodule BillionOak.CustomerTest do
   use BillionOak.DataCase
-
+  import BillionOak.Factory
   alias BillionOak.Customer
 
   describe "companies" do
@@ -192,6 +192,21 @@ defmodule BillionOak.CustomerTest do
 
     test "create_account/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Customer.create_account(@invalid_attrs)
+    end
+
+    @tag :focus
+    test "create_or_update_accounts/1" do
+      company = build(:company)
+      organization = insert(:organization, company_id: company.id)
+      n = 3
+
+      attrs_list =
+        for _ <- 1..n do
+          params_for(:account, company_id: company.id, organization_id: organization.id)
+        end
+
+      IO.inspect(attrs_list)
+      Customer.create_or_update_accounts(organization, attrs_list)
     end
 
     test "update_account/2 with valid data updates the account" do

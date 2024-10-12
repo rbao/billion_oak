@@ -19,12 +19,13 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
       add :phone2, :string
       add :city, :string
       add :state, :string
-      add :enrolled_at, :utc_datetime
+      add :enrolled_at, :utc_datetime_usec
 
-      timestamps(type: :utc_datetime)
+      timestamps()
     end
 
     create index(:customer_accounts, :company_id)
     create index(:customer_accounts, :organization_id)
+    create unique_index(:customer_accounts, [:company_id, :organization_id, :number])
   end
 end

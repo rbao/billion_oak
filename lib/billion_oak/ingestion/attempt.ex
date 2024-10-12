@@ -10,7 +10,7 @@ defmodule BillionOak.Ingestion.Attempt do
     field :sha256, :string
     field :size_bytes, :string
 
-    timestamps(type: :utc_datetime)
+    timestamps()
 
     belongs_to :company, Company
     belongs_to :organization, Organization

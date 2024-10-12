@@ -247,6 +247,25 @@ defmodule BillionOak.Customer do
     |> Repo.insert()
   end
 
+  def create_or_update_accounts(organization, attrs_list) do
+    changesets =
+      Enum.map(attrs_list, fn attrs ->
+        changeset = Account.changeset(%Account{}, attrs)
+
+        if attrs.number == organization.root_account_number do
+          Ecto.Changeset.change(changeset, is_root: true)
+        else
+          changeset
+        end
+      end)
+
+    IO.inspect(Account.upsert_all(changesets))
+  end
+
+  @spec update_account(
+          BillionOak.Customer.Account.t(),
+          :invalid | %{optional(:__struct__) => none(), optional(atom() | binary()) => any()}
+        ) :: any()
   @doc """
   Updates a account.
 

@@ -10,7 +10,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccountRecords do
       add :dedupe_id, :string, null: false
       add :content, :map, null: false
 
-      timestamps(type: :utc_datetime)
+      timestamps()
     end
 
     create index(:customer_account_records, :company_id)

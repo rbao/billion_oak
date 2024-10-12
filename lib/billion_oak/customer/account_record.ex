@@ -6,7 +6,7 @@ defmodule BillionOak.Customer.AccountRecord do
     field :dedupe_id, :string
     field :content, :map
 
-    timestamps(type: :utc_datetime)
+    timestamps()
 
     belongs_to :company, Company
     belongs_to :organization, Organization

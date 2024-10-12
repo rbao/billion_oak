@@ -8,9 +8,9 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerOrganizations do
       add :name, :string, null: false
       add :alias, :string, null: false
       add :root_account_number, :string, null: false
-      add :org_structure_last_ingested_at, :utc_datetime
+      add :org_structure_last_ingested_at, :utc_datetime_usec
 
-      timestamps(type: :utc_datetime)
+      timestamps()
     end
 
     create index(:customer_organizations, :company_id)

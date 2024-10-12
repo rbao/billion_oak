@@ -5,7 +5,7 @@ defmodule BillionOak.Customer.Company do
     field :name, :string
     field :alias, :string
 
-    timestamps(type: :utc_datetime)
+    timestamps()
   end
 
   @doc false
