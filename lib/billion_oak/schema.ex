@@ -10,7 +10,7 @@ defmodule BillionOak.Schema do
 
       @primary_key {:id, :string, autogenerate: false}
       @foreign_key_type :string
-      @timestamps_opts [type: :utc_datetime_usec]
+      @timestamps_opts [type: :utc_datetime]
 
       def generate_id, do: "#{unquote(id_prefix)}_" <> XCUID.generate()
       def id_prefix, do: unquote(id_prefix)

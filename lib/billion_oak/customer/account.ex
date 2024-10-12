@@ -15,7 +15,7 @@ defmodule BillionOak.Customer.Account do
     field :phone1, :string
     field :phone2, :string
     field :city, :string
-    field :enrolled_at, :utc_datetime_usec
+    field :enrolled_at, :utc_datetime
 
     timestamps()
 
@@ -46,7 +46,7 @@ defmodule BillionOak.Customer.Account do
       end)
 
     if Enum.empty?(error_changesets) do
-      now = DateTime.utc_now()
+      now = DateTime.utc_now(:second)
 
       entries =
         Enum.map(changesets, fn changeset ->
