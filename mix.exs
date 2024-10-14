@@ -48,7 +48,8 @@ defmodule BillionOak.MixProject do
       {:xcuid, "~> 0.1.1"},
       {:ex_aws, "~> 2.5.6"},
       {:ex_aws_s3, "~> 2.5.4"},
-      {:hackney, "~> 1.20.1"}, # aws uses hackney
+      # aws uses hackney
+      {:hackney, "~> 1.20.1"},
       {:csv, "~> 3.2"},
       {:timex, "~> 3.7.11"},
       {:ok, "~> 2.2.0"},

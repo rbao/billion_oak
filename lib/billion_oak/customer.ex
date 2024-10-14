@@ -266,6 +266,7 @@ defmodule BillionOak.Customer do
             company_id: organization.company_id,
             organization_id: organization.id
           })
+
         changeset = Account.changeset(%Account{}, attrs)
 
         if attrs.number == organization.root_account_number do

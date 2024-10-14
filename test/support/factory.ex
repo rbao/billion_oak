@@ -6,9 +6,9 @@ defmodule BillionOak.Factory do
     %Account{
       id: Account.generate_id(),
       name: Faker.Person.name(),
-      number: sequence(:number, &"#{&1}", start_at: 100000),
+      number: sequence(:number, &"#{&1}", start_at: 100_000),
       country_code: Faker.Address.country(),
-      status: :active,
+      status: :active
     }
   end
 
@@ -26,7 +26,7 @@ defmodule BillionOak.Factory do
       company_id: Company.generate_id(),
       name: Faker.Company.name(),
       handle: Faker.Lorem.word(),
-      root_account_number: sequence(:root_account_number, &"#{&1}", start_at: 100000)
+      root_account_number: sequence(:root_account_number, &"#{&1}", start_at: 100_000)
     }
   end
 end
