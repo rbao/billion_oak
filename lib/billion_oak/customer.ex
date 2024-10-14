@@ -4,6 +4,7 @@ defmodule BillionOak.Customer do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Changeset
   alias BillionOak.Repo
 
   alias BillionOak.Customer.Company
@@ -24,18 +25,23 @@ defmodule BillionOak.Customer do
   @doc """
   Gets a single company.
 
-  Raises `Ecto.NoResultsError` if the Company does not exist.
-
   ## Examples
 
-      iex> get_company!(123)
-      %Company{}
+      iex> get_company("some handle")
+      {:ok, %Company{}}
 
-      iex> get_company!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_company("some handle")
+      {:error, :not_found}
 
   """
-  def get_company!(handle), do: Repo.get_by!(Company, handle: handle)
+  def get_company(handle) do
+    result = Repo.get_by(Company, handle: handle)
+
+    case result do
+      nil -> {:error, :not_found}
+      company -> {:ok, company}
+    end
+  end
 
   @doc """
   Creates a company.
@@ -120,18 +126,32 @@ defmodule BillionOak.Customer do
   @doc """
   Gets a single organization.
 
-  Raises `Ecto.NoResultsError` if the Organization does not exist.
-
   ## Examples
 
-      iex> get_organization!(123)
-      %Organization{}
+      iex> get_organization(123)
+      {:ok, %Organization{}}
 
-      iex> get_organization!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_organization(456)
+      {:error, :not_found}
 
   """
-  def get_organization!(id), do: Repo.get!(Organization, id)
+  def get_organization(id) do
+    result = Repo.get(Organization, id)
+
+    case result do
+      nil -> {:error, :not_found}
+      organization -> {:ok, organization}
+    end
+  end
+
+  def get_organization(company_id, handle) do
+    result = Repo.get_by(Organization, company_id: company_id, handle: handle)
+
+    case result do
+      nil -> {:error, :not_found}
+      organization -> {:ok, organization}
+    end
+  end
 
   @doc """
   Creates a organization.
@@ -183,19 +203,6 @@ defmodule BillionOak.Customer do
   """
   def delete_organization(%Organization{} = organization) do
     Repo.delete(organization)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking organization changes.
-
-  ## Examples
-
-      iex> change_organization(organization)
-      %Ecto.Changeset{data: %Organization{}}
-
-  """
-  def change_organization(%Organization{} = organization, attrs \\ %{}) do
-    Organization.changeset(organization, attrs)
   end
 
   alias BillionOak.Customer.Account
@@ -254,10 +261,15 @@ defmodule BillionOak.Customer do
   def create_or_update_accounts(organization, attrs_list) do
     changesets =
       Enum.map(attrs_list, fn attrs ->
+        attrs =
+          Map.merge(attrs, %{
+            company_id: organization.company_id,
+            organization_id: organization.id
+          })
         changeset = Account.changeset(%Account{}, attrs)
 
         if attrs.number == organization.root_account_number do
-          Ecto.Changeset.change(changeset, is_root: true)
+          Changeset.change(changeset, is_root: true)
         else
           changeset
         end

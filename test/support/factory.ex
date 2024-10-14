@@ -23,6 +23,7 @@ defmodule BillionOak.Factory do
   def organization_factory do
     %Organization{
       id: Organization.generate_id(),
+      company_id: Company.generate_id(),
       name: Faker.Company.name(),
       handle: Faker.Lorem.word(),
       root_account_number: sequence(:root_account_number, &"#{&1}", start_at: 100000)

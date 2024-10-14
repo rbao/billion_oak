@@ -24,10 +24,7 @@ defmodule BillionOak.Ingestion.Attempt do
     |> validate_required([
       :status,
       :s3_key,
-      :sha256,
-      :size_bytes,
       :format,
-      :schema,
       :company_id,
       :organization_id
     ])

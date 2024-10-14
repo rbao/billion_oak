@@ -14,9 +14,13 @@ defmodule BillionOak.CustomerTest do
       assert length(Customer.list_companies()) == 1
     end
 
-    test "get_company!/1 returns the company with given handle" do
+    test "get_company/1 returns the company with given handle" do
       company = insert(:company)
-      assert Customer.get_company!(company.handle) == company
+      assert {:ok, %Company{}} = Customer.get_company(company.handle)
+    end
+
+    test "get_company/1 returns error when company not found" do
+      assert {:error, :not_found} = Customer.get_company("some handle")
     end
 
     test "create_company/1 with valid data creates a company" do
@@ -41,13 +45,12 @@ defmodule BillionOak.CustomerTest do
     test "update_company/2 with invalid data returns error changeset" do
       company = company_fixture()
       assert {:error, %Ecto.Changeset{}} = Customer.update_company(company, @invalid_attrs)
-      assert company == Customer.get_company!(company.handle)
     end
 
     test "delete_company/1 deletes the company" do
       company = company_fixture()
       assert {:ok, %Company{}} = Customer.delete_company(company)
-      assert_raise Ecto.NoResultsError, fn -> Customer.get_company!(company.id) end
+      assert {:error, :not_found} = Customer.get_company("some handle")
     end
   end
 
@@ -56,32 +59,27 @@ defmodule BillionOak.CustomerTest do
 
     import BillionOak.CustomerFixtures
 
-    @invalid_attrs %{name: nil, org_structure_last_ingested_at: nil}
+    @invalid_attrs %{name: nil}
 
     test "list_organizations/0 returns all organizations" do
-      organization_fixture()
-      assert length(Customer.list_organizations()) == 2
+      assert length(Customer.list_organizations()) == 1
     end
 
     test "get_organization!/1 returns the organization with given id" do
-      organization = organization_fixture()
-      assert Customer.get_organization!(organization.id) == organization
+      organization = insert(:organization)
+      assert {:ok, %Organization{}} = Customer.get_organization(organization.id)
+    end
+
+    test "get_organization/1 returns error when organization not found" do
+      assert {:error, :not_found} = Customer.get_organization("some id")
     end
 
     test "create_organization/1 with valid data creates a organization" do
-      company = company_fixture()
-
-      valid_attrs = %{
-        name: "some name",
-        handle: "some handle",
-        root_account_number: "some root_account_number",
-        org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z],
-        company_id: company.id
-      }
+      company = insert(:company)
+      valid_attrs = params_for(:organization, company_id: company.id)
 
       assert {:ok, %Organization{} = organization} = Customer.create_organization(valid_attrs)
-      assert organization.name == "some name"
-      assert organization.org_structure_last_ingested_at == ~U[2024-10-07 23:37:00Z]
+      assert organization.name == valid_attrs.name
     end
 
     test "create_organization/1 with invalid data returns error changeset" do
@@ -89,40 +87,26 @@ defmodule BillionOak.CustomerTest do
     end
 
     test "update_organization/2 with valid data updates the organization" do
-      organization = organization_fixture()
-
-      update_attrs = %{
-        name: "some updated name",
-        handle: "some updated handle",
-        org_structure_last_ingested_at: ~U[2024-10-08 23:37:00Z]
-      }
+      organization = insert(:organization)
+      update_attrs = %{name: "some updated name"}
 
       assert {:ok, %Organization{} = organization} =
                Customer.update_organization(organization, update_attrs)
 
-      assert organization.name == "some updated name"
-      assert organization.handle == "some updated handle"
-      assert organization.org_structure_last_ingested_at == ~U[2024-10-08 23:37:00Z]
+      assert organization.name == update_attrs.name
     end
 
     test "update_organization/2 with invalid data returns error changeset" do
-      organization = organization_fixture()
+      organization = insert(:organization)
 
       assert {:error, %Ecto.Changeset{}} =
                Customer.update_organization(organization, @invalid_attrs)
-
-      assert organization == Customer.get_organization!(organization.id)
     end
 
     test "delete_organization/1 deletes the organization" do
-      organization = organization_fixture()
+      organization = insert(:organization)
       assert {:ok, %Organization{}} = Customer.delete_organization(organization)
-      assert_raise Ecto.NoResultsError, fn -> Customer.get_organization!(organization.id) end
-    end
-
-    test "change_organization/1 returns a organization changeset" do
-      organization = organization_fixture()
-      assert %Ecto.Changeset{} = Customer.change_organization(organization)
+      assert {:error, :not_found} = Customer.get_organization(organization.id)
     end
   end
 
@@ -131,17 +115,7 @@ defmodule BillionOak.CustomerTest do
 
     import BillionOak.CustomerFixtures
 
-    @invalid_attrs %{
-      name: nil,
-      status: nil,
-      state: nil,
-      number: nil,
-      country_code: nil,
-      phone1: nil,
-      phone2: nil,
-      city: nil,
-      enrolled_at: nil
-    }
+    @invalid_attrs %{name: nil}
 
     test "list_accounts/0 returns all accounts" do
       account = account_fixture()

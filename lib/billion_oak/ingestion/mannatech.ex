@@ -3,9 +3,10 @@ defmodule BillionOak.Ingestion.Mannatech do
   alias BillionOak.Ingestion.Attempt
   use OK.Pipe
 
-  def ingest_accounts(organization_alias, basename) do
-    organization = Customer.get_organization!(organization_alias)
-    s3_key = s3_key(organization_alias, basename)
+  def ingest_accounts(org_handle, basename) do
+    {:ok, company} = Customer.get_company("mannatech")
+    {:ok, organization} = Customer.get_organization(company.id, org_handle)
+    s3_key = s3_key(company.handle, org_handle, basename)
     attempt = mark_started!(organization, s3_key)
 
     result =
@@ -13,10 +14,9 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~>> Filestore.stream_s3_file()
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)
-      ~> Stream.each(fn attrs -> IO.inspect(attrs) end)
       ~> Stream.chunk_every(500)
       ~> Stream.each(fn attrs_chunk ->
-        Customer.create_or_update_accounts(organization,attrs_chunk)
+        {:ok, _} = Customer.create_or_update_accounts(organization, attrs_chunk)
       end)
       ~> Stream.run()
 
@@ -52,12 +52,14 @@ defmodule BillionOak.Ingestion.Mannatech do
       country_code: row["COUNTRY"],
       phone1: row["PHONENO"],
       phone2: row["EVPHONENO"],
-      enrolled_at: enrolled_at(row["ENROLLMENTDATE"])
+      enrolled_at: enrolled_at(row["ENROLLMENTDATE"]),
+      sponsor_number: row["SPONSORCTLNO"],
+      enroller_number: row["ENROLLCTLNO"]
     }
   end
 
-  defp s3_key(organization_alias, basename),
-    do: "ingestion/#{organization_alias}/mtku/#{basename}"
+  defp s3_key(company_handle, org_handle, basename),
+    do: "ingestion/#{company_handle}/#{org_handle}/mtku/#{basename}"
 
   defp mark_started!(organization, s3_key) do
     attrs = %{
