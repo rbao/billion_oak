@@ -1,7 +1,8 @@
 defmodule BillionOak.Ingestion.Mannatech do
+  require Logger
+  use OK.Pipe
   alias BillionOak.{Repo, Customer, Filestore}
   alias BillionOak.Ingestion.Attempt
-  use OK.Pipe
 
   def ingest_accounts(org_handle, basename) do
     {:ok, company} = Customer.get_company("mannatech")
@@ -15,18 +16,36 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)
       ~> Stream.chunk_every(500)
-      ~> Stream.each(fn attrs_chunk ->
-        {:ok, _} = Customer.create_or_update_accounts(organization, attrs_chunk)
+      ~> Stream.map(fn attrs_chunk ->
+        Customer.create_or_update_accounts(organization, attrs_chunk)
       end)
-      ~> Stream.run()
+      ~> Stream.transform(nil, fn
+        _, {:halt, n} ->
+          {:halt, n}
+
+        result, _ ->
+          case result do
+            {:ok, _} -> {[result], result}
+            {:error, _} -> {[result], {:halt, result}}
+          end
+      end)
+      ~>> Enum.reduce_while({:ok, 0}, fn
+        {:error, reason}, {:ok, n} -> {:halt, {:error, n, reason}}
+        {:ok, n}, {:ok, acc} -> {:cont, {:ok, acc + n}}
+      end)
 
     case result do
-      {:ok, _} = success ->
+      {:ok, _} ->
         mark_succeeded!(attempt)
-        success
-      {:error, _} = error ->
+        result
+
+      {:error, n, details} ->
+        Logger.warning("Ingestion partially succeeded for #{n} records, failed for the rest.")
+        {index, error} = Enum.at(details, 0)
+        Logger.warning("First error occurred at index #{index}: #{inspect(error)}")
+
         mark_failed!(attempt)
-        error
+        result
     end
   end
 
@@ -68,6 +87,7 @@ defmodule BillionOak.Ingestion.Mannatech do
       organization_id: organization.id,
       format: "mtku"
     }
+
     %Attempt{}
     |> Attempt.changeset(attrs)
     |> Repo.insert!()
@@ -84,4 +104,6 @@ defmodule BillionOak.Ingestion.Mannatech do
     |> Attempt.changeset(%{status: :failed})
     |> Repo.update!()
   end
+
+  def unwrap({_, value}), do: value
 end
