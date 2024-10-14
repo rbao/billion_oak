@@ -12,7 +12,7 @@ defmodule BillionOak.CustomerFixtures do
       attrs
       |> Enum.into(%{
         name: "some name",
-        alias: "some alias"
+        handle: "some handle"
       })
       |> BillionOak.Customer.create_company()
 
@@ -30,7 +30,7 @@ defmodule BillionOak.CustomerFixtures do
       |> Enum.into(%{
         company_id: company.id,
         name: "some name",
-        alias: "some alias",
+        handle: "some handle",
         root_account_number: "some root_account_number",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]
       })

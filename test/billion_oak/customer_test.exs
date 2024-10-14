@@ -14,13 +14,13 @@ defmodule BillionOak.CustomerTest do
       assert length(Customer.list_companies()) == 1
     end
 
-    test "get_company!/1 returns the company with given alias" do
+    test "get_company!/1 returns the company with given handle" do
       company = insert(:company)
-      assert Customer.get_company!(company.alias) == company
+      assert Customer.get_company!(company.handle) == company
     end
 
     test "create_company/1 with valid data creates a company" do
-      valid_attrs = %{name: "some name", alias: "some alias"}
+      valid_attrs = %{name: "some name", handle: "some handle"}
 
       assert {:ok, %Company{} = company} = Customer.create_company(valid_attrs)
       assert company.name == "some name"
@@ -41,7 +41,7 @@ defmodule BillionOak.CustomerTest do
     test "update_company/2 with invalid data returns error changeset" do
       company = company_fixture()
       assert {:error, %Ecto.Changeset{}} = Customer.update_company(company, @invalid_attrs)
-      assert company == Customer.get_company!(company.alias)
+      assert company == Customer.get_company!(company.handle)
     end
 
     test "delete_company/1 deletes the company" do
@@ -73,7 +73,7 @@ defmodule BillionOak.CustomerTest do
 
       valid_attrs = %{
         name: "some name",
-        alias: "some alias",
+        handle: "some handle",
         root_account_number: "some root_account_number",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z],
         company_id: company.id
@@ -93,7 +93,7 @@ defmodule BillionOak.CustomerTest do
 
       update_attrs = %{
         name: "some updated name",
-        alias: "some updated alias",
+        handle: "some updated handle",
         org_structure_last_ingested_at: ~U[2024-10-08 23:37:00Z]
       }
 
@@ -101,7 +101,7 @@ defmodule BillionOak.CustomerTest do
                Customer.update_organization(organization, update_attrs)
 
       assert organization.name == "some updated name"
-      assert organization.alias == "some updated alias"
+      assert organization.handle == "some updated handle"
       assert organization.org_structure_last_ingested_at == ~U[2024-10-08 23:37:00Z]
     end
 

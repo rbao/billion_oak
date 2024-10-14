@@ -12,12 +12,12 @@
 
 alias BillionOak.Customer
 
-{:ok, mannatech} = Customer.create_company(%{alias: "mannatech", name: "Mannatech"})
+{:ok, mannatech} = Customer.create_company(%{handle: "mannatech", name: "Mannatech"})
 
 {:ok, _} =
   Customer.create_organization(%{
     company_id: mannatech.id,
-    alias: "happyteam",
+    handle: "happyteam",
     name: "Happy Team",
     root_account_number: "1168402"
   })
