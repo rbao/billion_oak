@@ -213,6 +213,10 @@ defmodule BillionOak.Customer do
     Repo.all(Account)
   end
 
+  def count_accounts do
+    Repo.aggregate(Account, :count)
+  end
+
   @doc """
   Gets a single account.
 
@@ -259,7 +263,7 @@ defmodule BillionOak.Customer do
         end
       end)
 
-    IO.inspect(Account.upsert_all(changesets))
+    Account.upsert_all(changesets)
   end
 
   @spec update_account(

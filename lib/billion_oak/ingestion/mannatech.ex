@@ -4,8 +4,9 @@ defmodule BillionOak.Ingestion.Mannatech do
   use OK.Pipe
 
   def ingest_accounts(organization_alias, basename) do
+    organization = Customer.get_organization!(organization_alias)
     s3_key = s3_key(organization_alias, basename)
-    attempt = mark_started!(organization_alias, s3_key)
+    attempt = mark_started!(organization, s3_key)
 
     result =
       {:ok, s3_key}
@@ -13,9 +14,9 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)
       ~> Stream.each(fn attrs -> IO.inspect(attrs) end)
-      |> Stream.chunk_every(500)
-      |> Stream.each(fn attrs_chunk ->
-        Customer.create_or_update_accounts(attrs_chunk)
+      ~> Stream.chunk_every(500)
+      ~> Stream.each(fn attrs_chunk ->
+        Customer.create_or_update_accounts(organization,attrs_chunk)
       end)
       ~> Stream.run()
 
@@ -58,13 +59,10 @@ defmodule BillionOak.Ingestion.Mannatech do
   defp s3_key(organization_alias, basename),
     do: "ingestion/#{organization_alias}/mtku/#{basename}"
 
-  defp mark_started!(organization_alias, s3_key) do
-    company = Customer.get_company!("mannatech")
-    organization = Customer.get_organization!(organization_alias)
-
+  defp mark_started!(organization, s3_key) do
     attrs = %{
       s3_key: s3_key,
-      company_id: company.id,
+      company_id: organization.company_id,
       organization_id: organization.id,
       format: "mtku"
     }

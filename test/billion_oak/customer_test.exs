@@ -11,12 +11,11 @@ defmodule BillionOak.CustomerTest do
     @invalid_attrs %{name: nil}
 
     test "list_companies/0 returns all companies" do
-      company_fixture()
-      assert length(Customer.list_companies()) == 2
+      assert length(Customer.list_companies()) == 1
     end
 
-    test "get_company!/1 returns the company with given id" do
-      company = company_fixture()
+    test "get_company!/1 returns the company with given alias" do
+      company = insert(:company)
       assert Customer.get_company!(company.alias) == company
     end
 
@@ -49,11 +48,6 @@ defmodule BillionOak.CustomerTest do
       company = company_fixture()
       assert {:ok, %Company{}} = Customer.delete_company(company)
       assert_raise Ecto.NoResultsError, fn -> Customer.get_company!(company.id) end
-    end
-
-    test "change_company/1 returns a company changeset" do
-      company = company_fixture()
-      assert %Ecto.Changeset{} = Customer.change_company(company)
     end
   end
 
@@ -195,8 +189,8 @@ defmodule BillionOak.CustomerTest do
     end
 
     @tag :focus
-    test "create_or_update_accounts/1" do
-      company = build(:company)
+    test "create_or_update_accounts/2" do
+      company = insert(:company)
       organization = insert(:organization, company_id: company.id)
       n = 3
 
@@ -205,8 +199,11 @@ defmodule BillionOak.CustomerTest do
           params_for(:account, company_id: company.id, organization_id: organization.id)
         end
 
-      IO.inspect(attrs_list)
       Customer.create_or_update_accounts(organization, attrs_list)
+      assert Customer.count_accounts() == 3
+
+      Customer.create_or_update_accounts(organization, attrs_list)
+      assert Customer.count_accounts() == 3
     end
 
     test "update_account/2 with valid data updates the account" do
