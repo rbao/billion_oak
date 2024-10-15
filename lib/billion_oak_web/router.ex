@@ -9,6 +9,8 @@ defmodule BillionOakWeb.Router do
     pipe_through :api
   end
 
+  forward "/graphql", Absinthe.Plug, schema: BillionOakWeb.Schema
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:billion_oak, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
@@ -23,6 +25,7 @@ defmodule BillionOakWeb.Router do
 
       live_dashboard "/dashboard", metrics: BillionOakWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+      forward "/graphiql", Absinthe.Plug.GraphiQL, schema: BillionOakWeb.Schema
     end
   end
 end

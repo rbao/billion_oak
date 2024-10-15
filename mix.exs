@@ -55,6 +55,7 @@ defmodule BillionOak.MixProject do
       {:csv, "~> 3.2"},
       {:timex, "~> 3.7.11"},
       {:ok, "~> 2.2.0"},
+      {:absinthe_phoenix, "~> 2.0.3"},
       {:ex_machina, "~> 2.8.0", only: :test},
       {:faker, "~> 0.18.0", only: :test}
     ]
