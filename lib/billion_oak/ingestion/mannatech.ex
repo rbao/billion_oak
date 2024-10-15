@@ -13,6 +13,7 @@ defmodule BillionOak.Ingestion.Mannatech do
     result =
       {:ok, s3_key}
       ~>> Filestore.stream_s3_file()
+      ~> Stream.map(&:unicode.characters_to_binary(&1, :latin1, :utf8))
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)
       ~> Stream.chunk_every(500)
@@ -62,6 +63,45 @@ defmodule BillionOak.Ingestion.Mannatech do
   end
 
   defp account_attrs({:ok, row}) do
+    custom_data_keys = [
+      "ORGENROLLMENTLEVEL",
+      "CURRENTENROLLMENTLEVEL",
+      "GRACEPERIODFLAG",
+      "GRACEPERIODBP",
+      "HIGHLDRLVL",
+      "RENEWALBP",
+      "ASSOCIATETYPE",
+      "TERMINATED",
+      "BPPBE",
+      "MRELQV",
+      "MRELDATE"
+    ]
+
+    custom_data = Map.take(row, custom_data_keys)
+
+    content =
+      Map.drop(
+        row,
+        custom_data_keys ++
+          [
+            "STATUS",
+            "CTLNO",
+            "NAME",
+            "CITY",
+            "STATE",
+            "COUNTRY",
+            "PHONENO",
+            "EVPHONENO",
+            "ENROLLMENTDATE",
+            "SPONSORCTLNO",
+            "ENROLLCTLNO",
+            "SPONSORNAME",
+            "SPONSORCOUNTRY",
+            "ENROLLNAME",
+            "ENROLLCOUNTRY"
+          ]
+      )
+
     %{
       account: %{
         status: account_status(row["STATUS"]),
@@ -74,11 +114,12 @@ defmodule BillionOak.Ingestion.Mannatech do
         phone2: row["EVPHONENO"],
         enrolled_at: enrolled_at(row["ENROLLMENTDATE"]),
         sponsor_rid: row["SPONSORCTLNO"],
-        enroller_rid: row["ENROLLCTLNO"]
+        enroller_rid: row["ENROLLCTLNO"],
+        custom_data: custom_data
       },
       record: %{
         account_rid: row["CTLNO"],
-        content: row
+        content: content
       }
     }
   end
@@ -110,6 +151,4 @@ defmodule BillionOak.Ingestion.Mannatech do
     |> Attempt.changeset(%{status: :failed})
     |> Repo.update!()
   end
-
-  def unwrap({_, value}), do: value
 end

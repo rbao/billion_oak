@@ -18,6 +18,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccounts do
       add :city, :string
       add :state, :string
       add :enrolled_at, :utc_datetime
+      add :custom_data, :map
 
       timestamps()
     end

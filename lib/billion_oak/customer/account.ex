@@ -16,6 +16,7 @@ defmodule BillionOak.Customer.Account do
     field :phone2, :string
     field :city, :string
     field :enrolled_at, :utc_datetime
+    field :custom_data, :map
 
     timestamps()
 
