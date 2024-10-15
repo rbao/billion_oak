@@ -50,6 +50,8 @@ defmodule BillionOak.MixProject do
       {:ex_aws_s3, "~> 2.5.4"},
       # aws uses hackney
       {:hackney, "~> 1.20.1"},
+      # required for s3 list_objects_v2
+      {:sweet_xml, "~> 0.7.4"},
       {:csv, "~> 3.2"},
       {:timex, "~> 3.7.11"},
       {:ok, "~> 2.2.0"},

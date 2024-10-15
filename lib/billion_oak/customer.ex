@@ -270,9 +270,6 @@ defmodule BillionOak.Customer do
       |> Multi.run(:insert_account_records, fn _, %{upsert_accounts: accounts} ->
         insert_account_records(record_attrs_list, organization, accounts)
       end)
-      |> Multi.run(:update_organization, fn _, %{insert_account_records: _} ->
-        update_organization(organization, %{last_ingested_at: DateTime.utc_now()})
-      end)
       |> Repo.transaction()
 
     case multi_result do

@@ -8,7 +8,7 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerOrganizations do
       add :name, :string, null: false
       add :handle, :string, null: false
       add :root_account_rid, :string, null: false
-      add :last_ingested_at, :utc_datetime
+      add :ingestion_cursor, :string
 
       timestamps()
     end

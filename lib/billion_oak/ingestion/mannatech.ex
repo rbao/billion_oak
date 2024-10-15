@@ -4,10 +4,24 @@ defmodule BillionOak.Ingestion.Mannatech do
   alias BillionOak.{Repo, Customer, Filestore}
   alias BillionOak.Ingestion.Attempt
 
-  def ingest_accounts(org_handle, basename) do
+  def ingest(org_handle) do
     {:ok, company} = Customer.get_company("mannatech")
     {:ok, organization} = Customer.get_organization(company.id, org_handle)
-    s3_key = s3_key(company.handle, org_handle, basename)
+    prefix = s3_key(company.handle, org_handle)
+    start_after = organization.ingestion_cursor || "#{prefix}/0"
+
+    Filestore.list_s3_files(prefix, start_after)
+    ~>> Enum.reduce_while({:ok, []}, fn s3_object, {:ok, acc} ->
+      key = s3_object.key
+
+      case ingest_accounts(organization, key) do
+        {:ok, n} -> {:cont, {:ok, acc ++ [{key, {:ok, n}}]}}
+        other -> {:halt, {:error, acc ++ [{key, other}]}}
+      end
+    end)
+  end
+
+  def ingest_accounts(organization, s3_key) do
     attempt = mark_started!(organization, s3_key)
 
     result =
@@ -16,7 +30,7 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> Stream.map(&:unicode.characters_to_binary(&1, :latin1, :utf8))
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)
-      ~> Stream.chunk_every(500)
+      ~> Stream.chunk_every(1000)
       ~> Stream.map(fn attrs_chunk ->
         Customer.ingest_account_records(attrs_chunk, organization)
       end)
@@ -37,6 +51,7 @@ defmodule BillionOak.Ingestion.Mannatech do
 
     case result do
       {:ok, _} ->
+        {:ok, _} = Customer.update_organization(organization, %{ingestion_cursor: s3_key})
         mark_succeeded!(attempt)
         result
 
@@ -124,8 +139,8 @@ defmodule BillionOak.Ingestion.Mannatech do
     }
   end
 
-  defp s3_key(company_handle, org_handle, basename),
-    do: "ingestion/#{company_handle}/#{org_handle}/mtku/#{basename}"
+  defp s3_key(company_handle, org_handle),
+    do: "ingestion/#{company_handle}/#{org_handle}/mtku"
 
   defp mark_started!(organization, s3_key) do
     attrs = %{
