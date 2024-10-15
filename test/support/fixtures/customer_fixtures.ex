@@ -32,7 +32,7 @@ defmodule BillionOak.CustomerFixtures do
         name: "some name",
         handle: "some handle",
         root_account_rid: "some root_account_rid",
-        org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]
+        last_ingested_at: ~U[2024-10-07 23:37:00Z]
       })
       |> BillionOak.Customer.create_organization()
 

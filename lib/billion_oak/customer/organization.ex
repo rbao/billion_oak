@@ -6,7 +6,7 @@ defmodule BillionOak.Customer.Organization do
     field :name, :string
     field :handle, :string
     field :root_account_rid, :string
-    field :org_structure_last_ingested_at, :utc_datetime
+    field :last_ingested_at, :utc_datetime
 
     timestamps()
 
