@@ -31,6 +31,20 @@ defmodule BillionOak.Schema do
 
       def changeset(%{id: nil} = struct), do: change(struct, id: generate_id())
       def changeset(struct), do: change(struct)
+
+      def entries(changesets) when is_list(changesets) do
+        now = DateTime.utc_now(:second)
+
+        Enum.map(changesets, fn changeset ->
+          changeset.data
+          |> Map.take(castable_fields())
+          |> Map.merge(changeset.changes)
+          |> Map.merge(%{
+            inserted_at: now,
+            updated_at: now
+          })
+        end)
+      end
     end
   end
 end

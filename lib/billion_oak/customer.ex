@@ -4,10 +4,10 @@ defmodule BillionOak.Customer do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Changeset
+  alias Ecto.Multi
   alias BillionOak.Repo
 
-  alias BillionOak.Customer.Company
+  alias BillionOak.Customer.{Company, AccountRecord}
 
   @doc """
   Returns the list of customer_companies.
@@ -258,31 +258,41 @@ defmodule BillionOak.Customer do
     |> Repo.insert()
   end
 
-  def create_or_update_accounts(organization, attrs_list) do
-    changesets =
-      Enum.map(attrs_list, fn attrs ->
-        attrs =
-          Map.merge(attrs, %{
-            company_id: organization.company_id,
-            organization_id: organization.id
-          })
+  def ingest_account_records(data, organization) do
+    account_attrs_list = Enum.map(data, & &1.account)
+    record_attrs_list = Enum.map(data, & &1.record)
 
-        changeset = Account.changeset(%Account{}, attrs)
-
-        if attrs.number == organization.root_account_number do
-          Changeset.change(changeset, is_root: true)
-        else
-          changeset
-        end
+    multi_result =
+      Multi.new()
+      |> Multi.run(:upsert_accounts, fn _, _ ->
+        upsert_accounts(account_attrs_list, organization)
       end)
+      |> Multi.run(:insert_account_records, fn _, %{upsert_accounts: accounts} ->
+        insert_account_records(record_attrs_list, organization, accounts)
+      end)
+      |> Repo.transaction()
 
-    Account.upsert_all(changesets)
+    case multi_result do
+      {:ok, %{upsert_accounts: accounts}} -> {:ok, length(accounts)}
+      {:error, _failed_op, reason, _changes} -> {:error, reason}
+    end
   end
 
-  @spec update_account(
-          BillionOak.Customer.Account.t(),
-          :invalid | %{optional(:__struct__) => none(), optional(atom() | binary()) => any()}
-        ) :: any()
+  defp upsert_accounts(attrs_list, organization) do
+    attrs_list
+    |> Account.changesets(organization)
+    |> Account.upsert_all(returning: [:id, :rid])
+  end
+
+  defp insert_account_records(attrs_list, organization, accounts) do
+    rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
+    attrs_list = Enum.map(attrs_list, &Map.put(&1, :account_id, rid_map[&1.account_rid]))
+
+    attrs_list
+    |> AccountRecord.changesets(organization)
+    |> AccountRecord.insert_all()
+  end
+
   @doc """
   Updates a account.
 
@@ -329,8 +339,6 @@ defmodule BillionOak.Customer do
   def change_account(%Account{} = account, attrs \\ %{}) do
     Account.changeset(account, attrs)
   end
-
-  alias BillionOak.Customer.AccountRecord
 
   @doc """
   Returns the list of account_records.

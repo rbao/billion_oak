@@ -31,7 +31,7 @@ defmodule BillionOak.CustomerFixtures do
         company_id: company.id,
         name: "some name",
         handle: "some handle",
-        root_account_number: "some root_account_number",
+        root_account_rid: "some root_account_rid",
         org_structure_last_ingested_at: ~U[2024-10-07 23:37:00Z]
       })
       |> BillionOak.Customer.create_organization()
@@ -54,9 +54,9 @@ defmodule BillionOak.CustomerFixtures do
         country_code: "some country_code",
         enrolled_at: ~U[2024-10-08 01:05:00Z],
         name: "some name",
-        number: "some number",
-        sponsor_number: "some sponsor_number",
-        enroller_number: "some enroller_number",
+        rid: "some rid",
+        sponsor_rid: "some sponsor_rid",
+        enroller_rid: "some enroller_rid",
         phone1: "some phone1",
         phone2: "some phone2",
         state: "some state",

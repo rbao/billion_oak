@@ -17,7 +17,7 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> Stream.map(&account_attrs/1)
       ~> Stream.chunk_every(500)
       ~> Stream.map(fn attrs_chunk ->
-        Customer.create_or_update_accounts(organization, attrs_chunk)
+        Customer.ingest_account_records(attrs_chunk, organization)
       end)
       ~> Stream.transform(nil, fn
         _, {:halt, n} ->
@@ -63,17 +63,23 @@ defmodule BillionOak.Ingestion.Mannatech do
 
   defp account_attrs({:ok, row}) do
     %{
-      status: account_status(row["STATUS"]),
-      number: row["CTLNO"],
-      name: row["NAME"],
-      city: row["CITY"],
-      state: row["STATE"],
-      country_code: row["COUNTRY"],
-      phone1: row["PHONENO"],
-      phone2: row["EVPHONENO"],
-      enrolled_at: enrolled_at(row["ENROLLMENTDATE"]),
-      sponsor_number: row["SPONSORCTLNO"],
-      enroller_number: row["ENROLLCTLNO"]
+      account: %{
+        status: account_status(row["STATUS"]),
+        rid: row["CTLNO"],
+        name: row["NAME"],
+        city: row["CITY"],
+        state: row["STATE"],
+        country_code: row["COUNTRY"],
+        phone1: row["PHONENO"],
+        phone2: row["EVPHONENO"],
+        enrolled_at: enrolled_at(row["ENROLLMENTDATE"]),
+        sponsor_rid: row["SPONSORCTLNO"],
+        enroller_rid: row["ENROLLCTLNO"]
+      },
+      record: %{
+        account_rid: row["CTLNO"],
+        content: row
+      }
     }
   end
 

@@ -16,5 +16,6 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerAccountRecords do
     create index(:customer_account_records, :company_id)
     create index(:customer_account_records, :organization_id)
     create index(:customer_account_records, :account_id)
+    create unique_index(:customer_account_records, :dedupe_id)
   end
 end

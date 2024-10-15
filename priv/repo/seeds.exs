@@ -19,5 +19,5 @@ alias BillionOak.Customer
     company_id: mannatech.id,
     handle: "happyteam",
     name: "Happy Team",
-    root_account_number: "1168402"
+    root_account_rid: "1168402"
   })

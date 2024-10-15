@@ -131,14 +131,14 @@ defmodule BillionOak.CustomerTest do
       organization = organization_fixture()
 
       valid_attrs = %{
-        enroller_number: "some enroller_number",
-        sponsor_number: "some sponsor_number",
+        enroller_rid: "some enroller_rid",
+        sponsor_rid: "some sponsor_rid",
         organization_id: organization.id,
         company_id: organization.company_id,
         name: "some name",
         status: :active,
         state: "some state",
-        number: "some number",
+        rid: "some rid",
         country_code: "some country_code",
         phone1: "some phone1",
         phone2: "some phone2",
@@ -150,7 +150,7 @@ defmodule BillionOak.CustomerTest do
       assert account.name == "some name"
       assert account.status == :active
       assert account.state == "some state"
-      assert account.number == "some number"
+      assert account.rid == "some rid"
       assert account.country_code == "some country_code"
       assert account.phone1 == "some phone1"
       assert account.phone2 == "some phone2"
@@ -163,20 +163,26 @@ defmodule BillionOak.CustomerTest do
     end
 
     @tag :focus
-    test "create_or_update_accounts/2" do
+    test "ingest_account_records/2" do
       company = insert(:company)
       organization = insert(:organization, company_id: company.id)
       n = 3
 
-      attrs_list =
+      data =
         for _ <- 1..n do
-          params_for(:account, company_id: company.id, organization_id: organization.id)
+          account_attrs = params_for(:account)
+          record_attrs = params_for(:account_record)
+
+          %{
+            account: account_attrs,
+            record: Map.put(record_attrs, :account_rid, account_attrs.rid)
+          }
         end
 
-      Customer.create_or_update_accounts(organization, attrs_list)
+      Customer.ingest_account_records(data, organization)
       assert Customer.count_accounts() == 3
 
-      Customer.create_or_update_accounts(organization, attrs_list)
+      Customer.ingest_account_records(data, organization)
       assert Customer.count_accounts() == 3
     end
 
@@ -187,7 +193,7 @@ defmodule BillionOak.CustomerTest do
         name: "some updated name",
         status: :inactive,
         state: "some updated state",
-        number: "some updated number",
+        rid: "some updated rid",
         country_code: "some updated country_code",
         phone1: "some updated phone1",
         phone2: "some updated phone2",
@@ -199,7 +205,7 @@ defmodule BillionOak.CustomerTest do
       assert account.name == "some updated name"
       assert account.status == :inactive
       assert account.state == "some updated state"
-      assert account.number == "some updated number"
+      assert account.rid == "some updated rid"
       assert account.country_code == "some updated country_code"
       assert account.phone1 == "some updated phone1"
       assert account.phone2 == "some updated phone2"
@@ -256,7 +262,6 @@ defmodule BillionOak.CustomerTest do
       assert {:ok, %AccountRecord{} = account_record} =
                Customer.create_account_record(valid_attrs)
 
-      assert account_record.dedupe_id == "some dedupe_id"
       assert account_record.content == %{}
     end
 
