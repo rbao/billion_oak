@@ -162,7 +162,6 @@ defmodule BillionOak.CustomerTest do
       assert {:error, %Ecto.Changeset{}} = Customer.create_account(@invalid_attrs)
     end
 
-    @tag :focus
     test "ingest_account_records/2" do
       company = insert(:company)
       organization = insert(:organization, company_id: company.id)
