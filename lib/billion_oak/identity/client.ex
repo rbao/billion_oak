@@ -4,7 +4,7 @@ defmodule BillionOak.Identity.Client do
 
   schema "clients" do
     field :name, :string
-    field :refresh_token, :string
+    field :secret, :string
     field :organization_id, :string
 
     timestamps()
@@ -15,13 +15,18 @@ defmodule BillionOak.Identity.Client do
     client
     |> changeset()
     |> cast(attrs, [:name, :organization_id])
-    |> put_refresh_token()
-    |> validate_required([:name, :organization_id, :refresh_token])
+    |> put_secret()
+    |> validate_required([:name, :organization_id, :secret])
   end
 
-  defp put_refresh_token(%{data: %{refresh_token: nil}} = changeset) do
-    change(changeset, refresh_token: XCUID.generate())
+  defp put_secret(%{data: %{secret: nil}} = changeset) do
+    change(changeset, secret: generate_secret())
   end
 
-  defp put_refresh_token(changeset), do: changeset
+  defp put_secret(changeset), do: changeset
+
+  defp generate_secret do
+    :crypto.strong_rand_bytes(32)
+    |> Base.url_encode64(padding: false)
+  end
 end

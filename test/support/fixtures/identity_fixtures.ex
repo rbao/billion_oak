@@ -13,7 +13,6 @@ defmodule BillionOak.IdentityFixtures do
       |> Enum.into(%{
         name: "some name",
         organization_id: "some organization_id",
-        refresh_token: "some token"
       })
       |> BillionOak.Identity.create_client()
 
