@@ -4,7 +4,6 @@ defmodule BillionOak.Identity.Client do
 
   schema "clients" do
     field :name, :string
-    # Rename to refresh_token
     field :refresh_token, :string
     field :organization_id, :string
 
@@ -21,8 +20,7 @@ defmodule BillionOak.Identity.Client do
   end
 
   defp put_refresh_token(%{data: %{refresh_token: nil}} = changeset) do
-    # PRT means publishable refresh token
-    change(changeset, refresh_token: "prt_" <> XCUID.generate())
+    change(changeset, refresh_token: XCUID.generate())
   end
 
   defp put_refresh_token(changeset), do: changeset
