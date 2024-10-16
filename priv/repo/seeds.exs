@@ -10,14 +10,20 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias BillionOak.Customer
+alias BillionOak.{Customer, Identity}
 
 {:ok, mannatech} = Customer.create_company(%{handle: "mannatech", name: "Mannatech"})
 
-{:ok, _} =
+{:ok, happyteam} =
   Customer.create_organization(%{
     company_id: mannatech.id,
     handle: "happyteam",
     name: "Happy Team",
     root_account_rid: "1168402"
+  })
+
+{:ok, _} =
+  Identity.create_client(%{
+    name: "Wechat Mini Program",
+    organization_id: happyteam.id,
   })
