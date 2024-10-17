@@ -48,4 +48,6 @@ defmodule BillionOak.Request do
   end
 
   def put(req, key, value), do: Map.put(req, key, value)
+
+  def get(req, key), do: get_in(req, key)
 end

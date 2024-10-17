@@ -1,10 +1,12 @@
 defmodule BillionOak.Factory do
-  alias BillionOak.Customer.{Company, Organization, Account, AccountRecord}
+  alias BillionOak.External.{Company, Organization, CompanyAccount, CompanyRecord}
   use ExMachina.Ecto, repo: BillionOak.Repo
 
-  def account_factory do
-    %Account{
-      id: Account.generate_id(),
+  def company_account_factory do
+    %CompanyAccount{
+      id: CompanyAccount.generate_id(),
+      company_id: Company.generate_id(),
+      organization_id: Organization.generate_id(),
       name: Faker.Person.name(),
       rid: sequence(:rid, &"#{&1}", start_at: 100_000),
       country_code: Faker.Address.country(),
@@ -12,12 +14,16 @@ defmodule BillionOak.Factory do
     }
   end
 
-  def account_record_factory do
-    %AccountRecord{
-      id: AccountRecord.generate_id(),
+  def company_record_factory do
+    %CompanyRecord{
+      id: CompanyRecord.generate_id(),
+      company_id: Company.generate_id(),
+      organization_id: Organization.generate_id(),
+      company_account_id: CompanyAccount.generate_id(),
+      dedupe_id: Faker.Lorem.word(),
       content: %{
-        name: Faker.Person.name(),
-        email: Faker.Internet.email()
+        "name" => Faker.Person.name(),
+        "email" => Faker.Internet.email()
       }
     }
   end
@@ -36,7 +42,7 @@ defmodule BillionOak.Factory do
       company_id: Company.generate_id(),
       name: Faker.Company.name(),
       handle: Faker.Lorem.word(),
-      root_account_rid: sequence(:root_account_rid, &"#{&1}", start_at: 100_000)
+      root_company_account_rid: sequence(:root_company_account_rid, &"#{&1}", start_at: 100_000)
     }
   end
 end

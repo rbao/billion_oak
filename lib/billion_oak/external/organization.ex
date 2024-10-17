@@ -1,11 +1,11 @@
-defmodule BillionOak.Customer.Organization do
+defmodule BillionOak.External.Organization do
   use BillionOak.Schema, id_prefix: "org"
-  alias BillionOak.Customer.Company
+  alias BillionOak.External.Company
 
-  schema "customer_organizations" do
+  schema "organizations" do
     field :name, :string
     field :handle, :string
-    field :root_account_rid, :string
+    field :root_company_account_rid, :string
     field :ingestion_cursor, :string
 
     timestamps()
@@ -18,6 +18,6 @@ defmodule BillionOak.Customer.Organization do
     organization
     |> changeset()
     |> cast(attrs, castable_fields())
-    |> validate_required([:name, :handle, :company_id, :root_account_rid])
+    |> validate_required([:name, :handle, :company_id, :root_company_account_rid])
   end
 end

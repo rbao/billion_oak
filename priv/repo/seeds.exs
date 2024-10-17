@@ -10,16 +10,16 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias BillionOak.{Customer, Identity}
+alias BillionOak.{External, Identity}
 
-{:ok, mannatech} = Customer.create_company(%{handle: "mannatech", name: "Mannatech"})
+{:ok, mannatech} = External.create_company(%{handle: "mannatech", name: "Mannatech"})
 
 {:ok, happyteam} =
-  Customer.create_organization(%{
+  External.create_organization(%{
     company_id: mannatech.id,
     handle: "happyteam",
     name: "Happy Team",
-    root_account_rid: "1168402"
+    root_company_account_rid: "1168402"
   })
 
 {:ok, _} =

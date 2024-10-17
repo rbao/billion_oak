@@ -1,9 +1,9 @@
-defmodule BillionOak.Customer.Account do
-  use BillionOak.Schema, id_prefix: "acct"
+defmodule BillionOak.External.CompanyAccount do
+  use BillionOak.Schema, id_prefix: "cpacc"
   alias BillionOak.{Repo, Validation}
-  alias BillionOak.Customer.{Company, Organization}
+  alias BillionOak.External.{Company, Organization}
 
-  schema "customer_accounts" do
+  schema "company_accounts" do
     field :is_root, :boolean, default: false
     field :status, Ecto.Enum, values: [:active, :inactive, :terminated], default: :active
     field :name, :string
@@ -42,7 +42,7 @@ defmodule BillionOak.Customer.Account do
 
       changeset = changeset(%__MODULE__{}, attrs)
 
-      if attrs.rid == organization.root_account_rid do
+      if attrs.rid == organization.root_company_account_rid do
         change(changeset, is_root: true)
       else
         changeset

@@ -1,8 +1,8 @@
-defmodule BillionOak.Repo.Migrations.CreateCustomerCompanies do
+defmodule BillionOak.Repo.Migrations.CreateCompanies do
   use Ecto.Migration
 
   def change do
-    create table(:customer_companies, primary_key: false) do
+    create table(:companies, primary_key: false) do
       add :id, :string, primary_key: true
       add :handle, :string, null: false
       add :name, :string, null: false
@@ -10,6 +10,6 @@ defmodule BillionOak.Repo.Migrations.CreateCustomerCompanies do
       timestamps()
     end
 
-    create unique_index(:customer_companies, [:handle])
+    create unique_index(:companies, [:handle])
   end
 end

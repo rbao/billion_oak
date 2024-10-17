@@ -1,16 +1,16 @@
-defmodule BillionOak.Customer do
+defmodule BillionOak.External do
   @moduledoc """
-  The Customer context.
+  The External context.
   """
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias BillionOak.Repo
 
-  alias BillionOak.Customer.{Company, AccountRecord}
+  alias BillionOak.External.{Company, CompanyRecord}
 
   @doc """
-  Returns the list of customer_companies.
+  Returns the list of External_companies.
 
   ## Examples
 
@@ -108,10 +108,10 @@ defmodule BillionOak.Customer do
     Company.changeset(company, attrs)
   end
 
-  alias BillionOak.Customer.Organization
+  alias BillionOak.External.Organization
 
   @doc """
-  Returns the list of customer_organizations.
+  Returns the list of External_organizations.
 
   ## Examples
 
@@ -205,43 +205,50 @@ defmodule BillionOak.Customer do
     Repo.delete(organization)
   end
 
-  alias BillionOak.Customer.Account
+  alias BillionOak.External.CompanyAccount
 
   @doc """
-  Returns the list of customer_accounts.
+  Returns the list of External_accounts.
 
   ## Examples
 
-      iex> list_accounts()
-      [%Account{}, ...]
+      iex> list_company_accounts()
+      [%CompanyAccount{}, ...]
 
   """
-  def list_accounts do
-    Repo.all(Account)
+  def list_company_accounts do
+    Repo.all(CompanyAccount)
   end
 
-  def count_accounts do
-    Repo.aggregate(Account, :count)
+  def count_company_accounts do
+    Repo.aggregate(CompanyAccount, :count)
   end
 
   @doc """
-  Gets a single account.
+  Gets a single company account.
 
-  Raises `Ecto.NoResultsError` if the Account does not exist.
+  Raises `Ecto.NoResultsError` if the CompanyAccount does not exist.
 
   ## Examples
 
-      iex> get_account!(123)
-      %Account{}
+      iex> get_company_account(123)
+      {:ok, %CompanyAccount{}}
 
-      iex> get_account!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_company_account(456)
+      {:error, :not_found}
 
   """
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_company_account(id) do
+    result = Repo.get(CompanyAccount, id)
 
-  def get_account_excerpt(rid) do
-    account = Repo.get_by(Account, rid: rid)
+    case result do
+      nil -> {:error, :not_found}
+      account -> {:ok, account}
+    end
+  end
+
+  def get_company_account_excerpt(rid) do
+    account = Repo.get_by(CompanyAccount, rid: rid)
 
     case account do
       nil ->
@@ -251,8 +258,8 @@ defmodule BillionOak.Customer do
         excerpt = %{
           id: account.id,
           rid: account.rid,
-          phone1: Account.mask_phone(account.phone1),
-          phone2: Account.mask_phone(account.phone2)
+          phone1: CompanyAccount.mask_phone(account.phone1),
+          phone2: CompanyAccount.mask_phone(account.phone2)
         }
 
         {:ok, excerpt}
@@ -264,20 +271,121 @@ defmodule BillionOak.Customer do
 
   ## Examples
 
-      iex> create_account(%{field: value})
-      {:ok, %Account{}}
+      iex> create_company_account(%{field: value})
+      {:ok, %CompanyAccount{}}
 
-      iex> create_account(%{field: bad_value})
+      iex> create_company_account(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_account(attrs \\ %{}) do
-    %Account{}
-    |> Account.changeset(attrs)
+  def create_company_account(attrs \\ %{}) do
+    %CompanyAccount{}
+    |> CompanyAccount.changeset(attrs)
     |> Repo.insert()
   end
 
-  def ingest_account_records(data, organization) do
+  @doc """
+  Updates a account.
+
+  ## Examples
+
+      iex> update_company_account(account, %{field: new_value})
+      {:ok, %CompanyAccount{}}
+
+      iex> update_company_account(account, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_company_account(%CompanyAccount{} = account, attrs) do
+    account
+    |> CompanyAccount.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a account.
+
+  ## Examples
+
+      iex> delete_account(account)
+      {:ok, %CompanyAccount{}}
+
+      iex> delete_account(account)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_company_account(%CompanyAccount{} = account) do
+    Repo.delete(account)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking account changes.
+
+  ## Examples
+
+      iex> change_account(account)
+      %Ecto.Changeset{data: %CompanyAccount{}}
+
+  """
+  def change_account(%CompanyAccount{} = account, attrs \\ %{}) do
+    CompanyAccount.changeset(account, attrs)
+  end
+
+  @doc """
+  Returns the list of company_records.
+
+  ## Examples
+
+      iex> list_company_records()
+      [%CompanyRecord{}, ...]
+
+  """
+  def list_company_records do
+    Repo.all(CompanyRecord)
+  end
+
+  @doc """
+  Gets a single company_record.
+
+  Raises `Ecto.NoResultsError` if the company record does not exist.
+
+  ## Examples
+
+      iex> get_company_record!(123)
+      %CompanyRecord{}
+
+      iex> get_company_record!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_company_record(id) do
+    result = Repo.get(CompanyRecord, id)
+
+    case result do
+      nil -> {:error, :not_found}
+      company_record -> {:ok, company_record}
+    end
+  end
+
+  @doc """
+  Creates a company_record.
+
+  ## Examples
+
+      iex> create_company_record(%{field: value})
+      {:ok, %CompanyRecord{}}
+
+      iex> create_company_record(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_company_record(attrs \\ %{}) do
+    %CompanyRecord{}
+    |> CompanyRecord.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def ingest_company_records(data, organization) do
     account_attrs_list = Enum.map(data, & &1.account)
     record_attrs_list = Enum.map(data, & &1.record)
 
@@ -286,8 +394,8 @@ defmodule BillionOak.Customer do
       |> Multi.run(:upsert_accounts, fn _, _ ->
         upsert_accounts(account_attrs_list, organization)
       end)
-      |> Multi.run(:insert_account_records, fn _, %{upsert_accounts: accounts} ->
-        insert_account_records(record_attrs_list, organization, accounts)
+      |> Multi.run(:insert_company_records, fn _, %{upsert_accounts: accounts} ->
+        insert_company_records(record_attrs_list, organization, accounts)
       end)
       |> Repo.transaction()
 
@@ -299,157 +407,50 @@ defmodule BillionOak.Customer do
 
   defp upsert_accounts(attrs_list, organization) do
     attrs_list
-    |> Account.changesets(organization)
-    |> Account.upsert_all(returning: [:id, :rid])
+    |> CompanyAccount.changesets(organization)
+    |> CompanyAccount.upsert_all(returning: [:id, :rid])
   end
 
-  defp insert_account_records(attrs_list, organization, accounts) do
+  defp insert_company_records(attrs_list, organization, accounts) do
     rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
     attrs_list = Enum.map(attrs_list, &Map.put(&1, :account_id, rid_map[&1.account_rid]))
 
     attrs_list
-    |> AccountRecord.changesets(organization)
-    |> AccountRecord.insert_all()
+    |> CompanyRecord.changesets(organization)
+    |> CompanyRecord.insert_all()
   end
 
   @doc """
-  Updates a account.
+  Updates a company_record.
 
   ## Examples
 
-      iex> update_account(account, %{field: new_value})
-      {:ok, %Account{}}
+      iex> update_company_record(company_record, %{field: new_value})
+      {:ok, %CompanyRecord{}}
 
-      iex> update_account(account, %{field: bad_value})
+      iex> update_company_record(company_record, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_account(%Account{} = account, attrs) do
-    account
-    |> Account.changeset(attrs)
+  def update_company_record(%CompanyRecord{} = company_record, attrs) do
+    company_record
+    |> CompanyRecord.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a account.
+  Deletes a company_record.
 
   ## Examples
 
-      iex> delete_account(account)
-      {:ok, %Account{}}
+      iex> delete_company_record(company_record)
+      {:ok, %CompanyRecord{}}
 
-      iex> delete_account(account)
+      iex> delete_company_record(company_record)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_account(%Account{} = account) do
-    Repo.delete(account)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking account changes.
-
-  ## Examples
-
-      iex> change_account(account)
-      %Ecto.Changeset{data: %Account{}}
-
-  """
-  def change_account(%Account{} = account, attrs \\ %{}) do
-    Account.changeset(account, attrs)
-  end
-
-  @doc """
-  Returns the list of account_records.
-
-  ## Examples
-
-      iex> list_account_records()
-      [%AccountRecord{}, ...]
-
-  """
-  def list_account_records do
-    Repo.all(AccountRecord)
-  end
-
-  @doc """
-  Gets a single account_record.
-
-  Raises `Ecto.NoResultsError` if the Account record does not exist.
-
-  ## Examples
-
-      iex> get_account_record!(123)
-      %AccountRecord{}
-
-      iex> get_account_record!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_account_record!(id), do: Repo.get!(AccountRecord, id)
-
-  @doc """
-  Creates a account_record.
-
-  ## Examples
-
-      iex> create_account_record(%{field: value})
-      {:ok, %AccountRecord{}}
-
-      iex> create_account_record(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_account_record(attrs \\ %{}) do
-    %AccountRecord{}
-    |> AccountRecord.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a account_record.
-
-  ## Examples
-
-      iex> update_account_record(account_record, %{field: new_value})
-      {:ok, %AccountRecord{}}
-
-      iex> update_account_record(account_record, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_account_record(%AccountRecord{} = account_record, attrs) do
-    account_record
-    |> AccountRecord.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a account_record.
-
-  ## Examples
-
-      iex> delete_account_record(account_record)
-      {:ok, %AccountRecord{}}
-
-      iex> delete_account_record(account_record)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_account_record(%AccountRecord{} = account_record) do
-    Repo.delete(account_record)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking account_record changes.
-
-  ## Examples
-
-      iex> change_account_record(account_record)
-      %Ecto.Changeset{data: %AccountRecord{}}
-
-  """
-  def change_account_record(%AccountRecord{} = account_record, attrs \\ %{}) do
-    AccountRecord.changeset(account_record, attrs)
+  def delete_company_record(%CompanyRecord{} = company_record) do
+    Repo.delete(company_record)
   end
 end

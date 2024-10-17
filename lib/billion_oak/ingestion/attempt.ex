@@ -1,6 +1,6 @@
 defmodule BillionOak.Ingestion.Attempt do
   use BillionOak.Schema, id_prefix: "inatp"
-  alias BillionOak.Customer.{Company, Organization}
+  alias BillionOak.External.{Company, Organization}
 
   schema "ingestion_attempts" do
     field :status, Ecto.Enum, values: [:running, :succeeded, :failed], default: :running

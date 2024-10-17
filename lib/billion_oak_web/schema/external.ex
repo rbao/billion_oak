@@ -1,13 +1,13 @@
-defmodule BillionOakWeb.Schema.Customer do
+defmodule BillionOakWeb.Schema.External do
   use Absinthe.Schema.Notation
 
-  object :customer_company do
+  object :company do
     field :id, :id
     field :name, :string
     field :handle, :string
   end
 
-  object :customer_account_excerpt do
+  object :company_account_excerpt do
     field :id, :id
     field :rid, :string
     field :phone1, :string

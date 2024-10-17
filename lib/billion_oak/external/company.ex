@@ -1,7 +1,7 @@
-defmodule BillionOak.Customer.Company do
+defmodule BillionOak.External.Company do
   use BillionOak.Schema, id_prefix: "cmpy"
 
-  schema "customer_companies" do
+  schema "companies" do
     field :name, :string
     field :handle, :string
 

@@ -1,12 +1,12 @@
 defmodule BillionOak.Ingestion.Mannatech do
   require Logger
   use OK.Pipe
-  alias BillionOak.{Repo, Customer, Filestore}
+  alias BillionOak.{Repo, External, Filestore}
   alias BillionOak.Ingestion.Attempt
 
   def ingest(org_handle) do
-    {:ok, company} = Customer.get_company("mannatech")
-    {:ok, organization} = Customer.get_organization(company.id, org_handle)
+    {:ok, company} = External.get_company("mannatech")
+    {:ok, organization} = External.get_organization(company.id, org_handle)
     prefix = s3_key(company.handle, org_handle)
     start_after = organization.ingestion_cursor || "#{prefix}/0"
 
@@ -32,7 +32,7 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> Stream.map(&account_attrs/1)
       ~> Stream.chunk_every(1000)
       ~> Stream.map(fn attrs_chunk ->
-        Customer.ingest_account_records(attrs_chunk, organization)
+        External.ingest_company_records(attrs_chunk, organization)
       end)
       ~> Stream.transform(nil, fn
         _, {:halt, n} ->
@@ -51,7 +51,7 @@ defmodule BillionOak.Ingestion.Mannatech do
 
     case result do
       {:ok, _} ->
-        {:ok, _} = Customer.update_organization(organization, %{ingestion_cursor: s3_key})
+        {:ok, _} = External.update_organization(organization, %{ingestion_cursor: s3_key})
         mark_succeeded!(attempt)
         result
 

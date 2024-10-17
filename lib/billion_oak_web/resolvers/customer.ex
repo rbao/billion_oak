@@ -1,9 +1,9 @@
-defmodule BillionOakWeb.Resolvers.Customer do
+defmodule BillionOakWeb.Resolvers.External do
   def list_companies(_parent, _args, _resolution) do
-    {:ok, BillionOak.Customer.list_companies()}
+    {:ok, BillionOak.External.list_companies()}
   end
 
-  def get_customer_account_excerpt(_parent, %{rid: rid}, _resolution) do
-    BillionOak.Customer.get_account_excerpt(rid)
+  def get_company_account_excerpt(_parent, %{rid: rid}, _resolution) do
+    BillionOak.External.get_company_account_excerpt(rid)
   end
 end

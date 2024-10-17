@@ -1,9 +1,9 @@
-defmodule BillionOak.Customer.AccountRecord do
-  use BillionOak.Schema, id_prefix: "acrec"
+defmodule BillionOak.External.CompanyRecord do
+  use BillionOak.Schema, id_prefix: "cprec"
   alias BillionOak.{Repo, Validation}
-  alias BillionOak.Customer.{Company, Organization, Account}
+  alias BillionOak.External.{Company, Organization, CompanyCompanyAccount}
 
-  schema "customer_account_records" do
+  schema "company_records" do
     field :dedupe_id, :string
     field :content, :map
 
@@ -11,16 +11,16 @@ defmodule BillionOak.Customer.AccountRecord do
 
     belongs_to :company, Company
     belongs_to :organization, Organization
-    belongs_to :account, Account
+    belongs_to :company_account, CompanyCompanyAccount
   end
 
   @doc false
-  def changeset(account_record, attrs) do
-    account_record
+  def changeset(company_record, attrs) do
+    company_record
     |> changeset()
     |> cast(attrs, castable_fields())
     |> put_dedupe_id()
-    |> validate_required([:dedupe_id, :content, :company_id, :organization_id, :account_id])
+    |> validate_required([:dedupe_id, :content, :company_id, :organization_id, :company_account_id])
   end
 
   def changesets(attrs_list, organization) do
