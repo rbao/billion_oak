@@ -50,6 +50,11 @@ defmodule BillionOak.Request do
 
   def put(req, key, value), do: Map.put(req, key, value)
 
+  def take(req, root_key, keys) do
+    root_value = Map.get(req, root_key)
+    Map.take(root_value, keys)
+  end
+
   def get(req, key) when is_atom(key) or is_binary(key) do
     Map.get(req, key)
   end
