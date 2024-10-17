@@ -1,4 +1,4 @@
-defmodule BillionOakWeb.Resolvers.External do
+defmodule BillionOakWeb.Resolver do
   use OK.Pipe
   alias BillionOak.{Request, Response}
 

@@ -1,4 +1,4 @@
-defmodule BillionOakWeb.Schema.External do
+defmodule BillionOakWeb.Schema.Types do
   use Absinthe.Schema.Notation
 
   object :company do
