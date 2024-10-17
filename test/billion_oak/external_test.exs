@@ -51,59 +51,6 @@ defmodule BillionOak.ExternalTest do
     end
   end
 
-  describe "organizations" do
-    alias BillionOak.External.Organization
-    @invalid_attrs %{name: nil}
-
-    test "list_organizations/0 returns all organizations" do
-      assert length(External.list_organizations()) == 1
-    end
-
-    test "get_organization!/1 returns the organization with given id" do
-      organization = insert(:organization)
-      assert {:ok, %Organization{}} = External.get_organization(organization.id)
-    end
-
-    test "get_organization/1 returns error when organization not found" do
-      assert {:error, :not_found} = External.get_organization("some id")
-    end
-
-    test "create_organization/1 with valid data creates a organization" do
-      company = insert(:company)
-      valid_attrs = params_for(:organization, company_id: company.id)
-
-      assert {:ok, %Organization{} = organization} = External.create_organization(valid_attrs)
-      assert organization.name == valid_attrs.name
-    end
-
-    test "create_organization/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = External.create_organization(@invalid_attrs)
-    end
-
-    test "update_organization/2 with valid data updates the organization" do
-      organization = insert(:organization)
-      update_attrs = %{name: "some updated name"}
-
-      assert {:ok, %Organization{} = organization} =
-               External.update_organization(organization, update_attrs)
-
-      assert organization.name == update_attrs.name
-    end
-
-    test "update_organization/2 with invalid data returns error changeset" do
-      organization = insert(:organization)
-
-      assert {:error, %Ecto.Changeset{}} =
-               External.update_organization(organization, @invalid_attrs)
-    end
-
-    test "delete_organization/1 deletes the organization" do
-      organization = insert(:organization)
-      assert {:ok, %Organization{}} = External.delete_organization(organization)
-      assert {:error, :not_found} = External.get_organization(organization.id)
-    end
-  end
-
   describe "accounts" do
     alias BillionOak.External.CompanyAccount
     @invalid_attrs %{name: nil}
@@ -240,7 +187,7 @@ defmodule BillionOak.ExternalTest do
 
           %{
             account: account_attrs,
-            record: Map.put(record_attrs, :account_rid, account_attrs.rid)
+            record: Map.put(record_attrs, :company_account_rid, account_attrs.rid)
           }
         end
 

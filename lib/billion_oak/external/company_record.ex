@@ -20,7 +20,13 @@ defmodule BillionOak.External.CompanyRecord do
     |> changeset()
     |> cast(attrs, castable_fields())
     |> put_dedupe_id()
-    |> validate_required([:dedupe_id, :content, :company_id, :organization_id, :company_account_id])
+    |> validate_required([
+      :dedupe_id,
+      :content,
+      :company_id,
+      :organization_id,
+      :company_account_id
+    ])
   end
 
   def changesets(attrs_list, organization) do

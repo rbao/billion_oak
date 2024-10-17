@@ -15,7 +15,7 @@ alias BillionOak.{External, Identity}
 {:ok, mannatech} = External.create_company(%{handle: "mannatech", name: "Mannatech"})
 
 {:ok, happyteam} =
-  External.create_organization(%{
+  Identity.create_organization(%{
     company_id: mannatech.id,
     handle: "happyteam",
     name: "Happy Team",

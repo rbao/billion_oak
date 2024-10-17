@@ -1,7 +1,60 @@
 defmodule BillionOak.IdentityTest do
   use BillionOak.DataCase
-
+  import BillionOak.Factory
   alias BillionOak.Identity
+
+  describe "organizations" do
+    alias BillionOak.Identity.Organization
+    @invalid_attrs %{name: nil}
+
+    test "list_organizations/0 returns all organizations" do
+      assert length(Identity.list_organizations()) == 1
+    end
+
+    test "get_organization!/1 returns the organization with given id" do
+      organization = insert(:organization)
+      assert {:ok, %Organization{}} = Identity.get_organization(organization.id)
+    end
+
+    test "get_organization/1 returns error when organization not found" do
+      assert {:error, :not_found} = Identity.get_organization("some id")
+    end
+
+    test "create_organization/1 with valid data creates a organization" do
+      company = insert(:company)
+      valid_attrs = params_for(:organization, company_id: company.id)
+
+      assert {:ok, %Organization{} = organization} = Identity.create_organization(valid_attrs)
+      assert organization.name == valid_attrs.name
+    end
+
+    test "create_organization/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Identity.create_organization(@invalid_attrs)
+    end
+
+    test "update_organization/2 with valid data updates the organization" do
+      organization = insert(:organization)
+      update_attrs = %{name: "some updated name"}
+
+      assert {:ok, %Organization{} = organization} =
+               Identity.update_organization(organization, update_attrs)
+
+      assert organization.name == update_attrs.name
+    end
+
+    test "update_organization/2 with invalid data returns error changeset" do
+      organization = insert(:organization)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Identity.update_organization(organization, @invalid_attrs)
+    end
+
+    test "delete_organization/1 deletes the organization" do
+      organization = insert(:organization)
+      assert {:ok, %Organization{}} = Identity.delete_organization(organization)
+      assert {:error, :not_found} = Identity.get_organization(organization.id)
+    end
+  end
 
   describe "clients" do
     alias BillionOak.Identity.Client

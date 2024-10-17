@@ -7,7 +7,7 @@ defmodule BillionOak.External do
   alias Ecto.Multi
   alias BillionOak.Repo
 
-  alias BillionOak.External.{Company, CompanyRecord}
+  alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
 
   @doc """
   Returns the list of External_companies.
@@ -107,105 +107,6 @@ defmodule BillionOak.External do
   def change_company(%Company{} = company, attrs \\ %{}) do
     Company.changeset(company, attrs)
   end
-
-  alias BillionOak.External.Organization
-
-  @doc """
-  Returns the list of External_organizations.
-
-  ## Examples
-
-      iex> list_organizations()
-      [%Organization{}, ...]
-
-  """
-  def list_organizations do
-    Repo.all(Organization)
-  end
-
-  @doc """
-  Gets a single organization.
-
-  ## Examples
-
-      iex> get_organization(123)
-      {:ok, %Organization{}}
-
-      iex> get_organization(456)
-      {:error, :not_found}
-
-  """
-  def get_organization(id) do
-    result = Repo.get(Organization, id)
-
-    case result do
-      nil -> {:error, :not_found}
-      organization -> {:ok, organization}
-    end
-  end
-
-  def get_organization(company_id, handle) do
-    result = Repo.get_by(Organization, company_id: company_id, handle: handle)
-
-    case result do
-      nil -> {:error, :not_found}
-      organization -> {:ok, organization}
-    end
-  end
-
-  @doc """
-  Creates a organization.
-
-  ## Examples
-
-      iex> create_organization(%{field: value})
-      {:ok, %Organization{}}
-
-      iex> create_organization(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_organization(attrs \\ %{}) do
-    %Organization{}
-    |> Organization.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a organization.
-
-  ## Examples
-
-      iex> update_organization(organization, %{field: new_value})
-      {:ok, %Organization{}}
-
-      iex> update_organization(organization, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_organization(%Organization{} = organization, attrs) do
-    organization
-    |> Organization.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a organization.
-
-  ## Examples
-
-      iex> delete_organization(organization)
-      {:ok, %Organization{}}
-
-      iex> delete_organization(organization)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_organization(%Organization{} = organization) do
-    Repo.delete(organization)
-  end
-
-  alias BillionOak.External.CompanyAccount
 
   @doc """
   Returns the list of External_accounts.
@@ -413,7 +314,9 @@ defmodule BillionOak.External do
 
   defp insert_company_records(attrs_list, organization, accounts) do
     rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
-    attrs_list = Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
+
+    attrs_list =
+      Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
 
     attrs_list
     |> CompanyRecord.changesets(organization)

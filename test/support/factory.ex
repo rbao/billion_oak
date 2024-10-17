@@ -1,5 +1,6 @@
 defmodule BillionOak.Factory do
-  alias BillionOak.External.{Company, Organization, CompanyAccount, CompanyRecord}
+  alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
+  alias BillionOak.Identity.Organization
   use ExMachina.Ecto, repo: BillionOak.Repo
 
   def company_account_factory do

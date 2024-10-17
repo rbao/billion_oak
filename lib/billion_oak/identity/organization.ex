@@ -1,4 +1,4 @@
-defmodule BillionOak.External.Organization do
+defmodule BillionOak.Identity.Organization do
   use BillionOak.Schema, id_prefix: "org"
   alias BillionOak.External.Company
 
