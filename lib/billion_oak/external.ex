@@ -256,7 +256,7 @@ defmodule BillionOak.External do
 
       account ->
         excerpt = %{
-          id: account.id,
+          id: CompanyAccount.prefix_id(account.id),
           rid: account.rid,
           phone1: CompanyAccount.mask_phone(account.phone1),
           phone2: CompanyAccount.mask_phone(account.phone2)

@@ -17,4 +17,9 @@ defmodule BillionOak do
   #   ~>> External.get_company_account_excerpt()
   #   |> to_response()
   # end
+
+  # defp expand(%Request{} = req) do
+  #   req
+  #   |> Request.put(:client_id, Client.bare_id(req.client_id))
+  # end
 end
