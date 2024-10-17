@@ -16,7 +16,7 @@ defmodule BillionOak do
     req
     |> expand()
     |> authorize(:get_company_account_excerpt)
-    ~> Request.get([:identifier, :rid])
+    ~> Request.get(:identifier)
     ~>> External.get_company_account_excerpt()
     |> to_response()
   end

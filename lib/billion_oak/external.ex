@@ -148,8 +148,8 @@ defmodule BillionOak.External do
     end
   end
 
-  def get_company_account_excerpt(rid) do
-    account = Repo.get_by(CompanyAccount, rid: rid)
+  def get_company_account_excerpt(identifier) do
+    account = Repo.get_by(CompanyAccount, identifier)
 
     case account do
       nil ->
