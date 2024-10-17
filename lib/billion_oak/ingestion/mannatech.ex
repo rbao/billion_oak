@@ -136,7 +136,7 @@ defmodule BillionOak.Ingestion.Mannatech do
         custom_data: custom_data
       },
       record: %{
-        account_rid: row["CTLNO"],
+        company_account_rid: row["CTLNO"],
         content: content
       }
     }

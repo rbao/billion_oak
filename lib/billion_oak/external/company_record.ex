@@ -1,7 +1,7 @@
 defmodule BillionOak.External.CompanyRecord do
   use BillionOak.Schema, id_prefix: "cprec"
   alias BillionOak.{Repo, Validation}
-  alias BillionOak.External.{Company, Organization, CompanyCompanyAccount}
+  alias BillionOak.External.{Company, Organization, CompanyAccount}
 
   schema "company_records" do
     field :dedupe_id, :string
@@ -11,7 +11,7 @@ defmodule BillionOak.External.CompanyRecord do
 
     belongs_to :company, Company
     belongs_to :organization, Organization
-    belongs_to :company_account, CompanyCompanyAccount
+    belongs_to :company_account, CompanyAccount
   end
 
   @doc false

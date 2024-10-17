@@ -413,7 +413,7 @@ defmodule BillionOak.External do
 
   defp insert_company_records(attrs_list, organization, accounts) do
     rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
-    attrs_list = Enum.map(attrs_list, &Map.put(&1, :account_id, rid_map[&1.account_rid]))
+    attrs_list = Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
 
     attrs_list
     |> CompanyRecord.changesets(organization)
