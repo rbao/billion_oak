@@ -9,6 +9,15 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Generate Keys
+
+```
+$ mkdir keys/dev
+$ cd keys/dev
+$ openssl genrsa -out jwt_private.pem 2048
+$ openssl rsa -in jwt_private.pem -outform PEM -pubout -out jwt_public.pem
+```
+
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/
