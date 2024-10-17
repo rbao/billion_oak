@@ -50,6 +50,13 @@ defmodule BillionOak.Customer.Account do
     end)
   end
 
+  def mask_phone(nil), do: nil
+
+  def mask_phone(phone) do
+    {prefix, last_four} = String.split_at(phone, -4)
+    String.duplicate("*", String.length(prefix)) <> last_four
+  end
+
   def upsert_all(changesets, opts \\ []) do
     error_changesets = Validation.invalid_changesets(changesets)
 

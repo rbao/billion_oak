@@ -240,6 +240,25 @@ defmodule BillionOak.Customer do
   """
   def get_account!(id), do: Repo.get!(Account, id)
 
+  def get_account_excerpt(rid) do
+    account = Repo.get_by(Account, rid: rid)
+
+    case account do
+      nil ->
+        {:error, :not_found}
+
+      account ->
+        excerpt = %{
+          id: account.id,
+          rid: account.rid,
+          phone1: Account.mask_phone(account.phone1),
+          phone2: Account.mask_phone(account.phone2)
+        }
+
+        {:ok, excerpt}
+    end
+  end
+
   @doc """
   Creates a account.
 
