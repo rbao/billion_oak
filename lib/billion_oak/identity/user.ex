@@ -1,6 +1,5 @@
 defmodule BillionOak.Identity.User do
   use BillionOak.Schema, id_prefix: "usr"
-  import Ecto.Changeset
 
   schema "users" do
     field :first_name, :string
@@ -9,7 +8,7 @@ defmodule BillionOak.Identity.User do
     field :company_id, :string
     field :company_account_id, :string
 
-    timestamps(type: :utc_datetime)
+    timestamps()
   end
 
   @doc false

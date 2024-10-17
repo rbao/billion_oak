@@ -1,6 +1,5 @@
 defmodule BillionOak.Identity.Client do
   use BillionOak.Schema, id_prefix: "clt"
-  import Ecto.Changeset
 
   schema "clients" do
     field :name, :string
