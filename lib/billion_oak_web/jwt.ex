@@ -3,6 +3,6 @@ defmodule BillionOakWeb.JWT do
 
   @impl true
   def token_config do
-    default_claims(skip: [:aud], iss: "billion_oak_web")
+    default_claims(skip: [:aud, :jti, :nbf, :iss, :iat])
   end
 end

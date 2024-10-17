@@ -9,11 +9,19 @@ defmodule BillionOakWeb.Router do
     pipe_through :api
   end
 
+  pipeline :authenticated do
+    plug BillionOakWeb.Plugs.UnwrapAccessToken
+    plug BillionOakWeb.Plugs.EnsureAuthenticated
+  end
+
   scope "/v1", BillionOakWeb do
     post "/token", TokenController, :create
   end
 
-  forward "/v1/graphql", Absinthe.Plug, schema: BillionOakWeb.Schema
+  scope "/v1" do
+    pipe_through :authenticated
+    forward "/graphql", Absinthe.Plug, schema: BillionOakWeb.Schema
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:billion_oak, :dev_routes) do
