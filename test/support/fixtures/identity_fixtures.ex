@@ -12,7 +12,7 @@ defmodule BillionOak.IdentityFixtures do
       attrs
       |> Enum.into(%{
         name: "some name",
-        organization_id: "some organization_id",
+        organization_id: "some organization_id"
       })
       |> BillionOak.Identity.create_client()
 

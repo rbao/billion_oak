@@ -19,6 +19,7 @@ defmodule BillionOak.Identity do
   """
   def list_clients do
     Repo.all(Client)
+    |> Client.put_publishable_key()
   end
 
   @doc """
@@ -35,7 +36,24 @@ defmodule BillionOak.Identity do
       ** (Ecto.NoResultsError)
 
   """
-  def get_client!(id), do: Repo.get!(Client, id)
+  def get_client(id) do
+    result =
+      Client
+      |> Repo.get(id)
+      |> Client.put_publishable_key()
+
+    case result do
+      nil -> {:error, :not_found}
+      client -> {:ok, client}
+    end
+  end
+
+  def verify_client(id, secret) do
+    case get_client(id) do
+      {:ok, %{secret: ^secret} = client} -> {:ok, client}
+      _ -> {:error, :invalid}
+    end
+  end
 
   @doc """
   Creates a client.

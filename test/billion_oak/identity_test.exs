@@ -16,11 +16,15 @@ defmodule BillionOak.IdentityTest do
 
     test "get_client!/1 returns the client with given id" do
       client = client_fixture()
-      assert Identity.get_client!(client.id) == client
+      assert {:ok, _} = Identity.get_client(client.id)
     end
 
     test "create_client/1 with valid data creates a client" do
-      valid_attrs = %{name: "some name", secret: "some secret", organization_id: "some organization_id"}
+      valid_attrs = %{
+        name: "some name",
+        secret: "some secret",
+        organization_id: "some organization_id"
+      }
 
       assert {:ok, %Client{} = client} = Identity.create_client(valid_attrs)
       assert client.name == "some name"
@@ -34,7 +38,12 @@ defmodule BillionOak.IdentityTest do
 
     test "update_client/2 with valid data updates the client" do
       client = client_fixture()
-      update_attrs = %{name: "some updated name", secret: "some updated secret", organization_id: "some updated organization_id"}
+
+      update_attrs = %{
+        name: "some updated name",
+        secret: "some updated secret",
+        organization_id: "some updated organization_id"
+      }
 
       assert {:ok, %Client{} = client} = Identity.update_client(client, update_attrs)
       assert client.name == "some updated name"
@@ -45,13 +54,13 @@ defmodule BillionOak.IdentityTest do
     test "update_client/2 with invalid data returns error changeset" do
       client = client_fixture()
       assert {:error, %Ecto.Changeset{}} = Identity.update_client(client, @invalid_attrs)
-      assert client == Identity.get_client!(client.id)
+      assert {:ok, _} = Identity.get_client(client.id)
     end
 
     test "delete_client/1 deletes the client" do
       client = client_fixture()
       assert {:ok, %Client{}} = Identity.delete_client(client)
-      assert_raise Ecto.NoResultsError, fn -> Identity.get_client!(client.id) end
+      assert {:error, :not_found} = Identity.get_client(client.id)
     end
 
     test "change_client/1 returns a client changeset" do

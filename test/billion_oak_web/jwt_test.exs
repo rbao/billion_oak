@@ -5,10 +5,8 @@ defmodule BillionOakWeb.JWTTest do
   describe "clients" do
     @tag :focus
     test "it works" do
-      {:ok, token, _claims} = JWT.generate_and_sign()
+      {:ok, token, _claims} = JWT.generate_and_sign(%{aud: "test"})
       assert is_binary(token)
-
-      IO.inspect JWT.verify_and_validate(token)
     end
   end
 end

@@ -25,5 +25,5 @@ alias BillionOak.{Customer, Identity}
 {:ok, _} =
   Identity.create_client(%{
     name: "Wechat Mini Program",
-    organization_id: happyteam.id,
+    organization_id: happyteam.id
   })

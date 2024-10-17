@@ -6,6 +6,7 @@ defmodule BillionOak.Identity.Client do
     field :name, :string
     field :secret, :string
     field :organization_id, :string
+    field :publishable_key, :string, virtual: true
 
     timestamps()
   end
@@ -29,4 +30,15 @@ defmodule BillionOak.Identity.Client do
     :crypto.strong_rand_bytes(32)
     |> Base.url_encode64(padding: false)
   end
+
+  def put_publishable_key(clients) when is_list(clients) do
+    Enum.map(clients, &put_publishable_key/1)
+  end
+
+  def put_publishable_key(%__MODULE__{id: id, secret: secret} = client) do
+    publishable_key = Base.encode64("#{id}:#{secret}")
+    %{client | publishable_key: publishable_key}
+  end
+
+  def put_publishable_key(client), do: client
 end
