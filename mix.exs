@@ -57,6 +57,7 @@ defmodule BillionOak.MixProject do
       {:ok, "~> 2.2.0"},
       {:absinthe_phoenix, "~> 2.0.3"},
       {:joken, "~> 2.6.2"},
+      {:typedstruct, "~> 0.5.3"},
       {:ex_machina, "~> 2.8.0", only: :test},
       {:faker, "~> 0.18.0", only: :test}
     ]
