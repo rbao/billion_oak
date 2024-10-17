@@ -5,15 +5,18 @@ defmodule BillionOakWeb.Schema do
   alias BillionOakWeb.Resolver
 
   query do
-    @desc "List all companies"
-    field :companies, list_of(:company) do
-      resolve(&Resolver.list_companies/3)
-    end
-
     @desc "Get a company account excerpt"
     field :company_account_excerpt, :company_account_excerpt do
       arg(:rid, non_null(:string))
       resolve(&Resolver.get_company_account_excerpt/3)
+    end
+  end
+
+  mutation do
+    @desc "Create an invitation code"
+    field :create_invitation_code, type: :invitation_code do
+      arg(:rid, non_null(:string))
+      resolve(&Resolver.create_invitation_code/3)
     end
   end
 end
