@@ -18,4 +18,22 @@ defmodule BillionOak.IdentityFixtures do
 
     client
   end
+
+  @doc """
+  Generate a user.
+  """
+  def user_fixture(attrs \\ %{}) do
+    {:ok, user} =
+      attrs
+      |> Enum.into(%{
+        company_account_id: "some company_account_id",
+        company_id: "some company_id",
+        first_name: "some first_name",
+        last_name: "some last_name",
+        organization_id: "some organization_id"
+      })
+      |> BillionOak.Identity.create_user()
+
+    user
+  end
 end
