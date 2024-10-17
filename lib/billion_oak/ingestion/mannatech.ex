@@ -117,6 +117,9 @@ defmodule BillionOak.Ingestion.Mannatech do
           ]
       )
 
+    phone1 = row["PHONENO"]
+    phone2 = if row["EVPHONENO"] != phone1, do: row["EVPHONENO"], else: nil
+
     %{
       account: %{
         status: account_status(row["STATUS"]),
@@ -125,8 +128,8 @@ defmodule BillionOak.Ingestion.Mannatech do
         city: row["CITY"],
         state: row["STATE"],
         country_code: row["COUNTRY"],
-        phone1: row["PHONENO"],
-        phone2: row["EVPHONENO"],
+        phone1: phone1,
+        phone2: phone2,
         enrolled_at: enrolled_at(row["ENROLLMENTDATE"]),
         sponsor_rid: row["SPONSORCTLNO"],
         enroller_rid: row["ENROLLCTLNO"],
