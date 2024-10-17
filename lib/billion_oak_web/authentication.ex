@@ -38,7 +38,7 @@ defmodule BillionOakWeb.Authentication do
       }) do
     case Identity.verify_client(client_id, client_secret) do
       {:ok, client} ->
-        claims = %{"aud" => client.id, "sub" => "anon_" <> XCUID.generate()}
+        claims = %{"aud" => client.id, "sub" => "guest_" <> XCUID.generate()}
         {:ok, JWT.generate_and_sign!(claims)}
 
       {:error, _} ->

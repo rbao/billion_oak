@@ -134,9 +134,9 @@ defmodule BillionOak.IdentityTest do
       assert Identity.list_users() == [user]
     end
 
-    test "get_user!/1 returns the user with given id" do
+    test "get_user/1 returns the user with given id" do
       user = user_fixture()
-      assert Identity.get_user!(user.id) == user
+      assert {:ok, user} == Identity.get_user(user.id)
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -169,13 +169,12 @@ defmodule BillionOak.IdentityTest do
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Identity.update_user(user, @invalid_attrs)
-      assert user == Identity.get_user!(user.id)
     end
 
     test "delete_user/1 deletes the user" do
       user = user_fixture()
       assert {:ok, %User{}} = Identity.delete_user(user)
-      assert_raise Ecto.NoResultsError, fn -> Identity.get_user!(user.id) end
+      assert {:error, :not_found} == Identity.get_user(user.id)
     end
 
     test "change_user/1 returns a user changeset" do

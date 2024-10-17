@@ -11,11 +11,17 @@ defmodule BillionOakWeb.Plugs.UnwrapAccessToken do
       conn
       |> assign(:client_id, claims["aud"])
       |> assign(:requester_id, claims["sub"])
+      |> put_graphql_context()
     else
       _ ->
         conn
         |> assign(:client_id, nil)
         |> assign(:requester_id, nil)
+        |> put_graphql_context()
     end
+  end
+
+  defp put_graphql_context(conn) do
+    Absinthe.Plug.put_options(conn, context: conn.assigns)
   end
 end

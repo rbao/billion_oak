@@ -28,6 +28,7 @@ defmodule BillionOak.Request do
     field :sort, list(), default: []
     field :include, [String.t()]
 
+    field :_organization_id_, String.t()
     field :_requester_, map()
     field :_client_, map()
     field :_role_, String.t()
@@ -49,5 +50,13 @@ defmodule BillionOak.Request do
 
   def put(req, key, value), do: Map.put(req, key, value)
 
-  def get(req, key), do: get_in(req, key)
+  def get(req, key) when is_atom(key) or is_binary(key) do
+    Map.get(req, key)
+  end
+
+  def get(req, key) do
+    req
+    |> Map.from_struct()
+    |> get_in(key)
+  end
 end
