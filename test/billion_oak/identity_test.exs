@@ -127,7 +127,13 @@ defmodule BillionOak.IdentityTest do
 
     import BillionOak.IdentityFixtures
 
-    @invalid_attrs %{first_name: nil, last_name: nil, organization_id: nil, company_id: nil, company_account_id: nil}
+    @invalid_attrs %{
+      first_name: nil,
+      last_name: nil,
+      organization_id: nil,
+      company_id: nil,
+      company_account_id: nil
+    }
 
     test "list_users/0 returns all users" do
       user = user_fixture()
@@ -140,7 +146,13 @@ defmodule BillionOak.IdentityTest do
     end
 
     test "create_user/1 with valid data creates a user" do
-      valid_attrs = %{first_name: "some first_name", last_name: "some last_name", organization_id: "some organization_id", company_id: "some company_id", company_account_id: "some company_account_id"}
+      valid_attrs = %{
+        first_name: "some first_name",
+        last_name: "some last_name",
+        organization_id: "some organization_id",
+        company_id: "some company_id",
+        company_account_id: "some company_account_id"
+      }
 
       assert {:ok, %User{} = user} = Identity.create_user(valid_attrs)
       assert user.first_name == "some first_name"
@@ -156,7 +168,14 @@ defmodule BillionOak.IdentityTest do
 
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
-      update_attrs = %{first_name: "some updated first_name", last_name: "some updated last_name", organization_id: "some updated organization_id", company_id: "some updated company_id", company_account_id: "some updated company_account_id"}
+
+      update_attrs = %{
+        first_name: "some updated first_name",
+        last_name: "some updated last_name",
+        organization_id: "some updated organization_id",
+        company_id: "some updated company_id",
+        company_account_id: "some updated company_account_id"
+      }
 
       assert {:ok, %User{} = user} = Identity.update_user(user, update_attrs)
       assert user.first_name == "some updated first_name"

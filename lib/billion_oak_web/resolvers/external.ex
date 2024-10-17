@@ -1,6 +1,7 @@
 defmodule BillionOakWeb.Resolvers.External do
   use OK.Pipe
   alias BillionOak.{Request, Response}
+
   def list_companies(_parent, _args, _resolution) do
     {:ok, BillionOak.External.list_companies()}
   end
@@ -16,7 +17,7 @@ defmodule BillionOakWeb.Resolvers.External do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
-      identifier: Map.take(args, [:rid]),
+      identifier: Map.take(args, [:rid])
     }
   end
 

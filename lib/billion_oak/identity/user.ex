@@ -16,6 +16,12 @@ defmodule BillionOak.Identity.User do
     user
     |> changeset()
     |> cast(attrs, [:first_name, :last_name, :organization_id, :company_id, :company_account_id])
-    |> validate_required([:first_name, :last_name, :organization_id, :company_id, :company_account_id])
+    |> validate_required([
+      :first_name,
+      :last_name,
+      :organization_id,
+      :company_id,
+      :company_account_id
+    ])
   end
 end

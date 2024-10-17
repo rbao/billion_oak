@@ -32,6 +32,7 @@ defmodule BillionOak do
   end
 
   defp put_client(%Request{client_id: nil} = req), do: req
+
   defp put_client(%Request{client_id: client_id} = req) do
     case Identity.get_client(client_id) do
       {:ok, client} -> %{req | _client_: client}
@@ -40,12 +41,14 @@ defmodule BillionOak do
   end
 
   defp put_organization_id(%Request{_client_: nil} = req), do: req
+
   defp put_organization_id(%Request{_client_: client} = req) do
     %{req | _organization_id_: client.organization_id}
   end
 
   defp put_requester(%Request{requester_id: nil} = req), do: req
   defp put_requester(%Request{requester_id: "guest_" <> _} = req), do: req
+
   defp put_requester(%Request{requester_id: requester_id} = req) do
     case Identity.get_user(requester_id) do
       {:ok, requester} -> %{req | _requester_: requester}
@@ -54,7 +57,10 @@ defmodule BillionOak do
   end
 
   defp put_role(%Request{_requester_: nil, _role_: nil} = req), do: %{req | _role_: "guest"}
-  defp put_role(%Request{_requester_: requester, _role_: nil} = req), do: %{req | _role_: requester.role}
+
+  defp put_role(%Request{_requester_: requester, _role_: nil} = req),
+    do: %{req | _role_: requester.role}
+
   defp put_role(%Request{} = req), do: req
 
   defp to_response({:ok, data}), do: {:ok, %Response{data: data}}
