@@ -36,4 +36,22 @@ defmodule BillionOak.IdentityFixtures do
 
     user
   end
+
+  @doc """
+  Generate a invitation_code.
+  """
+  def invitation_code_fixture(attrs \\ %{}) do
+    {:ok, invitation_code} =
+      attrs
+      |> Enum.into(%{
+        expires_at: ~U[2024-10-16 21:21:00Z],
+        invitee_company_account_rid: "some invitee_company_account_rid",
+        inviter_id: "some inviter_id",
+        organization_id: "some organization_id",
+        value: "some value"
+      })
+      |> BillionOak.Identity.create_invitation_code()
+
+    invitation_code
+  end
 end

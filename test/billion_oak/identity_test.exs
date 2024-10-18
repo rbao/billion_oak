@@ -201,4 +201,66 @@ defmodule BillionOak.IdentityTest do
       assert %Ecto.Changeset{} = Identity.change_user(user)
     end
   end
+
+  describe "invitation_codes" do
+    alias BillionOak.Identity.InvitationCode
+
+    import BillionOak.IdentityFixtures
+
+    @invalid_attrs %{value: nil, organization_id: nil, inviter_id: nil, invitee_company_account_rid: nil, expires_at: nil}
+
+    test "list_invitation_codes/0 returns all invitation_codes" do
+      invitation_code = invitation_code_fixture()
+      assert Identity.list_invitation_codes() == [invitation_code]
+    end
+
+    test "get_invitation_code!/1 returns the invitation_code with given id" do
+      invitation_code = invitation_code_fixture()
+      assert Identity.get_invitation_code!(invitation_code.id) == invitation_code
+    end
+
+    test "create_invitation_code/1 with valid data creates a invitation_code" do
+      valid_attrs = %{value: "some value", organization_id: "some organization_id", inviter_id: "some inviter_id", invitee_company_account_rid: "some invitee_company_account_rid", expires_at: ~U[2024-10-16 21:21:00Z]}
+
+      assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(valid_attrs)
+      assert invitation_code.value == "some value"
+      assert invitation_code.organization_id == "some organization_id"
+      assert invitation_code.inviter_id == "some inviter_id"
+      assert invitation_code.invitee_company_account_rid == "some invitee_company_account_rid"
+      assert invitation_code.expires_at == ~U[2024-10-16 21:21:00Z]
+    end
+
+    test "create_invitation_code/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Identity.create_invitation_code(@invalid_attrs)
+    end
+
+    test "update_invitation_code/2 with valid data updates the invitation_code" do
+      invitation_code = invitation_code_fixture()
+      update_attrs = %{value: "some updated value", organization_id: "some updated organization_id", inviter_id: "some updated inviter_id", invitee_company_account_rid: "some updated invitee_company_account_rid", expires_at: ~U[2024-10-17 21:21:00Z]}
+
+      assert {:ok, %InvitationCode{} = invitation_code} = Identity.update_invitation_code(invitation_code, update_attrs)
+      assert invitation_code.value == "some updated value"
+      assert invitation_code.organization_id == "some updated organization_id"
+      assert invitation_code.inviter_id == "some updated inviter_id"
+      assert invitation_code.invitee_company_account_rid == "some updated invitee_company_account_rid"
+      assert invitation_code.expires_at == ~U[2024-10-17 21:21:00Z]
+    end
+
+    test "update_invitation_code/2 with invalid data returns error changeset" do
+      invitation_code = invitation_code_fixture()
+      assert {:error, %Ecto.Changeset{}} = Identity.update_invitation_code(invitation_code, @invalid_attrs)
+      assert invitation_code == Identity.get_invitation_code!(invitation_code.id)
+    end
+
+    test "delete_invitation_code/1 deletes the invitation_code" do
+      invitation_code = invitation_code_fixture()
+      assert {:ok, %InvitationCode{}} = Identity.delete_invitation_code(invitation_code)
+      assert_raise Ecto.NoResultsError, fn -> Identity.get_invitation_code!(invitation_code.id) end
+    end
+
+    test "change_invitation_code/1 returns a invitation_code changeset" do
+      invitation_code = invitation_code_fixture()
+      assert %Ecto.Changeset{} = Identity.change_invitation_code(invitation_code)
+    end
+  end
 end

@@ -12,12 +12,28 @@ defmodule BillionOak do
   if it comes from the database, an external API or others.
   """
 
+  defmacro cfun do
+    quote do
+      {name, _} = __ENV__.function
+      name
+    end
+  end
+
   def get_company_account_excerpt(%Request{} = req) do
     req
     |> expand()
-    |> authorize(:get_company_account_excerpt)
-    ~> Request.take(:identifier, [:organization_id,:rid])
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:organization_id, :rid])
     ~>> External.get_company_account_excerpt()
+    |> to_response()
+  end
+
+  def create_invitation_code(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:data)
+    ~> Identity.create_invitation_code()
     |> to_response()
   end
 
@@ -46,11 +62,14 @@ defmodule BillionOak do
     %{req | _organization_id_: client.organization_id}
   end
 
+  defp put_requester(%Request{_organization_id_: nil} = req), do: req
   defp put_requester(%Request{requester_id: nil} = req), do: req
   defp put_requester(%Request{requester_id: "guest_" <> _} = req), do: req
 
-  defp put_requester(%Request{requester_id: requester_id} = req) do
-    case Identity.get_user(requester_id) do
+  defp put_requester(
+         %Request{requester_id: requester_id, _organization_id_: organization_id} = req
+       ) do
+    case Identity.get_user(%{id: requester_id, organization_id: organization_id}) do
       {:ok, requester} -> %{req | _requester_: requester}
       {:error, :not_found} -> req
     end

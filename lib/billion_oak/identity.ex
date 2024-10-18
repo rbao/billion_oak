@@ -244,8 +244,8 @@ defmodule BillionOak.Identity do
       {:error, :not_found}
 
   """
-  def get_user(id) do
-    result = Repo.get(User, id)
+  def get_user(identifier) do
+    result = Repo.get_by(User, identifier)
 
     case result do
       nil -> {:error, :not_found}
@@ -316,5 +316,101 @@ defmodule BillionOak.Identity do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  alias BillionOak.Identity.InvitationCode
+
+  @doc """
+  Returns the list of invitation_codes.
+
+  ## Examples
+
+      iex> list_invitation_codes()
+      [%InvitationCode{}, ...]
+
+  """
+  def list_invitation_codes do
+    Repo.all(InvitationCode)
+  end
+
+  @doc """
+  Gets a single invitation_code.
+
+  Raises `Ecto.NoResultsError` if the Invitation code does not exist.
+
+  ## Examples
+
+      iex> get_invitation_code!(123)
+      %InvitationCode{}
+
+      iex> get_invitation_code!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_invitation_code!(id), do: Repo.get!(InvitationCode, id)
+
+  @doc """
+  Creates a invitation_code.
+
+  ## Examples
+
+      iex> create_invitation_code(%{field: value})
+      {:ok, %InvitationCode{}}
+
+      iex> create_invitation_code(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_invitation_code(attrs \\ %{}) do
+    %InvitationCode{inviter: attrs[:inviter]}
+    |> InvitationCode.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a invitation_code.
+
+  ## Examples
+
+      iex> update_invitation_code(invitation_code, %{field: new_value})
+      {:ok, %InvitationCode{}}
+
+      iex> update_invitation_code(invitation_code, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_invitation_code(%InvitationCode{} = invitation_code, attrs) do
+    invitation_code
+    |> InvitationCode.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a invitation_code.
+
+  ## Examples
+
+      iex> delete_invitation_code(invitation_code)
+      {:ok, %InvitationCode{}}
+
+      iex> delete_invitation_code(invitation_code)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_invitation_code(%InvitationCode{} = invitation_code) do
+    Repo.delete(invitation_code)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking invitation_code changes.
+
+  ## Examples
+
+      iex> change_invitation_code(invitation_code)
+      %Ecto.Changeset{data: %InvitationCode{}}
+
+  """
+  def change_invitation_code(%InvitationCode{} = invitation_code, attrs \\ %{}) do
+    InvitationCode.changeset(invitation_code, attrs)
   end
 end
