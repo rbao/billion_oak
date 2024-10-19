@@ -1,5 +1,6 @@
 defmodule BillionOak.Identity.InvitationCode do
   alias BillionOak.Identity.{Organization, User}
+  alias BillionOak.External.CompanyAccount
   alias BillionOak.Repo
   use BillionOak.Schema, id_prefix: "incd"
 
@@ -47,8 +48,8 @@ defmodule BillionOak.Identity.InvitationCode do
     add_error(changeset, :inviter_id, "does not exist", validation: :must_exist)
   end
 
-  defp validate_inviter_id(%{data: %{inviter: inviter}} = changeset) do
-    if get_change(changeset, :inviter_id) == inviter.id do
+  defp validate_inviter_id(%{data: %{inviter: %{id: valid_id}}} = changeset) do
+    if get_change(changeset, :inviter_id) == valid_id do
       changeset
     else
       add_error(changeset, :inviter_id, "does not match", validation: :must_match)
@@ -91,15 +92,13 @@ defmodule BillionOak.Identity.InvitationCode do
   defp put_value(changeset), do: change(changeset, value: generate_value())
 
   defp generate_value() do
-    :crypto.strong_rand_bytes(3)
-    |> Base.encode32(padding: false)
-    |> binary_part(0, 6)
-    |> String.upcase()
+    allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  for _ <- 1..6, into: "", do: <<Enum.random(String.to_charlist(allowed_chars))>>
   end
 
   defp put_expires_at(%{valid?: false} = changeset), do: changeset
   defp put_expires_at(%{changes: %{expires_at: _}} = changeset), do: changeset
   defp put_expires_at(changeset) do
-    change(changeset, expires_at: DateTime.add(DateTime.utc_now(), 30, :day))
+    change(changeset, expires_at: DateTime.add(DateTime.utc_now(:second), 30, :day))
   end
 end

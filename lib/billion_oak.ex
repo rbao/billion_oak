@@ -76,10 +76,8 @@ defmodule BillionOak do
   end
 
   defp put_role(%Request{_requester_: nil, _role_: nil} = req), do: %{req | _role_: "guest"}
-
   defp put_role(%Request{_requester_: requester, _role_: nil} = req),
     do: %{req | _role_: requester.role}
-
   defp put_role(%Request{} = req), do: req
 
   defp to_response({:ok, data}), do: {:ok, %Response{data: data}}

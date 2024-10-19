@@ -21,10 +21,9 @@ defmodule BillionOak.Policy do
     Request.put(req, :identifier, :organization_id, organization_id)
   end
 
-  def scope(%{_role_: role} = req, :create_invitation_code) when role in @operator_roles, do: req
   def scope(%{_role_: role} = req, :create_invitation_code) when role in @member_roles do
     req
-    |> Request.put(:data, :inviter_id, req._requester_id_)
+    |> Request.put(:data, :inviter_id, req.requester_id)
     |> Request.put(:data, :inviter, req._requester_)
   end
 
@@ -33,6 +32,8 @@ defmodule BillionOak.Policy do
   def authorize(%{_role_: "sysdev"} = req, _), do: {:ok, req}
   def authorize(%{_role_: "system"} = req, _), do: {:ok, req}
   def authorize(%{_role_: "appdev"} = req, _), do: {:ok, req}
+  def authorize(%{_role_: "sysops"} = req, _), do: {:ok, req}
+  def authorize(%{_role_: nil}, _), do: {:error, :access_denied}
   def authorize(%{_client_: nil}, _), do: {:error, :access_denied}
   def authorize(%{_organization_id_: nil}, _), do: {:error, :access_denied}
 
@@ -53,9 +54,10 @@ defmodule BillionOak.Policy do
     end
   end
 
-  def authorize(%{_role_: role, _organization_id: org_id} = req, :create_invitation_token)
+  def authorize(%{requester_id: nil}, :create_invitation_code), do: {:error, :access_denied}
+  def authorize(%{_role_: role} = req, :create_invitation_code)
       when role in @member_roles do
-    if req.data[:inviter_id] == req._requester_id_ do
+    if req.data[:inviter_id] == req.requester_id do
       {:ok, req}
     else
       {:error, :access_denied}

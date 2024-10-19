@@ -340,14 +340,21 @@ defmodule BillionOak.Identity do
 
   ## Examples
 
-      iex> get_invitation_code!(123)
-      %InvitationCode{}
+      iex> get_invitation_code(123)
+      {:ok, %InvitationCode{}}
 
       iex> get_invitation_code!(456)
-      ** (Ecto.NoResultsError)
+      {:error, :not_found}
 
   """
-  def get_invitation_code!(id), do: Repo.get!(InvitationCode, id)
+  def get_invitation_code(value) do
+    result = Repo.get_by(InvitationCode, value: value)
+
+    case result do
+      nil -> {:error, :not_found}
+      invitation_code -> {:ok, invitation_code}
+    end
+  end
 
   @doc """
   Creates a invitation_code.
@@ -368,24 +375,6 @@ defmodule BillionOak.Identity do
   end
 
   @doc """
-  Updates a invitation_code.
-
-  ## Examples
-
-      iex> update_invitation_code(invitation_code, %{field: new_value})
-      {:ok, %InvitationCode{}}
-
-      iex> update_invitation_code(invitation_code, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_invitation_code(%InvitationCode{} = invitation_code, attrs) do
-    invitation_code
-    |> InvitationCode.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Deletes a invitation_code.
 
   ## Examples
@@ -399,18 +388,5 @@ defmodule BillionOak.Identity do
   """
   def delete_invitation_code(%InvitationCode{} = invitation_code) do
     Repo.delete(invitation_code)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking invitation_code changes.
-
-  ## Examples
-
-      iex> change_invitation_code(invitation_code)
-      %Ecto.Changeset{data: %InvitationCode{}}
-
-  """
-  def change_invitation_code(%InvitationCode{} = invitation_code, attrs \\ %{}) do
-    InvitationCode.changeset(invitation_code, attrs)
   end
 end

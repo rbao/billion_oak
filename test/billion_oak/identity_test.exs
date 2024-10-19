@@ -142,7 +142,7 @@ defmodule BillionOak.IdentityTest do
 
     test "get_user/1 returns the user with given id" do
       user = user_fixture()
-      assert {:ok, user} == Identity.get_user(user.id)
+      assert {:ok, user} == Identity.get_user(id: user.id)
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -193,7 +193,7 @@ defmodule BillionOak.IdentityTest do
     test "delete_user/1 deletes the user" do
       user = user_fixture()
       assert {:ok, %User{}} = Identity.delete_user(user)
-      assert {:error, :not_found} == Identity.get_user(user.id)
+      assert {:error, :not_found} == Identity.get_user(id: user.id)
     end
 
     test "change_user/1 returns a user changeset" do
@@ -207,60 +207,37 @@ defmodule BillionOak.IdentityTest do
 
     import BillionOak.IdentityFixtures
 
-    @invalid_attrs %{value: nil, organization_id: nil, inviter_id: nil, invitee_company_account_rid: nil, expires_at: nil}
+    @invalid_attrs %{invitee_company_account_rid: nil}
 
     test "list_invitation_codes/0 returns all invitation_codes" do
-      invitation_code = invitation_code_fixture()
+      invitation_code = insert(:invitation_code)
       assert Identity.list_invitation_codes() == [invitation_code]
     end
 
-    test "get_invitation_code!/1 returns the invitation_code with given id" do
-      invitation_code = invitation_code_fixture()
-      assert Identity.get_invitation_code!(invitation_code.id) == invitation_code
+    test "get_invitation_code/1 returns the invitation_code with given value" do
+      invitation_code = insert(:invitation_code)
+      assert {:ok, %InvitationCode{}} = Identity.get_invitation_code(invitation_code.value)
     end
 
     test "create_invitation_code/1 with valid data creates a invitation_code" do
-      valid_attrs = %{value: "some value", organization_id: "some organization_id", inviter_id: "some inviter_id", invitee_company_account_rid: "some invitee_company_account_rid", expires_at: ~U[2024-10-16 21:21:00Z]}
+      company_account = insert(:company_account)
+      valid_attrs = %{organization_id: "organization_id", invitee_company_account_rid: company_account.rid}
 
       assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(valid_attrs)
-      assert invitation_code.value == "some value"
-      assert invitation_code.organization_id == "some organization_id"
-      assert invitation_code.inviter_id == "some inviter_id"
-      assert invitation_code.invitee_company_account_rid == "some invitee_company_account_rid"
-      assert invitation_code.expires_at == ~U[2024-10-16 21:21:00Z]
+      assert invitation_code.value
+      assert invitation_code.organization_id == valid_attrs.organization_id
+      assert invitation_code.invitee_company_account_rid == valid_attrs.invitee_company_account_rid
+      assert invitation_code.expires_at
     end
 
     test "create_invitation_code/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Identity.create_invitation_code(@invalid_attrs)
     end
 
-    test "update_invitation_code/2 with valid data updates the invitation_code" do
-      invitation_code = invitation_code_fixture()
-      update_attrs = %{value: "some updated value", organization_id: "some updated organization_id", inviter_id: "some updated inviter_id", invitee_company_account_rid: "some updated invitee_company_account_rid", expires_at: ~U[2024-10-17 21:21:00Z]}
-
-      assert {:ok, %InvitationCode{} = invitation_code} = Identity.update_invitation_code(invitation_code, update_attrs)
-      assert invitation_code.value == "some updated value"
-      assert invitation_code.organization_id == "some updated organization_id"
-      assert invitation_code.inviter_id == "some updated inviter_id"
-      assert invitation_code.invitee_company_account_rid == "some updated invitee_company_account_rid"
-      assert invitation_code.expires_at == ~U[2024-10-17 21:21:00Z]
-    end
-
-    test "update_invitation_code/2 with invalid data returns error changeset" do
-      invitation_code = invitation_code_fixture()
-      assert {:error, %Ecto.Changeset{}} = Identity.update_invitation_code(invitation_code, @invalid_attrs)
-      assert invitation_code == Identity.get_invitation_code!(invitation_code.id)
-    end
-
     test "delete_invitation_code/1 deletes the invitation_code" do
-      invitation_code = invitation_code_fixture()
+      invitation_code = insert(:invitation_code)
       assert {:ok, %InvitationCode{}} = Identity.delete_invitation_code(invitation_code)
-      assert_raise Ecto.NoResultsError, fn -> Identity.get_invitation_code!(invitation_code.id) end
-    end
-
-    test "change_invitation_code/1 returns a invitation_code changeset" do
-      invitation_code = invitation_code_fixture()
-      assert %Ecto.Changeset{} = Identity.change_invitation_code(invitation_code)
+      assert {:error, :not_found} = Identity.get_invitation_code(invitation_code.value)
     end
   end
 end
