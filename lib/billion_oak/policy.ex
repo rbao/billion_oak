@@ -55,6 +55,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{requester_id: nil}, :create_invitation_code), do: {:error, :access_denied}
+
   def authorize(%{_role_: role} = req, :create_invitation_code)
       when role in @member_roles do
     if req.data[:inviter_id] == req.requester_id do

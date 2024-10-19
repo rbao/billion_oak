@@ -43,7 +43,9 @@ defmodule BillionOak.Identity.InvitationCode do
 
   defp validate_inviter_id(%{valid?: false} = changeset), do: changeset
 
-  defp validate_inviter_id(%{data: %{inviter: nil}, changes: %{inviter_id: inviter_id}} = changeset)
+  defp validate_inviter_id(
+         %{data: %{inviter: nil}, changes: %{inviter_id: inviter_id}} = changeset
+       )
        when is_binary(inviter_id) do
     add_error(changeset, :inviter_id, "does not exist", validation: :must_exist)
   end
@@ -67,8 +69,10 @@ defmodule BillionOak.Identity.InvitationCode do
 
   defp validate_organization_id(%{valid?: false} = changeset), do: changeset
   defp validate_organization_id(%{data: %{inviter: %{id: _}}} = changeset), do: changeset
+
   defp validate_organization_id(%{data: %{inviter: nil}} = changeset) do
     organization_id = get_change(changeset, :organization_id)
+
     if Repo.exists?(Organization, id: organization_id) do
       changeset
     else
@@ -77,14 +81,18 @@ defmodule BillionOak.Identity.InvitationCode do
   end
 
   defp validate_invitee(%{valid?: false} = changeset), do: changeset
+
   defp validate_invitee(%{changes: %{invitee_company_account_rid: rid}} = changeset) do
     org_id = get_change(changeset, :organization_id)
 
     is_exists = Repo.exists?(CompanyAccount, organization_id: org_id, rid: rid)
+
     if is_exists do
       changeset
     else
-      add_error(changeset, :invitee_company_account_rid, "does not exist", validation: :must_exist)
+      add_error(changeset, :invitee_company_account_rid, "does not exist",
+        validation: :must_exist
+      )
     end
   end
 
@@ -93,11 +101,12 @@ defmodule BillionOak.Identity.InvitationCode do
 
   defp generate_value() do
     allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  for _ <- 1..6, into: "", do: <<Enum.random(String.to_charlist(allowed_chars))>>
+    for _ <- 1..6, into: "", do: <<Enum.random(String.to_charlist(allowed_chars))>>
   end
 
   defp put_expires_at(%{valid?: false} = changeset), do: changeset
   defp put_expires_at(%{changes: %{expires_at: _}} = changeset), do: changeset
+
   defp put_expires_at(changeset) do
     change(changeset, expires_at: DateTime.add(DateTime.utc_now(:second), 30, :day))
   end

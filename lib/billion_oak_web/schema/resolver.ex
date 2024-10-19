@@ -28,7 +28,7 @@ defmodule BillionOakWeb.Resolver do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
-      data: args,
+      data: args
     }
   end
 

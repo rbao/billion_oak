@@ -19,6 +19,15 @@ defmodule BillionOak do
     end
   end
 
+  def get_organization(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:handle])
+    ~>> Identity.get_organization()
+    |> to_response()
+  end
+
   def get_company_account_excerpt(%Request{} = req) do
     req
     |> expand()
@@ -33,7 +42,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~> Request.get(:data)
-    ~> Identity.create_invitation_code()
+    ~>> Identity.create_invitation_code()
     |> to_response()
   end
 
@@ -76,8 +85,10 @@ defmodule BillionOak do
   end
 
   defp put_role(%Request{_requester_: nil, _role_: nil} = req), do: %{req | _role_: "guest"}
+
   defp put_role(%Request{_requester_: requester, _role_: nil} = req),
     do: %{req | _role_: requester.role}
+
   defp put_role(%Request{} = req), do: req
 
   defp to_response({:ok, data}), do: {:ok, %Response{data: data}}

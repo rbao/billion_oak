@@ -1,6 +1,6 @@
 defmodule BillionOakWeb.Schema.Types do
   use Absinthe.Schema.Notation
-  import_types Absinthe.Type.Custom
+  import_types(Absinthe.Type.Custom)
 
   object :company do
     field :id, :id

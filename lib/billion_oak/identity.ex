@@ -26,15 +26,15 @@ defmodule BillionOak.Identity do
 
   ## Examples
 
-      iex> get_organization(123)
+      iex> get_organization(%{handle: "happyteam"})
       {:ok, %Organization{}}
 
-      iex> get_organization(456)
+      iex> get_organization(%{handle: "happyteam"})
       {:error, :not_found}
 
   """
-  def get_organization(id) do
-    result = Repo.get(Organization, id)
+  def get_organization(identifier) do
+    result = Repo.get_by(Organization, identifier)
 
     case result do
       nil -> {:error, :not_found}

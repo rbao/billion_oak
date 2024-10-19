@@ -13,11 +13,11 @@ defmodule BillionOak.IdentityTest do
 
     test "get_organization!/1 returns the organization with given id" do
       organization = insert(:organization)
-      assert {:ok, %Organization{}} = Identity.get_organization(organization.id)
+      assert {:ok, %Organization{}} = Identity.get_organization(id: organization.id)
     end
 
     test "get_organization/1 returns error when organization not found" do
-      assert {:error, :not_found} = Identity.get_organization("some id")
+      assert {:error, :not_found} = Identity.get_organization(id: "some id")
     end
 
     test "create_organization/1 with valid data creates a organization" do
@@ -52,7 +52,7 @@ defmodule BillionOak.IdentityTest do
     test "delete_organization/1 deletes the organization" do
       organization = insert(:organization)
       assert {:ok, %Organization{}} = Identity.delete_organization(organization)
-      assert {:error, :not_found} = Identity.get_organization(organization.id)
+      assert {:error, :not_found} = Identity.get_organization(id: organization.id)
     end
   end
 
@@ -221,12 +221,21 @@ defmodule BillionOak.IdentityTest do
 
     test "create_invitation_code/1 with valid data creates a invitation_code" do
       company_account = insert(:company_account)
-      valid_attrs = %{organization_id: "organization_id", invitee_company_account_rid: company_account.rid}
 
-      assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(valid_attrs)
+      valid_attrs = %{
+        organization_id: "organization_id",
+        invitee_company_account_rid: company_account.rid
+      }
+
+      assert {:ok, %InvitationCode{} = invitation_code} =
+               Identity.create_invitation_code(valid_attrs)
+
       assert invitation_code.value
       assert invitation_code.organization_id == valid_attrs.organization_id
-      assert invitation_code.invitee_company_account_rid == valid_attrs.invitee_company_account_rid
+
+      assert invitation_code.invitee_company_account_rid ==
+               valid_attrs.invitee_company_account_rid
+
       assert invitation_code.expires_at
     end
 
