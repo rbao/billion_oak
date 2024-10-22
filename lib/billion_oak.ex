@@ -19,6 +19,13 @@ defmodule BillionOak do
     end
   end
 
+  def verify_client(%Request{} = req) do
+    req = expand(req)
+
+    Identity.verify_client(req.data.client_id, req.data.client_secret)
+    |> to_response()
+  end
+
   def get_organization(%Request{} = req) do
     req
     |> expand()

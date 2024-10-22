@@ -24,6 +24,8 @@ alias BillionOak.{External, Identity}
 
 {:ok, _} =
   Identity.create_client(%{
-    name: "Wechat Mini Program",
-    organization_id: happyteam.id
+    name: "WeChat Mini Program",
+    organization_id: happyteam.id,
+    wx_app_id: System.get_env("HT_WX_APP_ID"),
+    wx_app_secret: System.get_env("HT_WX_APP_SECRET")
   })

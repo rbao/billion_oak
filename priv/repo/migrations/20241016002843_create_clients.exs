@@ -7,6 +7,8 @@ defmodule BillionOak.Repo.Migrations.CreateClients do
       add :name, :string
       add :organization_id, :string
       add :secret, :string
+      add :wx_app_id, :string
+      add :wx_app_secret, :string
 
       timestamps()
     end

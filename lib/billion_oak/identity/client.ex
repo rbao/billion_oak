@@ -6,6 +6,8 @@ defmodule BillionOak.Identity.Client do
     field :secret, :string
     field :organization_id, :string
     field :publishable_key, :string, virtual: true
+    field :wx_app_id, :string
+    field :wx_app_secret, :string
 
     timestamps()
   end
@@ -14,7 +16,7 @@ defmodule BillionOak.Identity.Client do
   def changeset(client, attrs) do
     client
     |> changeset()
-    |> cast(attrs, [:name, :organization_id])
+    |> cast(attrs, [:name, :organization_id, :wx_app_id, :wx_app_secret])
     |> put_secret()
     |> validate_required([:name, :organization_id, :secret])
   end

@@ -1,6 +1,6 @@
 defmodule BillionOakWeb.Authentication do
   use OK.Pipe
-  alias BillionOak.Identity
+  alias BillionOak.{Request, Identity}
   alias BillionOakWeb.JWT
 
   @error_detail [
@@ -27,8 +27,35 @@ defmodule BillionOakWeb.Authentication do
   ]
 
   def create_access_token(%{grant_type: grant_type})
-      when grant_type not in ["client_credentials", "refresh_token", "password"] do
+      when grant_type not in ["client_credentials", "refresh_token", "code"] do
     {:error, @error_detail[:unsupported_grant_type]}
+  end
+
+  def create_access_token(%{
+    grant_type: "code",
+    code: code,
+    client_id: client_id,
+    client_secret: client_secret
+  }) do
+    %Request{data: %{client_id: client_id, client_secret: client_secret}}
+    |> BillionOak.verify_client()
+    ~> Map.get(:data)
+    ~>> verify_code(code)
+    |> IO.inspect()
+  end
+
+  defp verify_code(client, code) do
+    wx_url = "https://api.weixin.qq.com/sns/jscode2session"
+    params = %{
+      appid: client.wx_app_id,
+      secret: client.wx_app_secret,
+      js_code: code,
+      grant_type: "authorization_code"
+    }
+    Req.get(wx_url, params: params)
+    ~> Map.get(:body)
+    ~> Jason.decode!()
+    ~> Map.get("openid")
   end
 
   def create_access_token(%{
@@ -44,9 +71,5 @@ defmodule BillionOakWeb.Authentication do
       {:error, _} ->
         {:error, @error_detail[:invalid_client]}
     end
-  end
-
-  def create_access_token(%{"grant_type" => "password"}) do
-    # TODO
   end
 end

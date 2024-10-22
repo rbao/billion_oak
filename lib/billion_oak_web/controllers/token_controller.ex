@@ -25,7 +25,7 @@ defmodule BillionOakWeb.TokenController do
          [client_id, client_secret] <- String.split(decoded, ":", parts: 2) do
       params =
         params
-        |> atomize_keys([:grant_type, :username, :password, :refresh_token, :scope])
+        |> atomize_keys([:grant_type, :username, :password, :refresh_token, :code, :scope])
         |> Map.merge(%{client_id: client_id, client_secret: client_secret})
 
       {:ok, params}
