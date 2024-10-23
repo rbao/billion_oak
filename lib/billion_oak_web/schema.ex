@@ -1,8 +1,8 @@
 defmodule BillionOakWeb.Schema do
   use Absinthe.Schema
-  import_types(BillionOakWeb.Schema.Types)
-
   alias BillionOakWeb.Resolver
+  alias BillionOakWeb.Schema.DataSource
+  import_types(BillionOakWeb.Schema.Types)
 
   query do
     @desc "Get a company account excerpt"
@@ -27,5 +27,17 @@ defmodule BillionOakWeb.Schema do
       arg(:last_name, non_null(:string))
       resolve(&Resolver.sign_up/3)
     end
+  end
+
+  def context(ctx) do
+    loader =
+      Dataloader.new()
+      |> Dataloader.add_source(DataSource, DataSource.data())
+
+    Map.put(ctx, :loader, loader)
+  end
+
+  def plugins do
+    [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
   end
 end
