@@ -15,7 +15,7 @@ defmodule BillionOak.PolicyTest do
       assert Policy.scope(req, :create_invitation_code) == req
 
       user = %User{id: "user_id"}
-      req = req(requester_id: "user_id", _requester_: user, _role_: "member")
+      req = req(requester_id: "user_id", _requester_: user, _role_: :member)
       req = Policy.scope(req, :create_invitation_code)
       assert req.data[:inviter_id] == "user_id"
       assert req.data[:inviter] == user
@@ -25,10 +25,10 @@ defmodule BillionOak.PolicyTest do
       req = req()
       assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
 
-      req = req(requester_id: "user_id", _role_: "member")
+      req = req(requester_id: "user_id", _role_: :member)
       assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
 
-      req = req(requester_id: "user_id", _role_: "member", data: %{inviter_id: "user_id"})
+      req = req(requester_id: "user_id", _role_: :member, data: %{inviter_id: "user_id"})
       assert {:ok, _} = Policy.authorize(req, :create_invitation_code)
     end
   end

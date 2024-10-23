@@ -12,7 +12,7 @@ defmodule BillionOakTest do
 
   def sysops(attrs \\ []) do
     attrs = Enum.into(attrs, %{})
-    Map.merge(%Request{_role_: "sysops"}, attrs)
+    Map.merge(%Request{_role_: :sysops}, attrs)
   end
 
   describe "get_organization/1" do

@@ -219,7 +219,7 @@ defmodule BillionOak.IdentityTest do
       company_account = insert(:company_account)
 
       valid_attrs = %{
-        organization_id: "organization_id",
+        organization_id: company_account.organization_id,
         invitee_company_account_rid: company_account.rid
       }
 
