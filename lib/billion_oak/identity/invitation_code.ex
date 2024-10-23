@@ -85,8 +85,7 @@ defmodule BillionOak.Identity.InvitationCode do
   defp validate_invitee(%{changes: %{invitee_company_account_rid: rid}} = changeset) do
     org_id = get_change(changeset, :organization_id)
 
-    is_exists = Repo.exists?(CompanyAccount, organization_id: org_id, rid: rid)
-
+    is_exists = !!Repo.get_by(CompanyAccount, organization_id: org_id, rid: rid)
     if is_exists do
       changeset
     else

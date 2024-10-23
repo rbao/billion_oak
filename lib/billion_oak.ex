@@ -24,11 +24,11 @@ defmodule BillionOak do
     |> to_response()
   end
 
-  def create_or_get_user(%Request{} = req) do
+  def get_or_create_user(%Request{} = req) do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~>> then(&Identity.create_or_get_user(&1.identifier, &1.data))
+    ~>> then(&Identity.get_or_create_user(&1.identifier, &1.data))
     |> to_response()
   end
 
@@ -41,21 +41,21 @@ defmodule BillionOak do
     |> to_response()
   end
 
-  def get_company_account_excerpt(%Request{} = req) do
-    req
-    |> expand()
-    |> scope_authorize(cfun())
-    ~> Request.take(:identifier, [:organization_id, :rid])
-    ~>> External.get_company_account_excerpt()
-    |> to_response()
-  end
-
   def create_invitation_code(%Request{} = req) do
     req
     |> expand()
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Identity.create_invitation_code()
+    |> to_response()
+  end
+
+  def get_company_account_excerpt(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:organization_id, :rid])
+    ~>> External.get_company_account_excerpt()
     |> to_response()
   end
 

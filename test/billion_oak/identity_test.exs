@@ -150,7 +150,6 @@ defmodule BillionOak.IdentityTest do
         first_name: "some first_name",
         last_name: "some last_name",
         organization_id: "some organization_id",
-        company_id: "some company_id",
         company_account_id: "some company_account_id"
       }
 
@@ -158,7 +157,6 @@ defmodule BillionOak.IdentityTest do
       assert user.first_name == "some first_name"
       assert user.last_name == "some last_name"
       assert user.organization_id == "some organization_id"
-      assert user.company_id == "some company_id"
       assert user.company_account_id == "some company_account_id"
     end
 
@@ -173,7 +171,6 @@ defmodule BillionOak.IdentityTest do
         first_name: "some updated first_name",
         last_name: "some updated last_name",
         organization_id: "some updated organization_id",
-        company_id: "some updated company_id",
         company_account_id: "some updated company_account_id"
       }
 
@@ -181,7 +178,6 @@ defmodule BillionOak.IdentityTest do
       assert user.first_name == "some updated first_name"
       assert user.last_name == "some updated last_name"
       assert user.organization_id == "some updated organization_id"
-      assert user.company_id == "some updated company_id"
       assert user.company_account_id == "some updated company_account_id"
     end
 

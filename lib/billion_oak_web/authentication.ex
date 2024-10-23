@@ -16,6 +16,14 @@ defmodule BillionOakWeb.Authentication do
       error: :invalid_grant,
       error_description: "Refresh token is invalid."
     },
+    invalid_code: %{
+      error: :invalid_grant,
+      error_description: "Code is invalid."
+    },
+    user_blocked: %{
+      error: :invalid_grant,
+      error_description: "User is blocked by WeChat."
+    },
     invalid_request: %{
       error: :invalid_request,
       error_description: "Your request is missing required parameters or is otherwise malformed."
@@ -43,7 +51,7 @@ defmodule BillionOakWeb.Authentication do
       ~> Map.get(:data)
       ~>> get_openid(code)
       ~> then(&%Request{client_id: client_id, identifier: %{wx_app_openid: &1}})
-      ~>> BillionOak.create_or_get_user()
+      ~>> BillionOak.get_or_create_user()
 
     case result do
       {:ok, %{data: user}} ->
@@ -52,21 +60,13 @@ defmodule BillionOakWeb.Authentication do
 
       {:error, :invalid} ->
         {:error, @error_detail[:invalid_client]}
-    end
-  end
 
-  defp get_openid(client, code) do
-    wx_url = "https://api.weixin.qq.com/sns/jscode2session"
-    params = %{
-      appid: client.wx_app_id,
-      secret: client.wx_app_secret,
-      js_code: code,
-      grant_type: "authorization_code"
-    }
-    Req.get(wx_url, params: params)
-    ~> Map.get(:body)
-    ~> Jason.decode!()
-    ~> Map.get("openid")
+      {:error, :invalid_code} ->
+        {:error, @error_detail[:invalid_code]}
+
+      {:error, :user_blocked} ->
+        {:error, @error_detail[:user_blocked]}
+    end
   end
 
   def create_access_token(%{
@@ -83,4 +83,25 @@ defmodule BillionOakWeb.Authentication do
         {:error, @error_detail[:invalid_client]}
     end
   end
+
+  defp get_openid(client, code) do
+    wx_url = "https://api.weixin.qq.com/sns/jscode2session"
+    params = %{
+      appid: client.wx_app_id,
+      secret: client.wx_app_secret,
+      js_code: code,
+      grant_type: "authorization_code"
+    }
+    Req.get(wx_url, params: params)
+    ~> Map.get(:body)
+    ~> Jason.decode!()
+    ~>> parse_wx_error()
+    ~> Map.get("openid")
+  end
+
+  defp parse_wx_error(%{"errcode" => 40029}), do: {:error, :invalid_code}
+  defp parse_wx_error(%{"errcode" => 40226}), do: {:error, :user_blocked}
+  defp parse_wx_error(%{"errcode" => 45011}), do: {:error, :busy}
+  defp parse_wx_error(%{"errcode" => _}), do: {:error, :unavailable}
+  defp parse_wx_error(noerror), do: {:ok, noerror}
 end
