@@ -44,7 +44,6 @@ defmodule BillionOak.Identity.User do
 
   defp put_company_account_id(%{valid?: false} = cs), do: cs
   defp put_company_account_id(%{data: %{company_account: %{id: id}, company_account_id: nil}} = cs) do
-    IO.inspect "here2"
     change(cs, company_account_id: id)
   end
   defp put_company_account_id(cs), do: cs
