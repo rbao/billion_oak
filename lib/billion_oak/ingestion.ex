@@ -1,6 +1,7 @@
 defmodule BillionOak.Ingestion do
-  alias BillionOak.Ingestion.Attempt
-  alias BillionOak.Repo
+  use OK.Pipe
+  alias BillionOak.Ingestion.{Attempt, Mannatech}
+  alias BillionOak.{Repo, Identity}
 
   @doc """
   Returns the list of attempts.
@@ -13,6 +14,12 @@ defmodule BillionOak.Ingestion do
   """
   def list_attempts do
     Repo.all(Attempt)
+  end
+
+  def run(org_identifier) do
+    org_identifier
+    |> Identity.get_organization()
+    ~>> Mannatech.ingest()
   end
 
   @doc """

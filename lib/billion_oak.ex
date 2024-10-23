@@ -1,7 +1,7 @@
 defmodule BillionOak do
   use OK.Pipe
   import BillionOak.Policy
-  alias BillionOak.{Identity, External, Request, Response}
+  alias BillionOak.{External, Identity, Ingestion, Request, Response}
   alias BillionOak.Identity.{Client, User}
 
   @moduledoc """
@@ -64,6 +64,15 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:organization_id, :rid])
     ~>> External.get_company_account_excerpt()
+    |> to_response()
+  end
+
+  def ingest_external_data(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:handle])
+    ~>> Ingestion.run()
     |> to_response()
   end
 

@@ -4,10 +4,9 @@ defmodule BillionOak.Ingestion.Mannatech do
   alias BillionOak.{Repo, External, Identity, Filestore}
   alias BillionOak.Ingestion.Attempt
 
-  def ingest(org_handle) do
+  def ingest(organization) do
     {:ok, company} = External.get_company("mannatech")
-    {:ok, organization} = Identity.get_organization(company.id, org_handle)
-    prefix = s3_key(company.handle, org_handle)
+    prefix = s3_key(company.handle, organization.handle)
     start_after = organization.ingestion_cursor || "#{prefix}/0"
 
     Filestore.list_s3_files(prefix, start_after)
