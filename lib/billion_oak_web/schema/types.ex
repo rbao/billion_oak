@@ -21,4 +21,13 @@ defmodule BillionOakWeb.Schema.Types do
     field :invitee_company_account_rid, :string
     field :expires_at, :datetime
   end
+
+  object :user do
+    field :id, :id
+    field :first_name, :string
+    field :last_name, :string
+    field :role, :string
+    field :company_account_id, :id
+    field :organization_id, :id
+  end
 end

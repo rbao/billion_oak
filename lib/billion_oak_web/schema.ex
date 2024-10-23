@@ -18,5 +18,14 @@ defmodule BillionOakWeb.Schema do
       arg(:rid, non_null(:string))
       resolve(&Resolver.create_invitation_code/3)
     end
+
+    @desc "Sign up with an invitation code"
+    field :sign_up, type: :user do
+      arg(:company_account_rid, non_null(:string))
+      arg(:invitation_code, non_null(:string))
+      arg(:first_name, :string)
+      arg(:last_name, non_null(:string))
+      resolve(&Resolver.sign_up/3)
+    end
   end
 end

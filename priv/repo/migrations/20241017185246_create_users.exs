@@ -10,6 +10,7 @@ defmodule BillionOak.Repo.Migrations.CreateUsers do
       add :organization_id, :string, null: false
       add :company_account_id, :string
       add :wx_app_openid, :string
+      add :inviter_id, :string
 
       timestamps()
     end

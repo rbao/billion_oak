@@ -6,11 +6,11 @@ defmodule Mix.Tasks.Bo.Ht.Invite do
   @requirements ["app.start"]
   @impl Mix.Task
   def run([company_account_rid]) do
-    req = %Request{_role_: "sysops", identifier: %{handle: "happyteam"}}
+    req = %Request{_role_: :sysops, identifier: %{handle: "happyteam"}}
     {:ok, %{data: organization}} = BillionOak.get_organization(req)
 
     req = %Request{
-      _role_: "sysops",
+      _role_: :sysops,
       data: %{organization_id: organization.id, invitee_company_account_rid: company_account_rid}
     }
 

@@ -50,6 +50,14 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def sign_up(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> then(&Identity.sign_up(&1.requester_id, &1.data))
+    |> to_response()
+  end
+
   def get_company_account_excerpt(%Request{} = req) do
     req
     |> expand()
@@ -86,7 +94,7 @@ defmodule BillionOak do
 
   defp put_requester(%Request{_organization_id_: nil} = req), do: req
   defp put_requester(%Request{requester_id: nil} = req), do: req
-  defp put_requester(%Request{requester_id: "guest_" <> _} = req), do: req
+  defp put_requester(%Request{requester_id: "anon_" <> _} = req), do: req
 
   defp put_requester(
          %Request{requester_id: requester_id, _organization_id_: organization_id} = req
@@ -97,7 +105,7 @@ defmodule BillionOak do
     end
   end
 
-  defp put_role(%Request{_requester_: nil, _role_: nil} = req), do: %{req | _role_: "guest"}
+  defp put_role(%Request{_requester_: nil, _role_: nil} = req), do: %{req | _role_: :anonymous}
 
   defp put_role(%Request{_requester_: requester, _role_: nil} = req),
     do: %{req | _role_: requester.role}

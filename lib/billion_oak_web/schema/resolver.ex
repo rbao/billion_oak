@@ -2,21 +2,28 @@ defmodule BillionOakWeb.Resolver do
   use OK.Pipe
   alias BillionOak.{Request, Response}
 
+  def sign_up(_parent, args, %{context: context}) do
+    context
+    |> build_request(args, :mutation)
+    |> BillionOak.sign_up()
+    ~> unwrap_response(:mutation)
+  end
+
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :get)
+    |> build_request(args, :query)
     |> BillionOak.get_company_account_excerpt()
-    ~> unwrap_response(:get)
+    ~> unwrap_response(:query)
   end
 
   def create_invitation_code(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :create)
+    |> build_request(args, :mutation)
     |> BillionOak.create_invitation_code()
-    ~> unwrap_response(:create)
+    ~> unwrap_response(:mutation)
   end
 
-  def build_request(context, args, :get) do
+  def build_request(context, args, :query) do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
@@ -24,7 +31,7 @@ defmodule BillionOakWeb.Resolver do
     }
   end
 
-  def build_request(context, args, :create) do
+  def build_request(context, args, :mutation) do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
@@ -32,6 +39,6 @@ defmodule BillionOakWeb.Resolver do
     }
   end
 
-  def unwrap_response(%Response{data: data}, :get), do: data
-  def unwrap_response(%Response{data: data}, :create), do: data
+  def unwrap_response(%Response{data: data}, :query), do: data
+  def unwrap_response(%Response{data: data}, :mutation), do: data
 end

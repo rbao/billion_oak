@@ -3,10 +3,11 @@ defmodule BillionOak.Identity do
   The Identity context.
   """
 
+  use OK.Pipe
   import Ecto.Query, warn: false
   alias BillionOak.Repo
 
-  alias BillionOak.Identity.{Client, Organization}
+  alias BillionOak.Identity.{Client, Organization, InvitationCode}
 
   @doc """
   Returns the list of External_organizations.
@@ -271,8 +272,51 @@ defmodule BillionOak.Identity do
     |> Repo.insert()
   end
 
+  def sign_up(guest_id, %{company_account_rid: rid, invitation_code: inv_code_value} = params) do
+    guest = Repo.get_by(User, id: guest_id, role: :guest)
+    initial = if guest, do: {:ok, guest}, else: {:error, :not_found}
+
+    result =
+      initial
+      ~>> then(&verify_invitation_code(inv_code_value, &1.organization_id, rid))
+      ~> then(
+        &User.changeset(guest, %{
+          first_name: params[:first_name],
+          last_name: params[:last_name],
+          company_account_rid: &1.invitee_company_account_rid,
+          inviter_id: &1.inviter_id,
+          role: :member
+        })
+      )
+      ~>> Repo.update()
+
+    case result do
+      {:error, :invalid} -> {:error, :invalid_invitation_code}
+      other -> other
+    end
+  end
+
+  defp verify_invitation_code(nil, _, _), do: {:error, :invalid}
+  defp verify_invitation_code(_, nil, _), do: {:error, :invalid}
+  defp verify_invitation_code(_, _, nil), do: {:error, :invalid}
+
+  defp verify_invitation_code(value, org_id, rid) do
+    inv_code =
+      Repo.get_by(InvitationCode,
+        value: value,
+        organization_id: org_id,
+        invitee_company_account_rid: rid
+      )
+
+    case inv_code do
+      nil -> {:error, :invalid}
+      _ -> {:ok, inv_code}
+    end
+  end
+
   def get_or_create_user(identifier, attrs) do
     attrs = Map.merge(attrs, identifier)
+
     case get_user(identifier) do
       {:ok, user} -> {:ok, user}
       {:error, :not_found} -> create_user(attrs)
@@ -325,8 +369,6 @@ defmodule BillionOak.Identity do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
-
-  alias BillionOak.Identity.InvitationCode
 
   @doc """
   Returns the list of invitation_codes.
