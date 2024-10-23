@@ -271,6 +271,14 @@ defmodule BillionOak.Identity do
     |> Repo.insert()
   end
 
+  def create_or_get_user(identifier, attrs) do
+    attrs = Map.merge(attrs, identifier)
+    case get_user(identifier) do
+      {:ok, user} -> {:ok, user}
+      {:error, :not_found} -> create_user(attrs)
+    end
+  end
+
   @doc """
   Updates a user.
 

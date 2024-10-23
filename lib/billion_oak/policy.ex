@@ -13,6 +13,11 @@ defmodule BillionOak.Policy do
     |> authorize(api)
   end
 
+  def scope(%{_role_: role, _organization_id_: organization_id} = req, :create_or_get_user)
+      when role in @guest_roles do
+    Request.put(req, :identifier, :organization_id, organization_id)
+  end
+
   def scope(
         %{_role_: role, _organization_id_: organization_id} = req,
         :get_company_account_excerpt
@@ -36,6 +41,15 @@ defmodule BillionOak.Policy do
   def authorize(%{_role_: nil}, _), do: {:error, :access_denied}
   def authorize(%{_client_: nil}, _), do: {:error, :access_denied}
   def authorize(%{_organization_id_: nil}, _), do: {:error, :access_denied}
+
+  def authorize(%{_role_: role, _organization_id_: organization_id} = req, :create_or_get_user)
+      when role in @guest_roles do
+    if req.identifier[:organization_id] == organization_id do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
+  end
 
   def authorize(%{_role_: role, _organization_id_: nil} = req, :get_company_account_excerpt)
       when role in @guest_roles do

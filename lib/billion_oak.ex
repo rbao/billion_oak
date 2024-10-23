@@ -19,10 +19,16 @@ defmodule BillionOak do
     end
   end
 
-  def verify_client(%Request{} = req) do
-    req = expand(req)
+  def verify_client(%Request{data: data}) do
+    Identity.verify_client(data.client_id, data.client_secret)
+    |> to_response()
+  end
 
-    Identity.verify_client(req.data.client_id, req.data.client_secret)
+  def create_or_get_user(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> then(&Identity.create_or_get_user(&1.identifier, &1.data))
     |> to_response()
   end
 

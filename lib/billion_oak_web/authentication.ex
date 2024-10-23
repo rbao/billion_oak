@@ -37,14 +37,25 @@ defmodule BillionOakWeb.Authentication do
     client_id: client_id,
     client_secret: client_secret
   }) do
-    %Request{data: %{client_id: client_id, client_secret: client_secret}}
-    |> BillionOak.verify_client()
-    ~> Map.get(:data)
-    ~>> verify_code(code)
-    |> IO.inspect()
+    result =
+      %Request{data: %{client_id: client_id, client_secret: client_secret}}
+      |> BillionOak.verify_client()
+      ~> Map.get(:data)
+      ~>> get_openid(code)
+      ~> then(&%Request{client_id: client_id, identifier: %{wx_app_openid: &1}})
+      ~>> BillionOak.create_or_get_user()
+
+    case result do
+      {:ok, %{data: user}} ->
+        claims = %{"aud" => client_id, "sub" => user.id}
+        {:ok, JWT.generate_and_sign!(claims)}
+
+      {:error, :invalid} ->
+        {:error, @error_detail[:invalid_client]}
+    end
   end
 
-  defp verify_code(client, code) do
+  defp get_openid(client, code) do
     wx_url = "https://api.weixin.qq.com/sns/jscode2session"
     params = %{
       appid: client.wx_app_id,
