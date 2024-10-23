@@ -3,10 +3,6 @@ defmodule Mix.Tasks.Bo.Ht.Invite do
   alias BillionOak.Request
 
   @shortdoc "Create a invitation code for happy team associate"
-
-  @moduledoc """
-  This is where we would put any long form documentation and doctests.
-  """
   @requirements ["app.start"]
   @impl Mix.Task
   def run([company_account_rid]) do
