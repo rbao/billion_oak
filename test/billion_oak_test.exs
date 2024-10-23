@@ -4,49 +4,95 @@ defmodule BillionOakTest do
   alias BillionOak.Identity.Client
   alias BillionOak.Request
 
-  def req(attrs \\ []) do
-    base = %Request{_client_: %Client{}, _organization_id_: "org_id", _role_: "guest"}
+  def anyone(attrs) do
     attrs = Enum.into(attrs, %{})
-    Map.merge(base, attrs)
+    Map.merge(%Request{}, attrs)
   end
 
-  def sysops(attrs \\ []) do
-    attrs = Enum.into(attrs, %{})
-    Map.merge(%Request{_role_: :sysops}, attrs)
+  def anonymous(attrs, client) do
+    anyone(attrs)
+    |> Map.put(:client_id, client.id)
   end
 
-  describe "get_organization/1" do
-    test "sysops" do
-      result =
-        %{identifier: %{handle: "happyteam"}}
-        |> sysops()
-        |> BillionOak.get_organization()
+  def user(attrs, client, user) do
+    anyone(attrs)
+    |> Map.put(:client_id, client.id)
+    |> Map.put(:requester_id, user.id)
+  end
+
+  def sysops(attrs) do
+    anyone(attrs)
+    |> Map.put(:_role_, :sysops)
+  end
+
+  test "anyone can verify client" do
+    client = insert(:client)
+    data = %{client_id: client.id, client_secret: client.secret}
+    req = anyone(%{data: data})
+
+    result = BillionOak.verify_client(req)
+
+    assert {:ok, %{data: client}} = result
+    assert client.id == client.id
+  end
+
+  test "anonymous user can become guest" do
+    client = insert(:client)
+    data = %{wx_app_openid: "openid"}
+    req = anonymous(%{data: data}, client)
+
+    result = BillionOak.get_or_create_user(req)
+
+    assert {:ok, %{data: user}} = result
+    assert user.role == :guest
+    assert user.wx_app_openid == "openid"
+  end
+
+  describe "guest" do
+    test "can sign up to become a member by using their company account rid and a invitation code" do
+      client = insert(:client)
+      user = insert(:user, role: :guest, company_account_id: nil, organization_id: client.organization_id)
+      company_account = insert(:company_account, organization_id: client.organization_id)
+      invitation_code = insert(:invitation_code, organization_id: client.organization_id, invitee_company_account_rid: company_account.rid)
+      data = %{
+        company_account_rid: company_account.rid,
+        invitation_code: invitation_code.value,
+        first_name: "John",
+        last_name: "Doe"
+      }
+      req = user(%{data: data}, client, user)
+
+      result = BillionOak.sign_up(req)
+
+      assert {:ok, %{data: user}} = result
+      assert user.role == :member
+      assert user.company_account_id == company_account.id
+      assert user.first_name == data.first_name
+      assert user.last_name == data.last_name
+    end
+  end
+
+  describe "system operator" do
+    test "can get an organization's detail by handle" do
+      req = sysops(%{identifier: %{handle: "happyteam"}})
+
+      result = BillionOak.get_organization(req)
 
       assert {:ok, %{data: organization}} = result
       assert organization.handle == "happyteam"
     end
-  end
 
-  describe "create_invitation_code/1" do
-    test "sysops" do
-      {:ok, %{data: organization}} =
-        %{identifier: %{handle: "happyteam"}}
-        |> sysops()
-        |> BillionOak.get_organization()
+    test "can create an invitation code" do
+      company_account = insert(:company_account)
+      data = %{
+        organization_id: company_account.organization_id,
+        invitee_company_account_rid: company_account.rid
+      }
+      req = sysops(%{data: data})
 
-      company_account =
-        insert(:company_account,
-          organization_id: organization.id,
-          company_id: organization.company_id
-        )
+      result = BillionOak.create_invitation_code(req)
 
-      data = %{organization_id: organization.id, invitee_company_account_rid: company_account.rid}
-
-      {:ok, %{data: code}} =
-        %{data: data}
-        |> sysops()
-        |> BillionOak.create_invitation_code()
-
+      assert {:ok, %{data: code}} = result
       assert String.length(code.value) == 6
     end
   end

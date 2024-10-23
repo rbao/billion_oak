@@ -1,6 +1,6 @@
 defmodule BillionOak.Factory do
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
-  alias BillionOak.Identity.{InvitationCode, Organization, User}
+  alias BillionOak.Identity.{InvitationCode, Organization, User, Client}
   use ExMachina.Ecto, repo: BillionOak.Repo
 
   def company_account_factory do
@@ -66,6 +66,15 @@ defmodule BillionOak.Factory do
       organization_id: Organization.generate_id(),
       company_account_id: CompanyAccount.generate_id(),
       wx_app_openid: Faker.Lorem.word()
+    }
+  end
+
+  def client_factory do
+    %Client{
+      id: Client.generate_id(),
+      name: Faker.Company.name(),
+      secret: Faker.Lorem.word(),
+      organization_id: Organization.generate_id(),
     }
   end
 end
