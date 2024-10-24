@@ -127,6 +127,11 @@ defmodule BillionOak.ExternalTest do
     assert length(records) == 1
   end
 
+  test "total number of company records can be retrieved" do
+    insert_list(3, :company_record)
+    assert {:ok, 3} = External.count_company_records()
+  end
+
   describe "retrieving a company record" do
     test "returns the company record with the given id if exists" do
       record = insert(:company_record)
@@ -170,7 +175,7 @@ defmodule BillionOak.ExternalTest do
     assert {:error, :not_found} = External.get_company_record(record.id)
   end
 
-  test "multiple company account and record can be ingested idempotently for an organization" do
+  test "multiple company account and record can be ingested idempotently" do
     n = 3
 
     data =
@@ -186,8 +191,10 @@ defmodule BillionOak.ExternalTest do
 
     External.ingest_data(data)
     assert {:ok, 3} = External.count_company_accounts()
+    assert {:ok, 3} = External.count_company_records()
 
     External.ingest_data(data)
     assert {:ok, 3} = External.count_company_accounts()
+    assert {:ok, 3} = External.count_company_records()
   end
 end

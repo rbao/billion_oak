@@ -217,6 +217,10 @@ defmodule BillionOak.External do
     {:ok, Repo.all(CompanyRecord)}
   end
 
+  def count_company_records(_ \\ nil) do
+    {:ok, Repo.aggregate(CompanyRecord, :count)}
+  end
+
   @doc """
   Gets a single company_record.
 
