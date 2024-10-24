@@ -19,6 +19,15 @@ defmodule BillionOak do
     end
   end
 
+  def create_company(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:data)
+    ~>> External.create_company()
+    |> to_response()
+  end
+
   def verify_client(%Request{data: data}) do
     Identity.verify_client(data.client_id, data.client_secret)
     |> to_response()

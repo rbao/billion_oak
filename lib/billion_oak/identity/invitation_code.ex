@@ -1,8 +1,9 @@
 defmodule BillionOak.Identity.InvitationCode do
-  alias BillionOak.Identity.{Organization, User}
-  alias BillionOak.External.CompanyAccount
-  alias BillionOak.Repo
   use BillionOak.Schema, id_prefix: "incd"
+
+  alias BillionOak.External
+  alias BillionOak.Repo
+  alias BillionOak.Identity.{Organization, User}
 
   schema "invitation_codes" do
     field :value, :string
@@ -85,14 +86,14 @@ defmodule BillionOak.Identity.InvitationCode do
   defp validate_invitee(%{changes: %{invitee_company_account_rid: rid}} = changeset) do
     org_id = get_change(changeset, :organization_id)
 
-    is_exists = !!Repo.get_by(CompanyAccount, organization_id: org_id, rid: rid)
+    case External.get_company_account(organization_id: org_id, rid: rid) do
+      {:ok, _} ->
+        changeset
 
-    if is_exists do
-      changeset
-    else
-      add_error(changeset, :invitee_company_account_rid, "does not exist",
-        validation: :must_exist
-      )
+      {:error, :not_found} ->
+        add_error(changeset, :invitee_company_account_rid, "does not exist",
+          validation: :must_exist
+        )
     end
   end
 

@@ -15,11 +15,11 @@ defmodule BillionOak.External do
   ## Examples
 
       iex> list_companies()
-      [%Company{}, ...]
+      {:ok, [%Company{}, ...]}
 
   """
-  def list_companies do
-    Repo.all(Company)
+  def list_companies(_ \\ nil) do
+    {:ok, Repo.all(Company)}
   end
 
   @doc """
@@ -96,39 +96,24 @@ defmodule BillionOak.External do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking company changes.
-
-  ## Examples
-
-      iex> change_company(company)
-      %Ecto.Changeset{data: %Company{}}
-
-  """
-  def change_company(%Company{} = company, attrs \\ %{}) do
-    Company.changeset(company, attrs)
-  end
-
-  @doc """
   Returns the list of External_accounts.
 
   ## Examples
 
       iex> list_company_accounts()
-      [%CompanyAccount{}, ...]
+      {:ok, [%CompanyAccount{}, ...]}
 
   """
-  def list_company_accounts do
-    Repo.all(CompanyAccount)
+  def list_company_accounts(_ \\ nil) do
+    {:ok, Repo.all(CompanyAccount)}
   end
 
-  def count_company_accounts do
-    Repo.aggregate(CompanyAccount, :count)
+  def count_company_accounts(_ \\ nil) do
+    {:ok, Repo.aggregate(CompanyAccount, :count)}
   end
 
   @doc """
   Gets a single company account.
-
-  Raises `Ecto.NoResultsError` if the CompanyAccount does not exist.
 
   ## Examples
 
@@ -139,8 +124,8 @@ defmodule BillionOak.External do
       {:error, :not_found}
 
   """
-  def get_company_account(id) do
-    result = Repo.get(CompanyAccount, id)
+  def get_company_account(identifier) do
+    result = Repo.get_by(CompanyAccount, identifier)
 
     case result do
       nil -> {:error, :not_found}
@@ -220,43 +205,28 @@ defmodule BillionOak.External do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking account changes.
-
-  ## Examples
-
-      iex> change_account(account)
-      %Ecto.Changeset{data: %CompanyAccount{}}
-
-  """
-  def change_account(%CompanyAccount{} = account, attrs \\ %{}) do
-    CompanyAccount.changeset(account, attrs)
-  end
-
-  @doc """
   Returns the list of company_records.
 
   ## Examples
 
       iex> list_company_records()
-      [%CompanyRecord{}, ...]
+      {:ok, [%CompanyRecord{}, ...]}
 
   """
-  def list_company_records do
-    Repo.all(CompanyRecord)
+  def list_company_records(_ \\ nil) do
+    {:ok, Repo.all(CompanyRecord)}
   end
 
   @doc """
   Gets a single company_record.
 
-  Raises `Ecto.NoResultsError` if the company record does not exist.
-
   ## Examples
 
-      iex> get_company_record!(123)
-      %CompanyRecord{}
+      iex> get_company_record(123)
+      {:ok, %CompanyRecord{}}
 
-      iex> get_company_record!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_company_record(456)
+      {:error, :not_found}
 
   """
   def get_company_record(id) do
@@ -284,43 +254,6 @@ defmodule BillionOak.External do
     %CompanyRecord{}
     |> CompanyRecord.changeset(attrs)
     |> Repo.insert()
-  end
-
-  def ingest_company_records(data, organization) do
-    account_attrs_list = Enum.map(data, & &1.account)
-    record_attrs_list = Enum.map(data, & &1.record)
-
-    multi_result =
-      Multi.new()
-      |> Multi.run(:upsert_accounts, fn _, _ ->
-        upsert_accounts(account_attrs_list, organization)
-      end)
-      |> Multi.run(:insert_company_records, fn _, %{upsert_accounts: accounts} ->
-        insert_company_records(record_attrs_list, organization, accounts)
-      end)
-      |> Repo.transaction()
-
-    case multi_result do
-      {:ok, %{upsert_accounts: accounts}} -> {:ok, length(accounts)}
-      {:error, _failed_op, reason, _changes} -> {:error, reason}
-    end
-  end
-
-  defp upsert_accounts(attrs_list, organization) do
-    attrs_list
-    |> CompanyAccount.changesets(organization)
-    |> CompanyAccount.upsert_all(returning: [:id, :rid])
-  end
-
-  defp insert_company_records(attrs_list, organization, accounts) do
-    rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
-
-    attrs_list =
-      Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
-
-    attrs_list
-    |> CompanyRecord.changesets(organization)
-    |> CompanyRecord.insert_all()
   end
 
   @doc """
@@ -355,5 +288,42 @@ defmodule BillionOak.External do
   """
   def delete_company_record(%CompanyRecord{} = company_record) do
     Repo.delete(company_record)
+  end
+
+  def ingest_data(data, organization) do
+    account_attrs_list = Enum.map(data, & &1.account)
+    record_attrs_list = Enum.map(data, & &1.record)
+
+    multi_result =
+      Multi.new()
+      |> Multi.run(:upsert_accounts, fn _, _ ->
+        upsert_accounts(account_attrs_list, organization)
+      end)
+      |> Multi.run(:insert_company_records, fn _, %{upsert_accounts: accounts} ->
+        insert_company_records(record_attrs_list, organization, accounts)
+      end)
+      |> Repo.transaction()
+
+    case multi_result do
+      {:ok, %{upsert_accounts: accounts}} -> {:ok, length(accounts)}
+      {:error, _failed_op, reason, _changes} -> {:error, reason}
+    end
+  end
+
+  defp upsert_accounts(attrs_list, organization) do
+    attrs_list
+    |> CompanyAccount.changesets(organization)
+    |> CompanyAccount.upsert_all(returning: [:id, :rid])
+  end
+
+  defp insert_company_records(attrs_list, organization, accounts) do
+    rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
+
+    attrs_list =
+      Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
+
+    attrs_list
+    |> CompanyRecord.changesets(organization)
+    |> CompanyRecord.insert_all()
   end
 end

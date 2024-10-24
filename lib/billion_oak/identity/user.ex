@@ -1,8 +1,9 @@
 defmodule BillionOak.Identity.User do
   use BillionOak.Schema, id_prefix: "usr"
-  alias BillionOak.Identity.Organization
+
+  alias BillionOak.External
   alias BillionOak.External.CompanyAccount
-  alias BillionOak.Repo
+  alias BillionOak.Identity.Organization
 
   schema "users" do
     field :role, Ecto.Enum, values: [:guest, :member, :admin], default: :guest
@@ -34,12 +35,14 @@ defmodule BillionOak.Identity.User do
   defp put_company_account(%{valid?: false} = cs), do: cs
 
   defp put_company_account(%{data: data, changes: %{company_account_rid: rid}} = cs) do
-    company_account = Repo.get_by(CompanyAccount, rid: rid)
+    organization_id = get_field(cs, :organization_id)
 
-    if company_account do
-      Map.put(cs, :data, %{data | company_account: company_account})
-    else
-      add_error(cs, :company_account_rid, "does not exist", validation: :must_exist)
+    case External.get_company_account(organization_id: organization_id, rid: rid) do
+      {:ok, company_account} ->
+        Map.put(cs, :data, %{data | company_account: company_account})
+
+      {:error, :not_found} ->
+        add_error(cs, :company_account_rid, "does not exist", validation: :must_exist)
     end
   end
 

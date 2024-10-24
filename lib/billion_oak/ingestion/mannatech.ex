@@ -31,7 +31,7 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~> Stream.map(&account_attrs/1)
       ~> Stream.chunk_every(1000)
       ~> Stream.map(fn attrs_chunk ->
-        External.ingest_company_records(attrs_chunk, organization)
+        External.ingest_data(attrs_chunk, organization)
       end)
       ~> Stream.transform(nil, fn
         _, {:halt, n} ->

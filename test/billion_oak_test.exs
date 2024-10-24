@@ -87,6 +87,16 @@ defmodule BillionOakTest do
   end
 
   describe "system operator" do
+    test "can create a company" do
+      data = params_for(:company)
+      req = sysops(%{data: data})
+
+      result = BillionOak.create_company(req)
+
+      assert {:ok, %{data: company}} = result
+      assert company.handle == data.handle
+    end
+
     test "can get an organization's detail by handle" do
       req = sysops(%{identifier: %{handle: "happyteam"}})
 
