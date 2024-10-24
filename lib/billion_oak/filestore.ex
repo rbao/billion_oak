@@ -1,25 +1,15 @@
+defmodule BillionOak.IFilestore do
+
+  @type file_object :: %{key: binary()}
+
+  @callback stream_file(binary()) :: {:ok, Enumerable.t()} | {:error, any()}
+  @callback list_files(binary(), binary() | nil) :: {:ok, list(file_object())} | {:error, any()}
+end
+
 defmodule BillionOak.Filestore do
-  def stream_s3_file(key) do
-    result =
-      "AWS_S3_BUCKET"
-      |> System.fetch_env!()
-      |> ExAws.S3.download_file(key, :memory)
-      |> ExAws.stream!()
+  alias BillionOak.Filestore.S3
+  @store Application.compile_env(:billion_oak, __MODULE__, S3)
 
-    {:ok, result}
-  rescue
-    e in [ExAws.Error] ->
-      {:error, e}
-  end
-
-  def list_s3_files(prefix, start_after \\ nil) do
-    "AWS_S3_BUCKET"
-    |> System.fetch_env!()
-    |> ExAws.S3.list_objects_v2(prefix: prefix, max_keys: 1000, start_after: start_after)
-    |> ExAws.request()
-    |> case do
-      {:ok, %{body: body}} -> {:ok, body.contents}
-      other -> other
-    end
-  end
+  defdelegate stream_file(key), to: @store
+  defdelegate list_files(prefix, start_after), to: @store
 end

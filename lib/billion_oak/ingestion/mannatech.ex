@@ -9,7 +9,7 @@ defmodule BillionOak.Ingestion.Mannatech do
     prefix = s3_key(company.handle, organization.handle)
     start_after = organization.ingestion_cursor || "#{prefix}/0"
 
-    Filestore.list_s3_files(prefix, start_after)
+    Filestore.list_files(prefix, start_after)
     ~>> Enum.reduce_while({:ok, []}, fn s3_object, {:ok, acc} ->
       key = s3_object.key
 
@@ -25,7 +25,7 @@ defmodule BillionOak.Ingestion.Mannatech do
 
     result =
       {:ok, s3_key}
-      ~>> Filestore.stream_s3_file()
+      ~>> Filestore.stream_file()
       ~> Stream.map(&:unicode.characters_to_binary(&1, :latin1, :utf8))
       ~> CSV.decode(headers: true, separator: ?\t)
       ~> Stream.map(&account_attrs/1)

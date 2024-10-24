@@ -1,7 +1,7 @@
 defmodule BillionOakTest do
   use BillionOak.DataCase
+  import Mox
   import BillionOak.Factory
-  alias BillionOak.Identity.Client
   alias BillionOak.Request
 
   def anyone(attrs) do
@@ -94,6 +94,21 @@ defmodule BillionOakTest do
 
       assert {:ok, %{data: code}} = result
       assert String.length(code.value) == 6
+    end
+
+    test "can ingest external data" do
+      identifier = %{handle: "happyteam"}
+      req = sysops(%{identifier: identifier})
+      expect(BillionOak.FilestoreMock, :list_files, fn _, _ ->
+        {:ok, [%{key: "file_key"}]}
+      end)
+      expect(BillionOak.FilestoreMock, :stream_file, fn "file_key" ->
+        {:ok, File.stream!("test/support/fixtures/mannatech.mtku")}
+      end)
+      result = BillionOak.ingest_external_data(req)
+
+      assert {:ok, %{data: data}} = result
+      assert [{"file_key", {:ok, 20}}] = data
     end
   end
 end

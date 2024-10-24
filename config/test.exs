@@ -23,6 +23,8 @@ config :billion_oak, BillionOakWeb.Endpoint,
 # In test we don't send emails
 config :billion_oak, BillionOak.Mailer, adapter: Swoosh.Adapters.Test
 
+config :billion_oak, BillionOak.Filestore, BillionOak.FilestoreMock
+
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 

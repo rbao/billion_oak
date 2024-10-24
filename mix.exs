@@ -61,6 +61,7 @@ defmodule BillionOak.MixProject do
       {:typedstruct, "~> 0.5.3"},
       {:req, "~> 0.5.6"},
       {:dataloader, "~> 2.0.1"},
+      {:mox, "~> 1.2.0", only: :test},
       {:ex_machina, "~> 2.8.0", only: :test},
       {:faker, "~> 0.18.0", only: :test}
     ]
