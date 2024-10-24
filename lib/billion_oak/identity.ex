@@ -7,7 +7,7 @@ defmodule BillionOak.Identity do
   import Ecto.Query, warn: false
   alias BillionOak.Repo
 
-  alias BillionOak.Identity.{Client, Organization, InvitationCode}
+  alias BillionOak.Identity.{Client, Organization, User, InvitationCode}
 
   @doc """
   Returns the list of External_organizations.
@@ -15,11 +15,11 @@ defmodule BillionOak.Identity do
   ## Examples
 
       iex> list_organizations()
-      [%Organization{}, ...]
+      {:ok, [%Organization{}, ...]}
 
   """
   def list_organizations do
-    Repo.all(Organization)
+    {:ok, Repo.all(Organization)}
   end
 
   @doc """
@@ -114,22 +114,23 @@ defmodule BillionOak.Identity do
 
   """
   def list_clients do
-    Repo.all(Client)
-    |> Client.put_publishable_key()
+    clients =
+      Repo.all(Client)
+      |> Client.put_publishable_key()
+
+    {:ok, clients}
   end
 
   @doc """
   Gets a single client.
 
-  Raises `Ecto.NoResultsError` if the Client does not exist.
-
   ## Examples
 
       iex> get_client!(123)
-      %Client{}
+      {:ok, %Client{}}
 
       iex> get_client!(456)
-      ** (Ecto.NoResultsError)
+      {:error, :not_found}
 
   """
   def get_client(id) do
@@ -204,31 +205,16 @@ defmodule BillionOak.Identity do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking client changes.
-
-  ## Examples
-
-      iex> change_client(client)
-      %Ecto.Changeset{data: %Client{}}
-
-  """
-  def change_client(%Client{} = client, attrs \\ %{}) do
-    Client.changeset(client, attrs)
-  end
-
-  alias BillionOak.Identity.User
-
-  @doc """
   Returns the list of users.
 
   ## Examples
 
       iex> list_users()
-      [%User{}, ...]
+      {:ok, [%User{}, ...]}
 
   """
   def list_users do
-    Repo.all(User)
+    {:ok, Repo.all(User)}
   end
 
   @doc """
@@ -270,48 +256,6 @@ defmodule BillionOak.Identity do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
-  end
-
-  def sign_up(guest_id, %{company_account_rid: rid, invitation_code: inv_code_value} = params) do
-    guest = Repo.get_by(User, id: guest_id, role: :guest)
-    initial = if guest, do: {:ok, guest}, else: {:error, :not_found}
-
-    result =
-      initial
-      ~>> then(&verify_invitation_code(inv_code_value, &1.organization_id, rid))
-      ~> then(
-        &User.changeset(guest, %{
-          first_name: params[:first_name],
-          last_name: params[:last_name],
-          company_account_rid: &1.invitee_company_account_rid,
-          inviter_id: &1.inviter_id,
-          role: :member
-        })
-      )
-      ~>> Repo.update()
-
-    case result do
-      {:error, :invalid} -> {:error, :invalid_invitation_code}
-      other -> other
-    end
-  end
-
-  defp verify_invitation_code(nil, _, _), do: {:error, :invalid}
-  defp verify_invitation_code(_, nil, _), do: {:error, :invalid}
-  defp verify_invitation_code(_, _, nil), do: {:error, :invalid}
-
-  defp verify_invitation_code(value, org_id, rid) do
-    inv_code =
-      Repo.get_by(InvitationCode,
-        value: value,
-        organization_id: org_id,
-        invitee_company_account_rid: rid
-      )
-
-    case inv_code do
-      nil -> {:error, :invalid}
-      _ -> {:ok, inv_code}
-    end
   end
 
   def get_or_create_user(identifier, attrs) do
@@ -358,29 +302,16 @@ defmodule BillionOak.Identity do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking user changes.
-
-  ## Examples
-
-      iex> change_user(user)
-      %Ecto.Changeset{data: %User{}}
-
-  """
-  def change_user(%User{} = user, attrs \\ %{}) do
-    User.changeset(user, attrs)
-  end
-
-  @doc """
   Returns the list of invitation_codes.
 
   ## Examples
 
       iex> list_invitation_codes()
-      [%InvitationCode{}, ...]
+      {:ok, [%InvitationCode{}, ...]}
 
   """
   def list_invitation_codes do
-    Repo.all(InvitationCode)
+    {:ok, Repo.all(InvitationCode)}
   end
 
   @doc """
@@ -438,5 +369,47 @@ defmodule BillionOak.Identity do
   """
   def delete_invitation_code(%InvitationCode{} = invitation_code) do
     Repo.delete(invitation_code)
+  end
+
+  def sign_up(guest_id, %{company_account_rid: rid, invitation_code: inv_code_value} = params) do
+    guest = Repo.get_by(User, id: guest_id, role: :guest)
+    initial = if guest, do: {:ok, guest}, else: {:error, :not_found}
+
+    result =
+      initial
+      ~>> then(&verify_invitation_code(inv_code_value, &1.organization_id, rid))
+      ~> then(
+        &User.changeset(guest, %{
+          first_name: params[:first_name],
+          last_name: params[:last_name],
+          company_account_rid: &1.invitee_company_account_rid,
+          inviter_id: &1.inviter_id,
+          role: :member
+        })
+      )
+      ~>> Repo.update()
+
+    case result do
+      {:error, :invalid} -> {:error, :invalid_invitation_code}
+      other -> other
+    end
+  end
+
+  defp verify_invitation_code(nil, _, _), do: {:error, :invalid}
+  defp verify_invitation_code(_, nil, _), do: {:error, :invalid}
+  defp verify_invitation_code(_, _, nil), do: {:error, :invalid}
+
+  defp verify_invitation_code(value, org_id, rid) do
+    inv_code =
+      Repo.get_by(InvitationCode,
+        value: value,
+        organization_id: org_id,
+        invitee_company_account_rid: rid
+      )
+
+    case inv_code do
+      nil -> {:error, :invalid}
+      _ -> {:ok, inv_code}
+    end
   end
 end
