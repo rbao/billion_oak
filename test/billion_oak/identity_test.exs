@@ -41,12 +41,15 @@ defmodule BillionOak.IdentityTest do
 
       assert {:ok, %Organization{} = organization} =
                Identity.update_organization(organization, input)
+
       assert organization.name == input.name
     end
 
     test "returns an error if the given input is invalid" do
       organization = insert(:organization)
-      assert {:error, %Ecto.Changeset{}} = Identity.update_organization(organization, %{name: nil})
+
+      assert {:error, %Ecto.Changeset{}} =
+               Identity.update_organization(organization, %{name: nil})
     end
   end
 
@@ -131,7 +134,9 @@ defmodule BillionOak.IdentityTest do
   describe "retrieving a user" do
     test "returns the user with the given id in the given organization if exists" do
       user = insert(:user)
-      assert {:ok, %User{}} = Identity.get_user(id: user.id, organization_id: user.organization_id)
+
+      assert {:ok, %User{}} =
+               Identity.get_user(id: user.id, organization_id: user.organization_id)
     end
 
     test "returns an error if no user is found matching the input" do
@@ -203,7 +208,11 @@ defmodule BillionOak.IdentityTest do
   describe "creating an invitation code" do
     test "returns the created invitation code if the given input is valid" do
       company_account = insert(:company_account)
-      input = %{organization_id: company_account.organization_id, invitee_company_account_rid: company_account.rid}
+
+      input = %{
+        organization_id: company_account.organization_id,
+        invitee_company_account_rid: company_account.rid
+      }
 
       assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(input)
       assert invitation_code.value
@@ -219,5 +228,42 @@ defmodule BillionOak.IdentityTest do
     invitation_code = insert(:invitation_code)
     assert {:ok, %InvitationCode{}} = Identity.delete_invitation_code(invitation_code)
     assert {:error, :not_found} = Identity.get_invitation_code(invitation_code.value)
+  end
+
+  describe "guest signing up with an invitation code and a company account rid" do
+    test "becomes a member and returned if invitation code matches the company account rid" do
+      guest = insert(:user, role: :guest)
+      company_account = insert(:company_account, organization_id: guest.organization_id)
+
+      invitation_code =
+        insert(:invitation_code,
+          organization_id: company_account.organization_id,
+          invitee_company_account_rid: company_account.rid
+        )
+
+      input = %{company_account_rid: company_account.rid, invitation_code: invitation_code.value}
+
+      assert {:ok, %User{} = user} = Identity.sign_up(guest.id, input)
+      assert user.company_account_rid == company_account.rid
+      assert user.role == :member
+    end
+
+    test "returns an error if the guest does not exist" do
+      assert {:error, :not_found} =
+               Identity.sign_up("invalid", %{
+                 company_account_rid: "some rid",
+                 invitation_code: "some code"
+               })
+    end
+
+    test "returns an error if the invitation code is invalid" do
+      guest = insert(:user, role: :guest)
+
+      assert {:error, :invalid_invitation_code} =
+               Identity.sign_up(guest.id, %{
+                 company_account_rid: "some rid",
+                 invitation_code: "some code"
+               })
+    end
   end
 end
