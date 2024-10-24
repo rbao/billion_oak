@@ -40,11 +40,11 @@ defmodule BillionOakWeb.Authentication do
   end
 
   def create_access_token(%{
-    grant_type: "code",
-    code: code,
-    client_id: client_id,
-    client_secret: client_secret
-  }) do
+        grant_type: "code",
+        code: code,
+        client_id: client_id,
+        client_secret: client_secret
+      }) do
     result =
       %Request{data: %{client_id: client_id, client_secret: client_secret}}
       |> BillionOak.verify_client()
@@ -86,12 +86,14 @@ defmodule BillionOakWeb.Authentication do
 
   defp get_openid(client, code) do
     wx_url = "https://api.weixin.qq.com/sns/jscode2session"
+
     params = %{
       appid: client.wx_app_id,
       secret: client.wx_app_secret,
       js_code: code,
       grant_type: "authorization_code"
     }
+
     Req.get(wx_url, params: params)
     ~> Map.get(:body)
     ~> Jason.decode!()

@@ -74,7 +74,7 @@ defmodule BillionOak.Factory do
       id: Client.generate_id(),
       name: Faker.Company.name(),
       secret: Faker.Lorem.word(),
-      organization_id: Organization.generate_id(),
+      organization_id: Organization.generate_id()
     }
   end
 end

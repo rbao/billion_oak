@@ -51,15 +51,29 @@ defmodule BillionOakTest do
   describe "guest" do
     test "can sign up to become a member by using their company account rid and a invitation code" do
       client = insert(:client)
-      user = insert(:user, role: :guest, company_account_id: nil, organization_id: client.organization_id)
+
+      user =
+        insert(:user,
+          role: :guest,
+          company_account_id: nil,
+          organization_id: client.organization_id
+        )
+
       company_account = insert(:company_account, organization_id: client.organization_id)
-      invitation_code = insert(:invitation_code, organization_id: client.organization_id, invitee_company_account_rid: company_account.rid)
+
+      invitation_code =
+        insert(:invitation_code,
+          organization_id: client.organization_id,
+          invitee_company_account_rid: company_account.rid
+        )
+
       data = %{
         company_account_rid: company_account.rid,
         invitation_code: invitation_code.value,
         first_name: "John",
         last_name: "Doe"
       }
+
       req = user(%{data: data}, client, user)
 
       result = BillionOak.sign_up(req)
@@ -84,10 +98,12 @@ defmodule BillionOakTest do
 
     test "can create an invitation code" do
       company_account = insert(:company_account)
+
       data = %{
         organization_id: company_account.organization_id,
         invitee_company_account_rid: company_account.rid
       }
+
       req = sysops(%{data: data})
 
       result = BillionOak.create_invitation_code(req)
@@ -99,12 +115,15 @@ defmodule BillionOakTest do
     test "can ingest external data" do
       identifier = %{handle: "happyteam"}
       req = sysops(%{identifier: identifier})
+
       expect(BillionOak.FilestoreMock, :list_files, fn _, _ ->
         {:ok, [%{key: "file_key"}]}
       end)
+
       expect(BillionOak.FilestoreMock, :stream_file, fn "file_key" ->
         {:ok, File.stream!("test/support/fixtures/mannatech.mtku")}
       end)
+
       result = BillionOak.ingest_external_data(req)
 
       assert {:ok, %{data: data}} = result

@@ -25,26 +25,33 @@ defmodule BillionOak.Identity.User do
     |> cast(attrs, castable_fields())
     |> validate_required([
       :role,
-      :organization_id,
+      :organization_id
     ])
     |> put_company_account()
     |> put_company_account_id()
   end
 
   defp put_company_account(%{valid?: false} = cs), do: cs
+
   defp put_company_account(%{data: data, changes: %{company_account_rid: rid}} = cs) do
     company_account = Repo.get_by(CompanyAccount, rid: rid)
+
     if company_account do
       Map.put(cs, :data, %{data | company_account: company_account})
     else
       add_error(cs, :company_account_rid, "does not exist", validation: :must_exist)
     end
   end
+
   defp put_company_account(cs), do: cs
 
   defp put_company_account_id(%{valid?: false} = cs), do: cs
-  defp put_company_account_id(%{data: %{company_account: %{id: id}, company_account_id: nil}} = cs) do
+
+  defp put_company_account_id(
+         %{data: %{company_account: %{id: id}, company_account_id: nil}} = cs
+       ) do
     change(cs, company_account_id: id)
   end
+
   defp put_company_account_id(cs), do: cs
 end

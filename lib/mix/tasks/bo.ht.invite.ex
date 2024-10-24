@@ -15,6 +15,7 @@ defmodule Mix.Tasks.Bo.Ht.Invite do
     }
 
     result = BillionOak.create_invitation_code(req)
+
     case result do
       {:ok, %{data: invitation_code}} -> IO.inspect(invitation_code.value)
       {:error, changeset} -> IO.inspect(changeset.errors)

@@ -42,7 +42,7 @@ defmodule BillionOakWeb.Schema.Types do
     field :organization_id, :id
 
     field :company_account, :company_account do
-      resolve dataloader(DataSource, use_parent: true)
+      resolve(dataloader(DataSource, use_parent: true))
     end
   end
 end

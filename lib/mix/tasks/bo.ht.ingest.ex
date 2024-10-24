@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Bo.Ht.Ingest do
   @requirements ["app.start"]
   @impl Mix.Task
   def run(_args) do
-    req = %Request{_role_: :sysops,identifier: %{handle: "happyteam"}}
+    req = %Request{_role_: :sysops, identifier: %{handle: "happyteam"}}
 
     req
     |> BillionOak.ingest_external_data()

@@ -1,5 +1,4 @@
 defmodule BillionOak.IFilestore do
-
   @type file_object :: %{key: binary()}
 
   @callback stream_file(binary()) :: {:ok, Enumerable.t()} | {:error, any()}

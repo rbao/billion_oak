@@ -86,6 +86,7 @@ defmodule BillionOak.Identity.InvitationCode do
     org_id = get_change(changeset, :organization_id)
 
     is_exists = !!Repo.get_by(CompanyAccount, organization_id: org_id, rid: rid)
+
     if is_exists do
       changeset
     else
