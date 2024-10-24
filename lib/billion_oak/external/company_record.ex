@@ -14,11 +14,16 @@ defmodule BillionOak.External.CompanyRecord do
     belongs_to :company_account, CompanyAccount
   end
 
-  @doc false
-  def changeset(company_record, attrs) do
+  def changeset(company_record, input_list) when is_list(input_list) do
+    Enum.map(input_list, fn input ->
+      changeset(company_record, input)
+    end)
+  end
+
+  def changeset(company_record, input) do
     company_record
     |> changeset()
-    |> cast(attrs, castable_fields())
+    |> cast(input, castable_fields())
     |> put_dedupe_id()
     |> validate_required([
       :dedupe_id,
@@ -27,18 +32,6 @@ defmodule BillionOak.External.CompanyRecord do
       :organization_id,
       :company_account_id
     ])
-  end
-
-  def changesets(attrs_list, organization) do
-    Enum.map(attrs_list, fn attrs ->
-      attrs =
-        Map.merge(attrs, %{
-          company_id: organization.company_id,
-          organization_id: organization.id
-        })
-
-      changeset(%__MODULE__{}, attrs)
-    end)
   end
 
   defp put_dedupe_id(%{changes: %{content: content}} = changeset) do

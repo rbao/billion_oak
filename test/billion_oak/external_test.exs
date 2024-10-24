@@ -171,24 +171,23 @@ defmodule BillionOak.ExternalTest do
   end
 
   test "multiple company account and record can be ingested idempotently for an organization" do
-    organization = insert(:organization)
     n = 3
 
     data =
       for _ <- 1..n do
-        account_attrs = params_for(:company_account)
-        record_attrs = params_for(:company_record)
+        account_input = params_for(:company_account)
+        record_input = params_for(:company_record)
 
         %{
-          account: account_attrs,
-          record: Map.put(record_attrs, :company_account_rid, account_attrs.rid)
+          account: account_input,
+          record: Map.put(record_input, :company_account_rid, account_input.rid)
         }
       end
 
-    External.ingest_data(data, organization)
+    External.ingest_data(data)
     assert {:ok, 3} = External.count_company_accounts()
 
-    External.ingest_data(data, organization)
+    External.ingest_data(data)
     assert {:ok, 3} = External.count_company_accounts()
   end
 end

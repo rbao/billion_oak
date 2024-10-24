@@ -24,30 +24,17 @@ defmodule BillionOak.External.CompanyAccount do
     belongs_to :organization, Organization
   end
 
-  @doc false
-  def changeset(account, attrs) do
-    account
-    |> changeset()
-    |> cast(attrs, castable_fields())
-    |> validate_required([:rid, :status, :name, :company_id, :organization_id])
+  def changeset(account, input_list) when is_list(input_list) do
+    Enum.map(input_list, fn input ->
+      changeset(account, input)
+    end)
   end
 
-  def changesets(attrs_list, organization) do
-    Enum.map(attrs_list, fn attrs ->
-      attrs =
-        Map.merge(attrs, %{
-          company_id: organization.company_id,
-          organization_id: organization.id
-        })
-
-      changeset = changeset(%__MODULE__{}, attrs)
-
-      if attrs.rid == organization.root_company_account_rid do
-        change(changeset, is_root: true)
-      else
-        changeset
-      end
-    end)
+  def changeset(account, input) do
+    account
+    |> changeset()
+    |> cast(input, castable_fields())
+    |> validate_required([:rid, :status, :name, :company_id, :organization_id])
   end
 
   def mask_phone(nil), do: nil

@@ -290,17 +290,17 @@ defmodule BillionOak.External do
     Repo.delete(company_record)
   end
 
-  def ingest_data(data, organization) do
-    account_attrs_list = Enum.map(data, & &1.account)
-    record_attrs_list = Enum.map(data, & &1.record)
+  def ingest_data(data) do
+    account_input_list = Enum.map(data, & &1.account)
+    record_input_list = Enum.map(data, & &1.record)
 
     multi_result =
       Multi.new()
       |> Multi.run(:upsert_accounts, fn _, _ ->
-        upsert_accounts(account_attrs_list, organization)
+        upsert_accounts(account_input_list)
       end)
       |> Multi.run(:insert_company_records, fn _, %{upsert_accounts: accounts} ->
-        insert_company_records(record_attrs_list, organization, accounts)
+        insert_company_records(record_input_list, accounts)
       end)
       |> Repo.transaction()
 
@@ -310,20 +310,20 @@ defmodule BillionOak.External do
     end
   end
 
-  defp upsert_accounts(attrs_list, organization) do
-    attrs_list
-    |> CompanyAccount.changesets(organization)
+  defp upsert_accounts(input_list) do
+    %CompanyAccount{}
+    |> CompanyAccount.changeset(input_list)
     |> CompanyAccount.upsert_all(returning: [:id, :rid])
   end
 
-  defp insert_company_records(attrs_list, organization, accounts) do
+  defp insert_company_records(input_list, accounts) do
     rid_map = Enum.reduce(accounts, %{}, &Map.put(&2, &1.rid, &1.id))
 
-    attrs_list =
-      Enum.map(attrs_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
+    input_list =
+      Enum.map(input_list, &Map.put(&1, :company_account_id, rid_map[&1.company_account_rid]))
 
-    attrs_list
-    |> CompanyRecord.changesets(organization)
+    %CompanyRecord{}
+    |> CompanyRecord.changeset(input_list)
     |> CompanyRecord.insert_all()
   end
 end

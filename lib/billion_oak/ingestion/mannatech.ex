@@ -28,11 +28,9 @@ defmodule BillionOak.Ingestion.Mannatech do
       ~>> Filestore.stream_file()
       ~> Stream.map(&:unicode.characters_to_binary(&1, :latin1, :utf8))
       ~> CSV.decode(headers: true, separator: ?\t)
-      ~> Stream.map(&account_attrs/1)
+      ~> Stream.map(&account_input(&1, organization))
       ~> Stream.chunk_every(1000)
-      ~> Stream.map(fn attrs_chunk ->
-        External.ingest_data(attrs_chunk, organization)
-      end)
+      ~> Stream.map(&External.ingest_data/1)
       ~> Stream.transform(nil, fn
         _, {:halt, n} ->
           {:halt, n}
@@ -76,7 +74,7 @@ defmodule BillionOak.Ingestion.Mannatech do
     end
   end
 
-  defp account_attrs({:ok, row}) do
+  defp account_input({:ok, row}, organization) do
     custom_data_keys = [
       "ORGENROLLMENTLEVEL",
       "CURRENTENROLLMENTLEVEL",
@@ -118,9 +116,13 @@ defmodule BillionOak.Ingestion.Mannatech do
 
     phone1 = row["PHONENO"]
     phone2 = if row["EVPHONENO"] != phone1, do: row["EVPHONENO"], else: nil
+    is_root = row["CTLNO"] == organization.root_company_account_rid
 
     %{
       account: %{
+        organization_id: organization.id,
+        company_id: organization.company_id,
+        is_root: is_root,
         status: account_status(row["STATUS"]),
         rid: row["CTLNO"],
         name: row["NAME"],
@@ -135,6 +137,8 @@ defmodule BillionOak.Ingestion.Mannatech do
         custom_data: custom_data
       },
       record: %{
+        organization_id: organization.id,
+        company_id: organization.company_id,
         company_account_rid: row["CTLNO"],
         content: content
       }
