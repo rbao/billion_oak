@@ -54,4 +54,27 @@ defmodule BillionOak.PolicyTest do
       assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
     end
   end
+
+  describe "when member is getting a user's detail" do
+    test "the request is authorized if the user is themself" do
+      member = build(:user, role: :member)
+      identifier = %{id: member.id}
+
+      req =
+        req(_requester_: member, _role_: :member, requester_id: member.id, identifier: identifier)
+
+      assert {:ok, ^req} = Policy.authorize(req, :get_user)
+    end
+
+    test "the request is denied if the user is not themself" do
+      member = build(:user, role: :member)
+      identifier = %{id: "other_user_id"}
+
+      req =
+        req(_requester_: member, _role_: :member, requester_id: member.id, identifier: identifier)
+
+
+      assert {:error, :access_denied} == Policy.authorize(req, :get_user)
+    end
+  end
 end

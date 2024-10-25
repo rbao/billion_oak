@@ -76,6 +76,15 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def get_user(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:id])
+    ~>> Identity.get_user()
+    |> to_response()
+  end
+
   def ingest_external_data(%Request{} = req) do
     req
     |> expand()

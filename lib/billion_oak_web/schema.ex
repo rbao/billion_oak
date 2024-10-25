@@ -1,7 +1,6 @@
 defmodule BillionOakWeb.Schema do
   use Absinthe.Schema
-  alias BillionOakWeb.Resolver
-  alias BillionOakWeb.Schema.DataSource
+  alias BillionOakWeb.Schema.{DataSource, Resolver}
   import_types(BillionOakWeb.Schema.Types)
 
   query do
@@ -9,6 +8,11 @@ defmodule BillionOakWeb.Schema do
     field :company_account_excerpt, :company_account_excerpt do
       arg(:rid, non_null(:string))
       resolve(&Resolver.get_company_account_excerpt/3)
+    end
+
+    @desc "Get the current user"
+    field :current_user, :user do
+      resolve(&Resolver.get_current_user/3)
     end
   end
 

@@ -1,7 +1,7 @@
 defmodule BillionOakWeb.Schema.Types do
   use Absinthe.Schema.Notation
   import Absinthe.Resolution.Helpers
-  alias BillionOakWeb.Schema.DataSource
+  alias BillionOakWeb.Schema.{DataSource, Resolver}
   import_types(Absinthe.Type.Custom)
 
   object :company do
@@ -42,7 +42,8 @@ defmodule BillionOakWeb.Schema.Types do
     field :organization_id, :id
 
     field :company_account, :company_account do
-      resolve(dataloader(DataSource, use_parent: true))
+      resolve(&Resolver.load_company_accounts/3)
+      # resolve(dataloader(DataSource, args: %{context: Map.get(&1, :context)}))
     end
   end
 end

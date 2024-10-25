@@ -86,6 +86,20 @@ defmodule BillionOakTest do
     end
   end
 
+  describe "member" do
+    test "can get their own user detail" do
+      client = insert(:client)
+      member = insert(:user, role: :member, organization_id: client.organization_id)
+      identifier = %{id: member.id}
+      req = user(%{identifier: identifier}, client, member)
+
+      result = BillionOak.get_user(req)
+
+      assert {:ok, %{data: user}} = result
+      assert user.id == member.id
+    end
+  end
+
   describe "system operator" do
     test "can create a company" do
       data = params_for(:company)
