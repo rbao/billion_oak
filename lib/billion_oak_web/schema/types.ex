@@ -42,7 +42,6 @@ defmodule BillionOakWeb.Schema.Types do
 
     field :company_account, :company_account do
       resolve(&Resolver.load_company_accounts/3)
-      # resolve(dataloader(DataSource, args: %{context: Map.get(&1, :context)}))
     end
   end
 end
