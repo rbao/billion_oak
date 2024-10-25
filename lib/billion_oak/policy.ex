@@ -93,5 +93,14 @@ defmodule BillionOak.Policy do
     end
   end
 
+  def authorize(%{_role_: role, _requester_: requester} = req, :list_company_accounts)
+      when role in @member_roles do
+    if req.identifier[:ids] == [requester.company_account_id] do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
+  end
+
   def authorize(_, _), do: {:error, :access_denied}
 end

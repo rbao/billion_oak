@@ -1,7 +1,6 @@
 defmodule BillionOakWeb.Schema.Types do
   use Absinthe.Schema.Notation
-  import Absinthe.Resolution.Helpers
-  alias BillionOakWeb.Schema.{DataSource, Resolver}
+  alias BillionOakWeb.Schema.Resolver
   import_types(Absinthe.Type.Custom)
 
   object :company do

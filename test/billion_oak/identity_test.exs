@@ -248,7 +248,6 @@ defmodule BillionOak.IdentityTest do
       assert user.role == :member
     end
 
-    @tag :focus
     test "becomes an admin if the invitation code is for an admin and matches the company account rid" do
       guest = insert(:user, role: :guest)
       company_account = insert(:company_account, organization_id: guest.organization_id)

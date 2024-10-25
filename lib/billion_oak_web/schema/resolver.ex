@@ -1,8 +1,7 @@
 defmodule BillionOakWeb.Schema.Resolver do
   use OK.Pipe
   import Absinthe.Resolution.Helpers
-
-  alias BillionOak.{Request, Response}
+  import BillionOakWeb.Schema.Helper
   alias BillionOakWeb.Schema.DataSource
 
   def sign_up(_parent, args, %{context: context}) do
@@ -38,28 +37,8 @@ defmodule BillionOakWeb.Schema.Resolver do
 
     loader
     |> Dataloader.load(DataSource, {:company_account, %{}, context}, parent)
-    |> IO.inspect()
     |> on_load(fn loader ->
       {:ok, Dataloader.get(loader, DataSource, {:company_account, %{}, context}, parent)}
     end)
   end
-
-  def build_request(context, args, :query) do
-    %Request{
-      client_id: context[:client_id],
-      requester_id: context[:requester_id],
-      identifier: args
-    }
-  end
-
-  def build_request(context, args, :mutation) do
-    %Request{
-      client_id: context[:client_id],
-      requester_id: context[:requester_id],
-      data: args
-    }
-  end
-
-  def unwrap_response(%Response{data: data}, :query), do: data
-  def unwrap_response(%Response{data: data}, :mutation), do: data
 end

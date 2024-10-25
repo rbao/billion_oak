@@ -73,8 +73,37 @@ defmodule BillionOak.PolicyTest do
       req =
         req(_requester_: member, _role_: :member, requester_id: member.id, identifier: identifier)
 
-
       assert {:error, :access_denied} == Policy.authorize(req, :get_user)
+    end
+  end
+
+  describe "when member is getting a list of company accounts" do
+    test "the request is authorized if the user is associated with those company accounts" do
+      member = build(:user, role: :member, company_account_id: "company_account_id")
+
+      req =
+        req(
+          _requester_: member,
+          _role_: :member,
+          requester_id: member.id,
+          identifier: %{ids: ["company_account_id"]}
+        )
+
+      assert {:ok, ^req} = Policy.authorize(req, :list_company_accounts)
+    end
+
+    test "the request is denied if the user is not associated with any one of those company accounts" do
+      member = build(:user, role: :member)
+
+      req =
+        req(
+          _requester_: member,
+          _role_: :member,
+          requester_id: member.id,
+          identifier: %{ids: ["nop"]}
+        )
+
+      assert {:error, :access_denied} == Policy.authorize(req, :list_company_accounts)
     end
   end
 end

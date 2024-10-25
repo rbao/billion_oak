@@ -55,10 +55,19 @@ defmodule BillionOak.ExternalTest do
     assert {:error, :not_found} = External.get_company(company.handle)
   end
 
-  test "all company accounts can be retrieved at once" do
-    insert(:company_account)
-    assert {:ok, accounts} = External.list_company_accounts()
-    assert length(accounts) == 1
+  describe "all company accounts" do
+    test "can be retrieved at once" do
+      insert(:company_account)
+      assert {:ok, accounts} = External.list_company_accounts()
+      assert length(accounts) == 1
+    end
+
+    test "with the given ids can be retrieved at once" do
+      [account1, account2, _] = insert_list(3, :company_account)
+
+      assert {:ok, accounts} = External.list_company_accounts(ids: [account1.id, account2.id])
+      assert length(accounts) == 2
+    end
   end
 
   test "total number of company acounts can be retrieved" do

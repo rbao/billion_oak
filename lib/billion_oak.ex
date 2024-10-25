@@ -85,6 +85,15 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def list_company_accounts(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.take(:identifier, [:ids])
+    ~>> External.list_company_accounts()
+    |> to_response()
+  end
+
   def ingest_external_data(%Request{} = req) do
     req
     |> expand()

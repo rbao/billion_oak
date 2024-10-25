@@ -104,8 +104,18 @@ defmodule BillionOak.External do
       {:ok, [%CompanyAccount{}, ...]}
 
   """
-  def list_company_accounts(_ \\ nil) do
-    {:ok, Repo.all(CompanyAccount)}
+  def list_company_accounts(input \\ nil) do
+    query = from(ca in CompanyAccount)
+    ids = input[:ids]
+
+    query =
+      if ids do
+        from ca in query, where: ca.id in ^ids
+      else
+        query
+      end
+
+    {:ok, Repo.all(query)}
   end
 
   def count_company_accounts(_ \\ nil) do

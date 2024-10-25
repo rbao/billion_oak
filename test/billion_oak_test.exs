@@ -98,6 +98,26 @@ defmodule BillionOakTest do
       assert {:ok, %{data: user}} = result
       assert user.id == member.id
     end
+
+    test "can get their own company account" do
+      client = insert(:client)
+      company_account = insert(:company_account, organization_id: client.organization_id)
+
+      member =
+        insert(:user,
+          role: :member,
+          organization_id: client.organization_id,
+          company_account_id: company_account.id
+        )
+
+      identifier = %{ids: [company_account.id]}
+      req = user(%{identifier: identifier}, client, member)
+
+      result = BillionOak.list_company_accounts(req)
+
+      assert {:ok, %{data: [member_company_account]}} = result
+      assert member_company_account.id == company_account.id
+    end
   end
 
   describe "system operator" do
