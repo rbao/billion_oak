@@ -21,13 +21,36 @@ defmodule BillionOak.PolicyTest do
       assert req.data[:inviter] == user
     end
 
-    test "the request is authorized only if the inviter is themself" do
+    test "the invitee role will be removed from the request if given" do
+      user = build(:user, role: :member)
+      data = %{invitee_role: :admin}
+      req = req(_requester_: user, _role_: :member, requester_id: user.id, data: data)
+
+      req = Policy.scope(req, :create_invitation_code)
+
+      assert req.data[:inviter_id] == user.id
+      assert req.data[:inviter] == user
+      refute req.data[:invitee_role]
+    end
+
+    test "the request is authorized only if the inviter is themself and inviteerole is not given" do
       req = req(requester_id: "user_id", _role_: :member, data: %{inviter_id: "user_id"})
       assert {:ok, ^req} = Policy.authorize(req, :create_invitation_code)
     end
 
     test "the request is denied if the inviter is not set" do
       req = req(requester_id: "user_id", _role_: :member)
+      assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
+    end
+
+    test "the request is denied if the invitee role is given" do
+      req =
+        req(
+          requester_id: "user_id",
+          _role_: :member,
+          data: %{inviter_id: "user_id", invitee_role: :admin}
+        )
+
       assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
     end
   end

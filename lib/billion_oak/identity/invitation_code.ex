@@ -8,6 +8,7 @@ defmodule BillionOak.Identity.InvitationCode do
   schema "invitation_codes" do
     field :value, :string
     field :invitee_company_account_rid, :string
+    field :invitee_role, Ecto.Enum, values: [:member, :admin], default: :member
     field :expires_at, :utc_datetime
 
     timestamps()

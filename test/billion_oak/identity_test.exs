@@ -231,7 +231,7 @@ defmodule BillionOak.IdentityTest do
   end
 
   describe "guest signing up with an invitation code and a company account rid" do
-    test "becomes a member and returned if invitation code matches the company account rid" do
+    test "becomes a member by default if invitation code matches the company account rid" do
       guest = insert(:user, role: :guest)
       company_account = insert(:company_account, organization_id: guest.organization_id)
 
@@ -246,6 +246,25 @@ defmodule BillionOak.IdentityTest do
       assert {:ok, %User{} = user} = Identity.sign_up(guest.id, input)
       assert user.company_account_rid == company_account.rid
       assert user.role == :member
+    end
+
+    @tag :focus
+    test "becomes an admin if the invitation code is for an admin and matches the company account rid" do
+      guest = insert(:user, role: :guest)
+      company_account = insert(:company_account, organization_id: guest.organization_id)
+
+      invitation_code =
+        insert(:invitation_code,
+          organization_id: guest.organization_id,
+          invitee_company_account_rid: company_account.rid,
+          invitee_role: :admin
+        )
+
+      input = %{company_account_rid: company_account.rid, invitation_code: invitation_code.value}
+
+      assert {:ok, %User{} = user} = Identity.sign_up(guest.id, input)
+      assert user.company_account_rid == company_account.rid
+      assert user.role == :admin
     end
 
     test "returns an error if the guest does not exist" do

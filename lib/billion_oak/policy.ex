@@ -31,6 +31,7 @@ defmodule BillionOak.Policy do
     req
     |> Request.put(:data, :inviter_id, req.requester_id)
     |> Request.put(:data, :inviter, req._requester_)
+    |> Request.delete(:data, :invitee_role)
   end
 
   def scope(req, _), do: req
@@ -73,7 +74,7 @@ defmodule BillionOak.Policy do
 
   def authorize(%{_role_: role} = req, :create_invitation_code)
       when role in @member_roles do
-    if req.data[:inviter_id] == req.requester_id do
+    if req.data[:inviter_id] == req.requester_id && !req.data[:invitee_role] do
       {:ok, req}
     else
       {:error, :access_denied}

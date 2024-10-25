@@ -384,7 +384,7 @@ defmodule BillionOak.Identity do
           last_name: params[:last_name],
           company_account_rid: &1.invitee_company_account_rid,
           inviter_id: &1.inviter_id,
-          role: :member
+          role: &1.invitee_role
         })
       )
       ~>> Repo.update()

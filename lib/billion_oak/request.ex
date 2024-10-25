@@ -50,6 +50,17 @@ defmodule BillionOak.Request do
 
   def put(req, key, value), do: Map.put(req, key, value)
 
+  def delete(req, root_key, key) do
+    root_value =
+      req
+      |> Map.get(root_key)
+      |> Map.delete(key)
+
+    Map.put(req, root_key, root_value)
+  end
+
+  def delete(req, key), do: Map.delete(req, key)
+
   def take(req, root_key, keys) do
     root_value = Map.get(req, root_key)
     Map.take(root_value, keys)
