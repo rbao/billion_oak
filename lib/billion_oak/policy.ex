@@ -5,7 +5,7 @@ defmodule BillionOak.Policy do
 
   @operator_roles @dev_roles ++ [:operator]
   @member_roles @operator_roles ++ [:member]
-  @guest_roles @operator_roles ++ [:guest]
+  @guest_roles @member_roles ++ [:guest]
   @anonymous_roles @guest_roles ++ [:anonymous]
 
   def scope_authorize(req, api) do
@@ -85,7 +85,7 @@ defmodule BillionOak.Policy do
     {:ok, req}
   end
 
-  def authorize(%{_role_: role} = req, :get_user) when role in @member_roles do
+  def authorize(%{_role_: role} = req, :get_user) when role in @guest_roles do
     if req.identifier[:id] == req.requester_id do
       {:ok, req}
     else
