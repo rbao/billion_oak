@@ -31,6 +31,13 @@ defmodule BillionOakWeb.Schema do
       arg(:last_name, non_null(:string))
       resolve(&Resolver.sign_up/3)
     end
+
+    @desc "Reserve a file location"
+    field :reserve_file_location, type: :file_location do
+      arg(:name, non_null(:string))
+      arg(:content_type, :string)
+      resolve(&Resolver.reserve_file_location/3)
+    end
   end
 
   def context(ctx) do

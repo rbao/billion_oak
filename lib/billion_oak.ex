@@ -1,7 +1,7 @@
 defmodule BillionOak do
   use OK.Pipe
   import BillionOak.Policy
-  alias BillionOak.{External, Identity, Ingestion, Request, Response}
+  alias BillionOak.{External, Identity, Ingestion, Filestore, Request, Response}
   alias BillionOak.Identity.{Client, User}
 
   @moduledoc """
@@ -100,6 +100,15 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:handle])
     ~>> Ingestion.run()
+    |> to_response()
+  end
+
+  def reserve_file_location(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:data)
+    ~>> Filestore.reserve_location()
     |> to_response()
   end
 

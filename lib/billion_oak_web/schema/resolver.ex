@@ -41,4 +41,11 @@ defmodule BillionOakWeb.Schema.Resolver do
       {:ok, Dataloader.get(loader, DataSource, {:company_account, %{}, context}, parent)}
     end)
   end
+
+  def reserve_file_location(_parent, args, %{context: context}) do
+    context
+    |> build_request(args, :mutation)
+    |> BillionOak.reserve_file_location()
+    ~> unwrap_response(:mutation)
+  end
 end

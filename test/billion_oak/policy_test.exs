@@ -5,7 +5,10 @@ defmodule BillionOak.PolicyTest do
   alias BillionOak.{Request, Policy}
 
   def req(attrs \\ []) do
-    base = %Request{_client_: %Client{}, _organization_id_: "org_id", _role_: :guest}
+    organization_id =
+      if attrs[:_requester_], do: attrs[:_requester_].organization_id, else: "org_id"
+
+    base = %Request{_client_: %Client{}, _organization_id_: organization_id, _role_: :guest}
     attrs = Enum.into(attrs, %{})
     Map.merge(base, attrs)
   end
@@ -33,7 +36,7 @@ defmodule BillionOak.PolicyTest do
       refute req.data[:invitee_role]
     end
 
-    test "the request is authorized only if the inviter is themself and inviteerole is not given" do
+    test "the request is authorized only if the inviter is themself and invitee role is not given" do
       req = req(requester_id: "user_id", _role_: :member, data: %{inviter_id: "user_id"})
       assert {:ok, ^req} = Policy.authorize(req, :create_invitation_code)
     end
@@ -104,6 +107,41 @@ defmodule BillionOak.PolicyTest do
         )
 
       assert {:error, :access_denied} == Policy.authorize(req, :list_company_accounts)
+    end
+  end
+
+  describe "when admin is reserving a file location" do
+    test "the owner will always be set to themself in the request" do
+      user = build(:user, role: :admin)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id)
+
+      req = Policy.scope(req, :reserve_file_location)
+
+      assert req.data[:owner_id] == user.id
+      assert req.data[:owner] == user
+    end
+
+    test "the organization will always be set to the organization of themself" do
+      user = build(:user, role: :admin)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id)
+
+      req = Policy.scope(req, :reserve_file_location)
+
+      assert req.data[:organization_id] == user.organization_id
+    end
+
+    test "the request is authorized only if the owner is themself and organization is the organization of the owner" do
+      user = build(:user, role: :admin)
+
+      req =
+        req(
+          _role_: :admin,
+          _organization_id_: user.organization_id,
+          requester_id: user.id,
+          data: %{owner_id: user.id, organization_id: user.organization_id}
+        )
+
+      assert {:ok, ^req} = Policy.authorize(req, :reserve_file_location)
     end
   end
 end

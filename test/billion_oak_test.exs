@@ -120,6 +120,27 @@ defmodule BillionOakTest do
     end
   end
 
+  describe "admin" do
+    test "can reserve a file location" do
+      client = insert(:client)
+      admin = insert(:user, role: :admin, organization_id: client.organization_id)
+      data = %{name: "test.txt", content_type: "text/plain"}
+      req = user(%{data: data}, client, admin)
+
+      expect(BillionOak.Filestore.ClientMock, :presigned_post, fn key, custom_conditions ->
+        BillionOak.Filestore.S3Client.presigned_post(key, custom_conditions)
+      end)
+
+      result = BillionOak.reserve_file_location(req)
+
+      assert {:ok, %{data: location}} = result
+      assert location.id
+      assert location.name == data.name
+      assert location.form_fields
+      assert location.form_url
+    end
+  end
+
   describe "system operator" do
     test "can create a company" do
       data = params_for(:company)

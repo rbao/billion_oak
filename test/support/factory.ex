@@ -1,6 +1,7 @@
 defmodule BillionOak.Factory do
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
   alias BillionOak.Identity.{InvitationCode, Organization, User, Client}
+  alias BillionOak.Filestore.FileLocation
   use ExMachina.Ecto, repo: BillionOak.Repo
 
   def company_account_factory do
@@ -75,6 +76,15 @@ defmodule BillionOak.Factory do
       name: Faker.Company.name(),
       secret: Faker.Lorem.word(),
       organization_id: Organization.generate_id()
+    }
+  end
+
+  def file_location_factory do
+    %FileLocation{
+      id: FileLocation.generate_id(),
+      name: Faker.Lorem.word(),
+      organization_id: Organization.generate_id(),
+      owner_id: User.generate_id()
     }
   end
 end

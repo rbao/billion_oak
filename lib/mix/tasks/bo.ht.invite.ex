@@ -5,13 +5,17 @@ defmodule Mix.Tasks.Bo.Ht.Invite do
   @shortdoc "Create a invitation code for happy team associate"
   @requirements ["app.start"]
   @impl Mix.Task
-  def run([company_account_rid]) do
+  def run([company_account_rid, role]) do
     req = %Request{_role_: :sysops, identifier: %{handle: "happyteam"}}
     {:ok, %{data: organization}} = BillionOak.get_organization(req)
 
     req = %Request{
       _role_: :sysops,
-      data: %{organization_id: organization.id, invitee_company_account_rid: company_account_rid}
+      data: %{
+        organization_id: organization.id,
+        invitee_company_account_rid: company_account_rid,
+        role: String.to_atom(role)
+      }
     }
 
     result = BillionOak.create_invitation_code(req)

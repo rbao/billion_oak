@@ -44,4 +44,16 @@ defmodule BillionOakWeb.Schema.Types do
       resolve(&Resolver.load_company_accounts/3)
     end
   end
+
+  object :file_form_field do
+    field :name, :string
+    field :value, :string
+  end
+
+  object :file_location do
+    field :id, :id
+    field :name, :string
+    field :form_url, :string
+    field :form_fields, list_of(:file_form_field)
+  end
 end
