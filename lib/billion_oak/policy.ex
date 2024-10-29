@@ -27,6 +27,7 @@ defmodule BillionOak.Policy do
     Request.put(req, :identifier, :organization_id, organization_id)
   end
 
+  # TODO: need to add organization_id of the requester as well
   def scope(%{_role_: role} = req, :create_invitation_code) when role in @member_roles do
     req
     |> Request.put(:data, :inviter_id, req.requester_id)
