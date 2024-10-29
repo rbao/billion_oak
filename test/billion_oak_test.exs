@@ -160,18 +160,18 @@ defmodule BillionOakTest do
       identifier = %{handle: "happyteam"}
       req = sysops(%{identifier: identifier})
 
-      expect(BillionOak.FilestoreMock, :list_files, fn _, _ ->
-        {:ok, [%{key: "file_key"}]}
+      expect(BillionOak.Filestore.ClientMock, :list_objects, fn _, _ ->
+        {:ok, [%{key: "object_key"}]}
       end)
 
-      expect(BillionOak.FilestoreMock, :stream_file, fn "file_key" ->
+      expect(BillionOak.Filestore.ClientMock, :stream_object, fn "object_key" ->
         {:ok, File.stream!("test/support/fixtures/mannatech.mtku")}
       end)
 
       result = BillionOak.ingest_external_data(req)
 
       assert {:ok, %{data: data}} = result
-      assert [{"file_key", {:ok, 20}}] = data
+      assert [{"object_key", {:ok, 20}}] = data
     end
   end
 end

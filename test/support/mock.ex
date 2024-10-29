@@ -1,1 +1,1 @@
-Mox.defmock(BillionOak.FilestoreMock, for: BillionOak.IFilestore)
+Mox.defmock(BillionOak.Filestore.ClientMock, for: BillionOak.Filestore.IClient)

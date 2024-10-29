@@ -1,14 +1,19 @@
-defmodule BillionOak.IFilestore do
-  @type file_object :: %{key: binary()}
-
-  @callback stream_file(binary()) :: {:ok, Enumerable.t()} | {:error, any()}
-  @callback list_files(binary(), binary() | nil) :: {:ok, list(file_object())} | {:error, any()}
-end
-
 defmodule BillionOak.Filestore do
-  alias BillionOak.Filestore.S3
-  @store Application.compile_env(:billion_oak, __MODULE__, S3)
+  @moduledoc """
+  The Feilstore context.
+  """
 
-  defdelegate stream_file(key), to: @store
-  defdelegate list_files(prefix, start_after), to: @store
+  import Ecto.Query, warn: false
+  alias Ecto.Multi
+  alias BillionOak.Repo
+
+  alias BillionOak.Filestore.Client
+
+  def list_objects(prefix, start_after \\ nil) do
+    Client.list_objects(prefix, start_after)
+  end
+
+  def stream_object(key) do
+    Client.stream_object(key)
+  end
 end
