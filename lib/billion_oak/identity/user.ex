@@ -6,6 +6,7 @@ defmodule BillionOak.Identity.User do
   alias BillionOak.Identity.Organization
 
   schema "users" do
+    field :status, Ecto.Enum, values: [:active, :suspended], default: :active
     field :role, Ecto.Enum, values: [:guest, :member, :admin], default: :guest
     field :first_name, :string
     field :last_name, :string
