@@ -1,7 +1,7 @@
 defmodule BillionOak do
   use OK.Pipe
   import BillionOak.Policy
-  alias BillionOak.{External, Identity, Ingestion, Filestore, Request, Response}
+  alias BillionOak.{External, Identity, Ingestion, Filestore, Content, Request, Response}
   alias BillionOak.Identity.{Client, User}
   alias BillionOak.Validation.Error
 
@@ -119,6 +119,15 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Filestore.register_file()
+    |> to_response()
+  end
+
+  def create_audio(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:data)
+    ~>> Content.create_audio()
     |> to_response()
   end
 

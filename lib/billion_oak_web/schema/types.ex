@@ -65,4 +65,14 @@ defmodule BillionOakWeb.Schema.Types do
     field :size_bytes, :integer
     field :url, :string
   end
+
+  object :audio do
+    field :id, :id
+    field :status, :string
+    field :number, :string
+    field :title, :string
+    field :speaker_names, :string
+    field :duration_seconds, :integer
+    field :file, :file
+  end
 end

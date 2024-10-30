@@ -179,4 +179,29 @@ defmodule BillionOak.PolicyTest do
       assert {:ok, ^req} = Policy.authorize(req, :register_file)
     end
   end
+
+  describe "when admin is creating an audio" do
+    test "the organization will always be set to the organization of themself" do
+      user = build(:user, role: :admin)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id)
+
+      req = Policy.scope(req, :create_audio)
+
+      assert req.data[:organization_id] == user.organization_id
+    end
+
+    test "the request is authorized only if the organization is the organization of the requester" do
+      user = build(:user, role: :admin)
+
+      req =
+        req(
+          _role_: :admin,
+          _organization_id_: user.organization_id,
+          requester_id: user.id,
+          data: %{organization_id: user.organization_id}
+        )
+
+      assert {:ok, ^req} = Policy.authorize(req, :create_audio)
+    end
+  end
 end

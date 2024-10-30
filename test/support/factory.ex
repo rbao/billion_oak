@@ -2,6 +2,7 @@ defmodule BillionOak.Factory do
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
   alias BillionOak.Identity.{InvitationCode, Organization, User, Client}
   alias BillionOak.Filestore.{File, FileLocation}
+  alias BillionOak.Content.Audio
   use ExMachina.Ecto, repo: BillionOak.Repo
 
   def company_account_factory do
@@ -96,6 +97,18 @@ defmodule BillionOak.Factory do
       size_bytes: Faker.random_between(100, 100_000),
       organization_id: Organization.generate_id(),
       owner_id: User.generate_id()
+    }
+  end
+
+  def audio_factory do
+    %Audio{
+      id: Audio.generate_id(),
+      organization_id: Organization.generate_id(),
+      primary_file_id: File.generate_id(),
+      number: Faker.Lorem.word(),
+      title: Faker.Lorem.word(),
+      speaker_names: Faker.Lorem.word(),
+      duration_seconds: Faker.random_between(10, 1000)
     }
   end
 end

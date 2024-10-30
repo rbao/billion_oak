@@ -139,6 +139,21 @@ defmodule BillionOakTest do
       assert location.form_fields
       assert location.form_url
     end
+
+    @tag :focus
+    test "can create an audio" do
+      client = insert(:client)
+      admin = insert(:user, role: :admin, organization_id: client.organization_id)
+      file = insert(:file, organization_id: client.organization_id)
+      data = params_for(:audio, primary_file_id: file.id)
+      req = user(%{data: data}, client, admin)
+
+      result = BillionOak.create_audio(req)
+
+      assert {:ok, %{data: audio}} = result
+      assert audio.id
+      assert audio.primary_file_id == file.id
+    end
   end
 
   describe "system operator" do

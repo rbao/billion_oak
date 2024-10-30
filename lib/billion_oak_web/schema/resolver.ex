@@ -55,4 +55,11 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> BillionOak.register_file()
     |> build_response(:mutation)
   end
+
+  def create_audio(_parent, args, %{context: context}) do
+    context
+    |> build_request(args, :mutation)
+    |> BillionOak.create_audio()
+    |> build_response(:mutation)
+  end
 end
