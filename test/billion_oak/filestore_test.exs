@@ -102,69 +102,29 @@ defmodule BillionOak.FilestoreTest do
       assert file.content_type == "binary/octet-stream"
       assert file.size_bytes == 72516
     end
+
+    test "returns an error if the given input is invalid" do
+      assert {:error, %Ecto.Changeset{}} = Filestore.register_file(%{})
+    end
   end
 
-  # describe "files" do
-  #   alias BillionOak.Filestore.File
+  describe "updating a file" do
+    test "returns the updated file if the given input is valid" do
+      file = insert(:file)
+      input = %{status: :deleted}
 
-  #   import BillionOak.FilestoreFixtures
+      assert {:ok, %File{} = file} = Filestore.update_file(file, input)
+      assert file.status == :deleted
+    end
 
-  #   @invalid_attrs %{name: nil, status: nil, organization_id: nil, owner_id: nil, content_type: nil, size_bytes: nil}
+    test "returns an error if the given input is invalid" do
+      file = insert(:file)
+      assert {:error, %Ecto.Changeset{}} = Filestore.update_file(file, %{status: nil})
+    end
+  end
 
-  #   test "list_files/0 returns all files" do
-  #     file = file_fixture()
-  #     assert Filestore.list_files() == [file]
-  #   end
-
-  #   test "get_file!/1 returns the file with given id" do
-  #     file = file_fixture()
-  #     assert Filestore.get_file!(file.id) == file
-  #   end
-
-  #   test "create_file/1 with valid data creates a file" do
-  #     valid_attrs = %{name: "some name", status: "some status", organization_id: "some organization_id", owner_id: "some owner_id", content_type: "some content_type", size_bytes: "some size_bytes"}
-
-  #     assert {:ok, %File{} = file} = Filestore.create_file(valid_attrs)
-  #     assert file.name == "some name"
-  #     assert file.status == "some status"
-  #     assert file.organization_id == "some organization_id"
-  #     assert file.owner_id == "some owner_id"
-  #     assert file.content_type == "some content_type"
-  #     assert file.size_bytes == "some size_bytes"
-  #   end
-
-  #   test "create_file/1 with invalid data returns error changeset" do
-  #     assert {:error, %Ecto.Changeset{}} = Filestore.create_file(@invalid_attrs)
-  #   end
-
-  #   test "update_file/2 with valid data updates the file" do
-  #     file = file_fixture()
-  #     update_attrs = %{name: "some updated name", status: "some updated status", organization_id: "some updated organization_id", owner_id: "some updated owner_id", content_type: "some updated content_type", size_bytes: "some updated size_bytes"}
-
-  #     assert {:ok, %File{} = file} = Filestore.update_file(file, update_attrs)
-  #     assert file.name == "some updated name"
-  #     assert file.status == "some updated status"
-  #     assert file.organization_id == "some updated organization_id"
-  #     assert file.owner_id == "some updated owner_id"
-  #     assert file.content_type == "some updated content_type"
-  #     assert file.size_bytes == "some updated size_bytes"
-  #   end
-
-  #   test "update_file/2 with invalid data returns error changeset" do
-  #     file = file_fixture()
-  #     assert {:error, %Ecto.Changeset{}} = Filestore.update_file(file, @invalid_attrs)
-  #     assert file == Filestore.get_file!(file.id)
-  #   end
-
-  #   test "delete_file/1 deletes the file" do
-  #     file = file_fixture()
-  #     assert {:ok, %File{}} = Filestore.delete_file(file)
-  #     assert_raise Ecto.NoResultsError, fn -> Filestore.get_file!(file.id) end
-  #   end
-
-  #   test "change_file/1 returns a file changeset" do
-  #     file = file_fixture()
-  #     assert %Ecto.Changeset{} = Filestore.change_file(file)
-  #   end
-  # end
+  test "a file can be deleted" do
+    file = insert(:file)
+    assert {:ok, %File{}} = Filestore.delete_file(file)
+  end
 end
