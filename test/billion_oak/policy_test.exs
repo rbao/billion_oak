@@ -144,4 +144,39 @@ defmodule BillionOak.PolicyTest do
       assert {:ok, ^req} = Policy.authorize(req, :reserve_file_location)
     end
   end
+
+  describe "when admin is registering a file" do
+    test "the owner will always be set to themself in the request" do
+      user = build(:user, role: :admin)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id)
+
+      req = Policy.scope(req, :register_file)
+
+      assert req.data[:owner_id] == user.id
+      assert req.data[:owner] == user
+    end
+
+    test "the organization will always be set to the organization of themself" do
+      user = build(:user, role: :admin)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id)
+
+      req = Policy.scope(req, :register_file)
+
+      assert req.data[:organization_id] == user.organization_id
+    end
+
+    test "the request is authorized only if the owner is themself and organization is the organization of the owner" do
+      user = build(:user, role: :admin)
+
+      req =
+        req(
+          _role_: :admin,
+          _organization_id_: user.organization_id,
+          requester_id: user.id,
+          data: %{owner_id: user.id, organization_id: user.organization_id}
+        )
+
+      assert {:ok, ^req} = Policy.authorize(req, :register_file)
+    end
+  end
 end

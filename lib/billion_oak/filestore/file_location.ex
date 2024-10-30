@@ -48,6 +48,7 @@ defmodule BillionOak.Filestore.FileLocation do
   end
 
   def key(%{id: id, name: name}), do: key(id, name)
+
   def key(id, name) do
     key_prefix = System.get_env("AWS_S3_KEY_PREFIX")
     "#{key_prefix}/filestore/#{id}/#{name}"
@@ -55,6 +56,7 @@ defmodule BillionOak.Filestore.FileLocation do
 
   def metadata(%__MODULE__{} = location) do
     key = key(location)
+
     case Client.head_object(key) do
       {:ok, headers} ->
         metadata =
@@ -66,7 +68,8 @@ defmodule BillionOak.Filestore.FileLocation do
 
         {:ok, metadata}
 
-      error -> error
+      error ->
+        error
     end
   end
 end

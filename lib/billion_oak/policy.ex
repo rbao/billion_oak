@@ -46,6 +46,14 @@ defmodule BillionOak.Policy do
     |> Request.put(:data, :organization_id, organization_id)
   end
 
+  def scope(%{_role_: role, _organization_id_: organization_id} = req, :register_file)
+      when role in @admin_roles do
+    req
+    |> Request.put(:data, :owner_id, req.requester_id)
+    |> Request.put(:data, :owner, req._requester_)
+    |> Request.put(:data, :organization_id, organization_id)
+  end
+
   def scope(req, _), do: req
 
   def authorize(%{_role_: :sysdev} = req, _), do: {:ok, req}
@@ -115,6 +123,15 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :reserve_file_location) when role in @admin_roles do
+    if req.data[:organization_id] == req._organization_id_ &&
+         req.data[:owner_id] == req.requester_id do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
+  end
+
+  def authorize(%{_role_: role} = req, :register_file) when role in @admin_roles do
     if req.data[:organization_id] == req._organization_id_ &&
          req.data[:owner_id] == req.requester_id do
       {:ok, req}

@@ -21,7 +21,13 @@ defmodule BillionOak.Identity.InvitationCode do
   def changeset(invitation_code, attrs) do
     invitation_code
     |> changeset()
-    |> cast(attrs, [:inviter_id, :organization_id, :invitee_company_account_rid, :expires_at])
+    |> cast(attrs, [
+      :inviter_id,
+      :organization_id,
+      :invitee_company_account_rid,
+      :invitee_role,
+      :expires_at
+    ])
     |> validate_required([:invitee_company_account_rid])
     |> put_inviter()
     |> validate_inviter_id()

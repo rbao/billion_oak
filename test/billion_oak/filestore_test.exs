@@ -86,12 +86,19 @@ defmodule BillionOak.FilestoreTest do
   describe "registering a file" do
     test "returns the registered file if the given input is valid" do
       location = insert(:file_location)
-      input = params_for(:file, location_id: location.id)
+
+      input = %{
+        location_id: location.id,
+        owner_id: location.owner_id,
+        organization_id: location.organization_id
+      }
+
       expect(BillionOak.Filestore.ClientMock, :head_object, fn _ ->
-        {:ok, [
-          {"Content-Type", "binary/octet-stream"},
-          {"Content-Length", "72516"}
-        ]}
+        {:ok,
+         [
+           {"Content-Type", "binary/octet-stream"},
+           {"Content-Length", "72516"}
+         ]}
       end)
 
       assert {:ok, %File{} = file} = Filestore.register_file(input)

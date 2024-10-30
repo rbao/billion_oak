@@ -62,7 +62,7 @@ defmodule BillionOakWeb.Schema.Types do
     field :name, :string
     field :status, :string
     field :content_type, :string
-    field :size_bytes, :string
+    field :size_bytes, :integer
     field :url, :string
   end
 end

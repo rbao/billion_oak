@@ -24,8 +24,8 @@ defmodule BillionOak.Filestore.File do
   @doc false
   def changeset(file, :register, attrs) do
     file
-    |> cast(attrs, [:name, :organization_id, :owner_id, :status, :location_id])
-    |> validate_required([:name, :organization_id, :owner_id, :status, :location_id])
+    |> cast(attrs, [:organization_id, :owner_id, :location_id])
+    |> validate_required([:organization_id, :owner_id, :status, :location_id])
     |> put_location()
     |> validate_location()
     |> from_location()
@@ -41,7 +41,16 @@ defmodule BillionOak.Filestore.File do
 
   defp put_location(cs) do
     location_id = get_field(cs, :location_id)
-    location = Repo.get(FileLocation, location_id)
+    organization_id = get_field(cs, :organization_id)
+    owner_id = get_field(cs, :owner_id)
+
+    location =
+      Repo.get_by(FileLocation,
+        id: location_id,
+        organization_id: organization_id,
+        owner_id: owner_id
+      )
+
     change(cs, location: location)
   end
 
@@ -68,8 +77,6 @@ defmodule BillionOak.Filestore.File do
         end)
         |> change(id: location.id)
         |> change(name: location.name)
-        |> change(organization_id: location.organization_id)
-        |> change(owner_id: location.owner_id)
 
       {:error, :not_found} ->
         add_error(cs, :location_id, "does not have content", validation: :must_have_content)

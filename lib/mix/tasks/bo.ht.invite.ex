@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Bo.Ht.Invite do
       data: %{
         organization_id: organization.id,
         invitee_company_account_rid: company_account_rid,
-        role: String.to_atom(role)
+        invitee_role: String.to_atom(role)
       }
     }
 
