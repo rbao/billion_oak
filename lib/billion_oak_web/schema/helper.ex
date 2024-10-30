@@ -18,8 +18,14 @@ defmodule BillionOakWeb.Schema.Helper do
   end
 
   def build_response({:ok, %Response{data: data}}, :query), do: {:ok, data}
+  def build_response(other, :query), do: other
+
   def build_response({:ok, %Response{data: data}}, :mutation), do: {:ok, data}
-  def build_response({:error, {:validation_error, %Response{errors: validation_errors}}}, :mutation) do
+
+  def build_response(
+        {:error, {:validation_error, %Response{errors: validation_errors}}},
+        :mutation
+      ) do
     errors =
       Enum.reduce(validation_errors, [], fn {key, error_code, message, details}, acc ->
         acc ++ [%{key: key, error_code: error_code, message: message, details: details}]
@@ -27,5 +33,6 @@ defmodule BillionOakWeb.Schema.Helper do
 
     {:error, errors}
   end
-  def build_response(other), do: other
+
+  def build_response(other, :mutation), do: other
 end

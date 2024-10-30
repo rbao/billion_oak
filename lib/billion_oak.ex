@@ -168,8 +168,10 @@ defmodule BillionOak do
   defp put_role(%Request{} = req), do: req
 
   defp to_response({:ok, data}), do: {:ok, %Response{data: data}}
+
   defp to_response({:error, %Ecto.Changeset{} = changeset}) do
     {:error, {:validation_error, %Response{errors: Error.from_changeset(changeset)}}}
   end
+
   defp to_response(other), do: other
 end
