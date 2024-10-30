@@ -8,28 +8,28 @@ defmodule BillionOakWeb.Schema.Resolver do
     context
     |> build_request(args, :mutation)
     |> BillionOak.sign_up()
-    ~> unwrap_response(:mutation)
+    |> build_response(:mutation)
   end
 
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
     |> build_request(args, :query)
     |> BillionOak.get_company_account_excerpt()
-    ~> unwrap_response(:query)
+    |> build_response(:query)
   end
 
   def create_invitation_code(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
     |> BillionOak.create_invitation_code()
-    ~> unwrap_response(:mutation)
+    |> build_response(:mutation)
   end
 
   def get_current_user(_parent, _args, %{context: context}) do
     context
     |> build_request(%{id: context[:requester_id]}, :query)
     |> BillionOak.get_user()
-    ~> unwrap_response(:query)
+    |> build_response(:query)
   end
 
   def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do
@@ -46,13 +46,13 @@ defmodule BillionOakWeb.Schema.Resolver do
     context
     |> build_request(args, :mutation)
     |> BillionOak.reserve_file_location()
-    ~> unwrap_response(:mutation)
+    |> build_response(:mutation)
   end
 
   def register_file(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
     |> BillionOak.register_file()
-    ~> unwrap_response(:mutation)
+    |> build_response(:mutation)
   end
 end

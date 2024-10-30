@@ -22,7 +22,7 @@ defmodule BillionOakWeb.Schema.DataSource do
       context
       |> build_request(%{ids: Map.keys(pending_map)}, :query)
       |> BillionOak.list_company_accounts()
-      ~> unwrap_response(:query)
+      |> build_response(:query)
 
     case subresult do
       {:ok, company_accounts} ->
