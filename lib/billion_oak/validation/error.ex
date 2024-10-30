@@ -91,6 +91,18 @@ defmodule BillionOak.Validation.Error do
     {key, :invalid_length, msg, opts}
   end
 
+  defp changeset_error(key, :validation, :must_exist, msg, _) do
+    {key, :not_found, msg, []}
+  end
+
+  defp changeset_error(key, :validation, :must_have_content, msg, _) do
+    {key, :no_content, msg, []}
+  end
+
+  defp changeset_error(key, :validation, :must_match, msg, _) do
+    {key, :mismatch, msg, []}
+  end
+
   defp changeset_error(key, :validation, code, msg, _) do
     {key, code, msg, []}
   end
