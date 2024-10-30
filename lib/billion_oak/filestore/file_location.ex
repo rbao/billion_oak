@@ -1,5 +1,6 @@
 defmodule BillionOak.Filestore.FileLocation do
   use BillionOak.Schema, id_prefix: "filoc"
+  alias BillionOak.Identity.{Organization, User}
   alias BillionOak.Filestore.Client
 
   schema "file_locations" do
@@ -46,7 +47,26 @@ defmodule BillionOak.Filestore.FileLocation do
     |> change(form_url: form.url)
   end
 
-  defp key(id, name) do
-    "#{id}/#{name}"
+  def key(%{id: id, name: name}), do: key(id, name)
+  def key(id, name) do
+    key_prefix = System.get_env("AWS_S3_KEY_PREFIX")
+    "#{key_prefix}/filestore/#{id}/#{name}"
+  end
+
+  def metadata(%__MODULE__{} = location) do
+    key = key(location)
+    case Client.head_object(key) do
+      {:ok, headers} ->
+        metadata =
+          Enum.reduce(headers, %{}, fn
+            {"Content-Type", v}, acc -> Map.put(acc, :content_type, v)
+            {"Content-Length", v}, acc -> Map.put(acc, :size_bytes, String.to_integer(v))
+            _, acc -> acc
+          end)
+
+        {:ok, metadata}
+
+      error -> error
+    end
   end
 end

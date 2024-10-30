@@ -3,8 +3,9 @@ defmodule BillionOak.Filestore.IClient do
 
   @callback stream_object(binary()) :: {:ok, Enumerable.t()} | {:error, any()}
   @callback list_objects(binary(), binary() | nil) :: {:ok, list(object())} | {:error, any()}
-  @callback presigned_url(binary()) :: binary()
+  @callback presigned_url(binary()) :: {:ok, binary()} | {:error, binary()}
   @callback presigned_post(binary(), list(map())) :: map()
+  @callback head_object(binary()) :: {:ok, map()} | {:error, any()}
 end
 
 defmodule BillionOak.Filestore.Client do
@@ -15,4 +16,5 @@ defmodule BillionOak.Filestore.Client do
   defdelegate list_objects(prefix, start_after), to: @store
   defdelegate presigned_url(key), to: @store
   defdelegate presigned_post(key, conditions), to: @store
+  defdelegate head_object(key), to: @store
 end

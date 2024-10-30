@@ -44,4 +44,19 @@ defmodule BillionOak.Filestore.S3Client do
     ExAws.Config.new(:s3)
     |> ExAws.S3.presigned_post(bucket, key, default_opts ++ [custom_conditions: conditions])
   end
+
+  @impl IClient
+  def head_object(key) do
+    resp =
+      System.fetch_env!("AWS_S3_BUCKET")
+      |> ExAws.S3.head_object(key)
+      |> ExAws.request()
+
+    case resp do
+      {:ok, %{status_code: 200, headers: headers}} -> {:ok, headers}
+      {:error, {:http_error, 404, _}} -> {:error, :not_found}
+      {:error, {:http_error, 403, _}} -> {:error, :access_denied}
+      other -> other
+    end
+  end
 end

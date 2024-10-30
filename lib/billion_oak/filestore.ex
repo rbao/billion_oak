@@ -98,4 +98,90 @@ defmodule BillionOak.Filestore do
   def delete_location(%FileLocation{} = location) do
     Repo.delete(location)
   end
+
+  alias BillionOak.Filestore.File
+
+  @doc """
+  Returns the list of files.
+
+  ## Examples
+
+      iex> list_files()
+      {:ok, [%File{}, ...]}
+
+  """
+  def list_files do
+    {:ok, Repo.all(File)}
+  end
+
+  @doc """
+  Gets a single file.
+
+  ## Examples
+
+      iex> get_file("123")
+      {:ok, %File{}}
+
+      iex> get_file("456")
+      {:error, :not_found}
+
+  """
+  def get_file(id) do
+    case Repo.get(File, id) do
+      nil -> {:error, :not_found}
+      file -> {:ok, file}
+    end
+  end
+
+  @doc """
+  Registers a file.
+
+  ## Examples
+
+      iex> register_file(%{field: value})
+      {:ok, %File{}}
+
+      iex> register_file(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def register_file(attrs \\ %{}) do
+    %File{}
+    |> File.changeset(:register, attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a file.
+
+  ## Examples
+
+      iex> update_file(file, %{field: new_value})
+      {:ok, %File{}}
+
+      iex> update_file(file, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_file(%File{} = file, attrs) do
+    file
+    |> File.changeset(:update, attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a file.
+
+  ## Examples
+
+      iex> delete_file(file)
+      {:ok, %File{}}
+
+      iex> delete_file(file)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_file(%File{} = file) do
+    Repo.delete(file)
+  end
 end

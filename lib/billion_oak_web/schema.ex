@@ -38,6 +38,12 @@ defmodule BillionOakWeb.Schema do
       arg(:content_type, :string)
       resolve(&Resolver.reserve_file_location/3)
     end
+
+    @desc "Register a file in a given location"
+    field :register_file, type: :file do
+      arg(:location_id, non_null(:id))
+      resolve(&Resolver.register_file/3)
+    end
   end
 
   def context(ctx) do

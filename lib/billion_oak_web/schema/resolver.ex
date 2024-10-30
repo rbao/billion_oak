@@ -48,4 +48,11 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> BillionOak.reserve_file_location()
     ~> unwrap_response(:mutation)
   end
+
+  def register_file(_parent, args, %{context: context}) do
+    context
+    |> build_request(args, :mutation)
+    |> BillionOak.register_file()
+    ~> unwrap_response(:mutation)
+  end
 end

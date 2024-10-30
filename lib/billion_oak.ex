@@ -112,6 +112,15 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def register_file(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:data)
+    ~>> Filestore.register_file()
+    |> to_response()
+  end
+
   defp expand(%Request{} = req) do
     req
     |> Request.put(:client_id, Client.bare_id(req.client_id))

@@ -56,4 +56,13 @@ defmodule BillionOakWeb.Schema.Types do
     field :form_url, :string
     field :form_fields, list_of(:file_form_field)
   end
+
+  object :file do
+    field :id, :id
+    field :name, :string
+    field :status, :string
+    field :content_type, :string
+    field :size_bytes, :string
+    field :url, :string
+  end
 end
