@@ -101,6 +101,10 @@ defmodule BillionOak.FilestoreTest do
          ]}
       end)
 
+      expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
+        {:ok, "url"}
+      end)
+
       assert {:ok, %File{} = file} = Filestore.register_file(input)
       assert file.id == location.id
       assert file.name == location.name
@@ -108,6 +112,7 @@ defmodule BillionOak.FilestoreTest do
       assert file.owner_id == location.owner_id
       assert file.content_type == "binary/octet-stream"
       assert file.size_bytes == 72516
+      assert file.url == "url"
     end
 
     test "returns an error if the given input is invalid" do

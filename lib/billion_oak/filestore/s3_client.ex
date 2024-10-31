@@ -33,7 +33,7 @@ defmodule BillionOak.Filestore.S3Client do
     bucket = System.fetch_env!("AWS_S3_BUCKET")
 
     ExAws.Config.new(:s3)
-    |> ExAws.S3.presigned_url(:post, bucket, key, expires_in: 86_400)
+    |> ExAws.S3.presigned_url(:get, bucket, key, expires_in: 86_400)
   end
 
   @impl IClient

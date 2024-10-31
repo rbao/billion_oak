@@ -2,7 +2,7 @@ defmodule BillionOak.Filestore do
   @moduledoc """
   The Feilstore context.
   """
-
+  use OK.Pipe
   import Ecto.Query, warn: false
   alias BillionOak.Repo
   alias BillionOak.Filestore.{Client, FileLocation}
@@ -149,6 +149,7 @@ defmodule BillionOak.Filestore do
     %File{}
     |> File.changeset(:register, attrs)
     |> Repo.insert()
+    ~> File.put_url()
   end
 
   @doc """

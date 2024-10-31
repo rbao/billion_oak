@@ -2,7 +2,7 @@ defmodule BillionOak.Filestore.File do
   use BillionOak.Schema, id_prefix: "file"
   import Ecto.Changeset
   alias BillionOak.Identity.{Organization, User}
-  alias BillionOak.Filestore.FileLocation
+  alias BillionOak.Filestore.{FileLocation, Client}
   alias BillionOak.Repo
 
   schema "files" do
@@ -83,6 +83,21 @@ defmodule BillionOak.Filestore.File do
 
       {:error, :access_denied} ->
         add_error(cs, :location_id, "access denied", validation: :must_be_accessible)
+    end
+  end
+
+  def put_url(%__MODULE__{} = file) do
+    result =
+      file
+      |> FileLocation.key()
+      |> Client.presigned_url()
+
+    case result do
+      {:ok, url} ->
+        Map.put(file, :url, url)
+
+      _ ->
+        file
     end
   end
 end

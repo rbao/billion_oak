@@ -29,7 +29,6 @@ defmodule BillionOak.Content.Audio do
       :status,
       :title,
       :speaker_names,
-      :duration_seconds,
       :primary_file_id,
       :organization_id
     ])
