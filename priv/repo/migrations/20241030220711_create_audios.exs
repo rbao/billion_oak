@@ -7,6 +7,7 @@ defmodule BillionOak.Repo.Migrations.CreateAudios do
       add :status, :string, null: false
       add :number, :string
       add :duration_seconds, :integer
+      add :bit_rate, :integer
       add :title, :string
       add :speaker_names, :string
       add :primary_file_id, :string, null: false

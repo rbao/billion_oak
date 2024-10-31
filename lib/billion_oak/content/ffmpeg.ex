@@ -1,5 +1,5 @@
 defmodule BillionOak.Content.IFFmpeg do
-  @callback duration_seconds(binary()) :: integer() | nil
+  @callback media_metadata(binary()) :: integer() | nil
 end
 
 defmodule BillionOak.Content.FFmpeg do
@@ -8,14 +8,14 @@ defmodule BillionOak.Content.FFmpeg do
   @behaviour IFFmpeg
   @ffmpeg Application.compile_env(:billion_oak, __MODULE__, DefaultFFmpeg)
 
-  defdelegate duration_seconds(url), to: @ffmpeg
+  defdelegate media_metadata(url), to: @ffmpeg
 end
 
 defmodule BillionOak.Content.DefaultFFmpeg do
   alias BillionOak.Content.IFFmpeg
   @behaviour IFFmpeg
 
-  defp probe(url) do
+  def probe(url) do
     args = ["-output_format", "json", "-show_format", "-loglevel", "panic", url]
 
     case System.cmd("ffprobe", args) do
@@ -29,12 +29,22 @@ defmodule BillionOak.Content.DefaultFFmpeg do
   end
 
   @impl IFFmpeg
-  def duration_seconds(url) do
+  def media_metadata(url) do
     case probe(url) do
-      {:ok, %{"duration" => duration}} ->
-        duration
-        |> String.to_float()
-        |> ceil()
+      {:ok, metadata} ->
+        metadata
+        |> Map.take(["duration", "bit_rate"])
+        |> Enum.reduce(%{}, fn
+          {_, nil}, acc ->
+            acc
+
+          {"duration", duration}, acc ->
+            duration_seconds = duration |> String.to_float() |> ceil()
+            Map.put(acc, :duration_seconds, duration_seconds)
+
+          {"bit_rate", bit_rate}, acc ->
+            Map.put(acc, :bit_rate, String.to_integer(bit_rate))
+        end)
 
       _ ->
         nil

@@ -11,6 +11,7 @@ defmodule BillionOak.Content.Audio do
     field :status, Ecto.Enum, values: [:draft, :published], default: :draft
     field :number, :string
     field :duration_seconds, :integer
+    field :bit_rate, :integer
     field :speaker_names, :string
 
     timestamps()
@@ -37,7 +38,7 @@ defmodule BillionOak.Content.Audio do
     |> validate_primary_file()
     |> put_cover_image_file()
     |> validate_cover_image_file()
-    |> put_duration_seconds()
+    |> put_media_metadata()
   end
 
   defp put_primary_file(%{valid?: true, changes: %{primary_file_id: primary_file_id}} = cs) do
@@ -83,16 +84,18 @@ defmodule BillionOak.Content.Audio do
 
   defp validate_cover_image_file(cs), do: cs
 
-  defp put_duration_seconds(%{valid?: true, changes: %{primary_file_id: _}} = cs) do
+  defp put_media_metadata(%{valid?: true, changes: %{primary_file_id: _}} = cs) do
     primary_file = get_field(cs, :primary_file)
-    duration_seconds = FFmpeg.duration_seconds(primary_file.url)
+    media_metadata = FFmpeg.media_metadata(primary_file.url)
 
-    if duration_seconds do
-      change(cs, duration_seconds: duration_seconds)
+    if media_metadata do
+      Enum.reduce(media_metadata, cs, fn {k, v}, acc ->
+        change(acc, %{k => v})
+      end)
     else
       cs
     end
   end
 
-  defp put_duration_seconds(cs), do: cs
+  defp put_media_metadata(cs), do: cs
 end

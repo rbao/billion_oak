@@ -32,8 +32,8 @@ defmodule BillionOak.ContentTest do
         {:ok, "url"}
       end)
 
-      expect(BillionOak.Content.FFmpegMock, :duration_seconds, fn _ ->
-        100
+      expect(BillionOak.Content.FFmpegMock, :media_metadata, fn _ ->
+        %{duration_seconds: 100, bit_rate: 100}
       end)
 
       assert {:ok, %Audio{}} = Content.create_audio(input)
