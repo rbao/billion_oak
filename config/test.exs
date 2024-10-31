@@ -24,6 +24,7 @@ config :billion_oak, BillionOakWeb.Endpoint,
 config :billion_oak, BillionOak.Mailer, adapter: Swoosh.Adapters.Test
 
 config :billion_oak, BillionOak.Filestore.Client, BillionOak.Filestore.ClientMock
+config :billion_oak, BillionOak.Content.FFmpeg, BillionOak.Content.FFmpegMock
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false

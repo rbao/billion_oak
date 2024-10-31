@@ -1,6 +1,7 @@
 defmodule BillionOak.ContentTest do
   use BillionOak.DataCase
   import BillionOak.Factory
+  import Mox
 
   alias BillionOak.Content
   alias BillionOak.Content.Audio
@@ -26,6 +27,14 @@ defmodule BillionOak.ContentTest do
     test "returns the created audio if the given input is valid" do
       file = insert(:file)
       input = params_for(:audio, primary_file_id: file.id, organization_id: file.organization_id)
+
+      expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
+        {:ok, "url"}
+      end)
+
+      expect(BillionOak.Content.FFmpegMock, :duration_seconds, fn _ ->
+        100
+      end)
 
       assert {:ok, %Audio{}} = Content.create_audio(input)
     end

@@ -148,11 +148,20 @@ defmodule BillionOakTest do
       data = params_for(:audio, primary_file_id: file.id)
       req = user(%{data: data}, client, admin)
 
+      expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
+        {:ok, "url"}
+      end)
+
+      expect(BillionOak.Content.FFmpegMock, :duration_seconds, fn _ ->
+        100
+      end)
+
       result = BillionOak.create_audio(req)
 
       assert {:ok, %{data: audio}} = result
       assert audio.id
       assert audio.primary_file_id == file.id
+      assert audio.duration_seconds == 100
     end
   end
 
