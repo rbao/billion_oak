@@ -7,37 +7,40 @@ defmodule BillionOakWeb.Schema.DataSource do
   end
 
   def query({:company_account, _, context}, parents) do
-    {result, pending_map} =
-      Enum.reduce(parents, {%{}, %{}}, fn parent, {loaded, pending_map} ->
-        case parent.company_account do
-          %{id: id} = company_account ->
-            {Map.put(loaded, id, company_account), pending_map}
+    {result, pending_map} = split(parents, :company_account, :company_account_id)
 
-          _ ->
-            {loaded, Map.update(pending_map, parent.company_account_id, [parent], &[parent | &1])}
-        end
+    context
+    |> build_request(%{ids: Map.keys(pending_map)}, :query)
+    |> BillionOak.list_company_accounts()
+    |> build_response(:query)
+    |> merge_result(pending_map, result)
+  end
+
+  defp split(parents, assoc_field, id_field) do
+    Enum.reduce(parents, {%{}, %{}}, fn parent, {loaded, pending_map} ->
+      case Map.get(parent, assoc_field) do
+        %{id: id} = company_account ->
+          {Map.put(loaded, id, company_account), pending_map}
+
+        _ ->
+          {loaded, Map.update(pending_map, Map.get(parent, id_field), [parent], &[parent | &1])}
+      end
+    end)
+  end
+
+  defp merge_result({:ok, data}, pending_map, result) do
+    Enum.reduce(data, result, fn item, acc ->
+      Enum.reduce(Map.get(pending_map, Map.get(item, :id), []), acc, fn parent, inner_acc ->
+        Map.put(inner_acc, parent, item)
       end)
+    end)
+  end
 
-    subresult =
-      context
-      |> build_request(%{ids: Map.keys(pending_map)}, :query)
-      |> BillionOak.list_company_accounts()
-      |> build_response(:query)
-
-    case subresult do
-      {:ok, company_accounts} ->
-        Enum.reduce(company_accounts, result, fn company_account, acc ->
-          Enum.reduce(Map.get(pending_map, company_account.id, []), acc, fn parent, inner_acc ->
-            Map.put(inner_acc, parent, company_account)
-          end)
-        end)
-
-      other ->
-        Enum.reduce(pending_map, result, fn {_, parents}, acc ->
-          Enum.reduce(parents, acc, fn parent, inner_acc ->
-            Map.put(inner_acc, parent, other)
-          end)
-        end)
-    end
+  defp merge_result(other, pending_map, result) do
+    Enum.reduce(pending_map, result, fn {_, parents}, acc ->
+      Enum.reduce(parents, acc, fn parent, inner_acc ->
+        Map.put(inner_acc, parent, other)
+      end)
+    end)
   end
 end

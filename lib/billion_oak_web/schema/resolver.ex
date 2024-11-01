@@ -32,16 +32,6 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> build_response(:query)
   end
 
-  def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do
-    context = Map.drop(context, [:loader])
-
-    loader
-    |> Dataloader.load(DataSource, {:company_account, %{}, context}, parent)
-    |> on_load(fn loader ->
-      {:ok, Dataloader.get(loader, DataSource, {:company_account, %{}, context}, parent)}
-    end)
-  end
-
   def reserve_file_location(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
@@ -68,5 +58,25 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> build_request(input, :query)
     |> BillionOak.list_audios()
     |> build_response(:query)
+  end
+
+  def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do
+    context = Map.drop(context, [:loader])
+
+    loader
+    |> Dataloader.load(DataSource, {:company_account, %{}, context}, parent)
+    |> on_load(fn loader ->
+      {:ok, Dataloader.get(loader, DataSource, {:company_account, %{}, context}, parent)}
+    end)
+  end
+
+  def load_files(parent, _args, %{context: %{loader: loader} = context}) do
+    context = Map.drop(context, [:loader])
+
+    loader
+    |> Dataloader.load(DataSource, {:file, %{}, context}, parent)
+    |> on_load(fn loader ->
+      {:ok, Dataloader.get(loader, DataSource, {:file, %{}, context}, parent)}
+    end)
   end
 end
