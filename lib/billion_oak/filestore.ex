@@ -4,7 +4,7 @@ defmodule BillionOak.Filestore do
   """
   use OK.Pipe
   import Ecto.Query, warn: false
-  alias BillionOak.Repo
+  alias BillionOak.{Repo, Query, Request}
   alias BillionOak.Filestore.{Client, FileLocation}
 
   def list_objects(prefix, start_after \\ nil) do
@@ -110,8 +110,17 @@ defmodule BillionOak.Filestore do
       {:ok, [%File{}, ...]}
 
   """
-  def list_files do
-    {:ok, Repo.all(File)}
+  def list_files(req \\ %Request{}) do
+    result =
+      File
+      |> Query.to_query()
+      |> Query.for_organization(req._organization_id_)
+      |> Query.filter(req.filter, req._filterable_keys_)
+      |> Query.sort(req.sort, req._sortable_keys_)
+      |> Query.paginate(req.pagination)
+      |> Repo.all()
+
+    {:ok, result}
   end
 
   @doc """

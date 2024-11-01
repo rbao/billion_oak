@@ -17,7 +17,21 @@ defmodule BillionOak.Normalization do
     end)
   end
 
-  def stringify_list(l) do
+  def stringify_keys(list) when is_list(list), do: Enum.map(list, &do_stringify_value/1)
+  def stringify_keys(map) when is_map(map) do
+    map
+    |> Enum.map(fn {k, v} -> {do_stringify_key(k), do_stringify_value(v)} end)
+    |> Enum.into(%{})
+  end
+
+  defp do_stringify_key(key) when is_atom(key), do: Atom.to_string(key)
+  defp do_stringify_key(key) when is_binary(key), do: key
+
+  defp do_stringify_value(value) when is_map(value), do: stringify_keys(value)
+  defp do_stringify_value(value) when is_list(value), do: Enum.map(value, &do_stringify_value/1)
+  defp do_stringify_value(value), do: value
+
+  def stringify_list(l) when is_list(l) do
     Enum.reduce(l, [], fn item, acc ->
       if is_atom(item) do
         acc ++ [Atom.to_string(item)]
@@ -26,4 +40,5 @@ defmodule BillionOak.Normalization do
       end
     end)
   end
+  def stringify_list(other), do: other
 end

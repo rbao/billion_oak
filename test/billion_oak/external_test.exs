@@ -2,7 +2,7 @@ defmodule BillionOak.ExternalTest do
   use BillionOak.DataCase
   import BillionOak.Factory
 
-  alias BillionOak.External
+  alias BillionOak.{Request, External}
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
 
   test "all companies can be retrieved at once" do
@@ -62,10 +62,12 @@ defmodule BillionOak.ExternalTest do
       assert length(accounts) == 1
     end
 
+    @tag :focus
     test "with the given ids can be retrieved at once" do
       [account1, account2, _] = insert_list(3, :company_account)
+      filter = %{id: [account1.id, account2.id]}
 
-      assert {:ok, accounts} = External.list_company_accounts(ids: [account1.id, account2.id])
+      assert {:ok, accounts} = External.list_company_accounts(%Request{filter: filter})
       assert length(accounts) == 2
     end
   end

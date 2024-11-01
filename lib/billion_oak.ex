@@ -90,7 +90,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.take(:identifier, [:ids])
     ~>> External.list_company_accounts()
     |> to_response()
   end
@@ -137,6 +136,15 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:identifier)
     ~>> Content.list_audios()
+    |> to_response()
+  end
+
+  def list_files(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:identifier)
+    ~>> Filestore.list_files()
     |> to_response()
   end
 

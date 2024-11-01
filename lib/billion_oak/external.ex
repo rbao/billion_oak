@@ -5,7 +5,7 @@ defmodule BillionOak.External do
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
-  alias BillionOak.Repo
+  alias BillionOak.{Repo, Request, Query}
 
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
 
@@ -104,18 +104,17 @@ defmodule BillionOak.External do
       {:ok, [%CompanyAccount{}, ...]}
 
   """
-  def list_company_accounts(input \\ nil) do
-    query = from(ca in CompanyAccount)
-    ids = input[:ids]
+  def list_company_accounts(req \\ %Request{}) do
+    result =
+      CompanyAccount
+      |> Query.to_query()
+      |> Query.for_organization(req._organization_id_)
+      |> Query.filter(req.filter, req._filterable_keys_)
+      |> Query.sort(req.sort, req._sortable_keys_)
+      |> Query.paginate(req.pagination)
+      |> Repo.all()
 
-    query =
-      if ids do
-        from ca in query, where: ca.id in ^ids
-      else
-        query
-      end
-
-    {:ok, Repo.all(query)}
+    {:ok, result}
   end
 
   def count_company_accounts(_ \\ nil) do
