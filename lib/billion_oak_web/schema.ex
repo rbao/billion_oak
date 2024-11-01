@@ -47,12 +47,16 @@ defmodule BillionOakWeb.Schema do
 
     @desc "Create an audio"
     field :create_audio, type: :audio do
-      arg(:primary_file_id, non_null(:id))
-      arg(:number, non_null(:string))
-      arg(:title, non_null(:string))
-      arg(:speaker_names, non_null(:string))
+      arg(:input, non_null(:create_audio_input))
       resolve(&Resolver.create_audio/3)
     end
+  end
+
+  input_object :create_audio_input do
+    field :primary_file_id, non_null(:id)
+    field :number, non_null(:string)
+    field :title, non_null(:string)
+    field :speaker_names, non_null(:string)
   end
 
   def context(ctx) do
