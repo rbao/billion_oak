@@ -60,6 +60,11 @@ defmodule BillionOak.Policy do
     |> Request.put(:data, :organization_id, organization_id)
   end
 
+  def scope(%{_role_: role} = req, :list_audios) when role in @member_roles do
+    req
+    |> Request.put(:identifier, :organization_id, req._organization_id_)
+  end
+
   def scope(req, _), do: req
 
   def authorize(%{_role_: :sysdev} = req, _), do: {:ok, req}
@@ -148,6 +153,23 @@ defmodule BillionOak.Policy do
 
   def authorize(%{_role_: role} = req, :create_audio) when role in @admin_roles do
     if req.data[:organization_id] == req._organization_id_ do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
+  end
+
+  def authorize(%{_role_: role} = req, :list_audios) when role in @admin_roles do
+    if req.identifier[:organization_id] == req._organization_id_ do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
+  end
+
+  def authorize(%{_role_: role} = req, :list_audios) when role in @member_roles do
+    if req.identifier[:organization_id] == req._organization_id_ &&
+         req.identifier[:status] == "published" do
       {:ok, req}
     else
       {:error, :access_denied}

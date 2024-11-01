@@ -62,4 +62,11 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> BillionOak.create_audio()
     |> build_response(:mutation)
   end
+
+  def list_audios(_parent, %{input: input}, %{context: context}) do
+    context
+    |> build_request(input, :query)
+    |> BillionOak.list_audios()
+    |> build_response(:query)
+  end
 end

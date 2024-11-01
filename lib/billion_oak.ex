@@ -131,6 +131,15 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def list_audios(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~> Request.get(:identifier)
+    ~>> Content.list_audios()
+    |> to_response()
+  end
+
   defp expand(%Request{} = req) do
     req
     |> Request.put(:client_id, Client.bare_id(req.client_id))

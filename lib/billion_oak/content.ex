@@ -17,7 +17,7 @@ defmodule BillionOak.Content do
       {:ok, [%Audio{}, ...]}
 
   """
-  def list_audios do
+  def list_audios(_ \\ %{}) do
     {:ok, Repo.all(Audio)}
   end
 

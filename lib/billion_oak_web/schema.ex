@@ -14,6 +14,16 @@ defmodule BillionOakWeb.Schema do
     field :current_user, :user do
       resolve(&Resolver.get_current_user/3)
     end
+
+    @desc "List audios"
+    field :list_audios, list_of(:audio) do
+      arg(:input, :list_audios_input)
+      resolve(&Resolver.list_audios/3)
+    end
+  end
+
+  input_object :list_audios_input do
+    field :status, :string
   end
 
   mutation do
