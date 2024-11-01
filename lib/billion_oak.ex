@@ -143,7 +143,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:identifier)
     ~>> Filestore.list_files()
     |> to_response()
   end
@@ -170,15 +169,15 @@ defmodule BillionOak do
   defp put_organization_id(%Request{_client_: nil} = req), do: req
 
   defp put_organization_id(%Request{_client_: client} = req) do
-    %{req | _organization_id_: client.organization_id}
+    %{req | organization_id: client.organization_id}
   end
 
-  defp put_requester(%Request{_organization_id_: nil} = req), do: req
+  defp put_requester(%Request{organization_id: nil} = req), do: req
   defp put_requester(%Request{requester_id: nil} = req), do: req
   defp put_requester(%Request{requester_id: "anon_" <> _} = req), do: req
 
   defp put_requester(
-         %Request{requester_id: requester_id, _organization_id_: organization_id} = req
+         %Request{requester_id: requester_id, organization_id: organization_id} = req
        ) do
     case Identity.get_user(%{id: requester_id, organization_id: organization_id}) do
       {:ok, requester} -> %{req | _requester_: requester}

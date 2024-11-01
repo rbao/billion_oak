@@ -8,7 +8,7 @@ defmodule BillionOak.PolicyTest do
     organization_id =
       if attrs[:_requester_], do: attrs[:_requester_].organization_id, else: "org_id"
 
-    base = %Request{_client_: %Client{}, _organization_id_: organization_id, _role_: :guest}
+    base = %Request{_client_: %Client{}, organization_id: organization_id, _role_: :guest}
     attrs = Enum.into(attrs, %{})
     Map.merge(base, attrs)
   end
@@ -136,7 +136,7 @@ defmodule BillionOak.PolicyTest do
       req =
         req(
           _role_: :admin,
-          _organization_id_: user.organization_id,
+          organization_id: user.organization_id,
           requester_id: user.id,
           data: %{owner_id: user.id, organization_id: user.organization_id}
         )
@@ -171,7 +171,7 @@ defmodule BillionOak.PolicyTest do
       req =
         req(
           _role_: :admin,
-          _organization_id_: user.organization_id,
+          organization_id: user.organization_id,
           requester_id: user.id,
           data: %{owner_id: user.id, organization_id: user.organization_id}
         )
@@ -196,7 +196,7 @@ defmodule BillionOak.PolicyTest do
       req =
         req(
           _role_: :admin,
-          _organization_id_: user.organization_id,
+          organization_id: user.organization_id,
           requester_id: user.id,
           data: %{organization_id: user.organization_id}
         )

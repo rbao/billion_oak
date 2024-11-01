@@ -73,6 +73,8 @@ defmodule BillionOakWeb.Schema.Types do
     field :title, :string
     field :speaker_names, :string
     field :duration_seconds, :integer
-    field :primary_file, :file
+    field :primary_file, :file do
+      resolve(&Resolver.load_files/3)
+    end
   end
 end

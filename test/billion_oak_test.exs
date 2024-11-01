@@ -140,7 +140,6 @@ defmodule BillionOakTest do
       assert location.form_url
     end
 
-    @tag :focus
     test "can create an audio" do
       client = insert(:client)
       admin = insert(:user, role: :admin, organization_id: client.organization_id)

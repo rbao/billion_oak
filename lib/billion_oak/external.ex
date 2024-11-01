@@ -108,7 +108,7 @@ defmodule BillionOak.External do
     result =
       CompanyAccount
       |> Query.to_query()
-      |> Query.for_organization(req._organization_id_)
+      |> Query.for_organization(req.organization_id)
       |> Query.filter(req.filter, req._filterable_keys_)
       |> Query.sort(req.sort, req._sortable_keys_)
       |> Query.paginate(req.pagination)

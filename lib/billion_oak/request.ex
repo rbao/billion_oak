@@ -20,21 +20,21 @@ defmodule BillionOak.Request do
   typedstruct do
     field :requester_id, String.t()
     field :client_id, String.t()
+    field :organization_id, String.t()
     field :data, map(), default: %{}
     field :identifier, map(), default: %{}
-    field :filter, list(), default: []
+    field :filter, list() | map(), default: []
     field :search, String.t()
     field :pagination, map() | nil, default: %{size: 20, number: 1}
     field :sort, list(), default: []
     field :include, [String.t()]
 
-    field :_organization_id_, String.t()
     field :_requester_, map()
     field :_client_, map()
     field :_role_, String.t()
-    field :_identifiable_keys_, atom | [String.t()], default: :all
+    field :_identifiable_keys_, atom() | [String.t()], default: :all
     field :_include_filters_, map(), default: %{}
-    field :_filterable_keys_, atom | [String.t()], default: :all
+    field :_filterable_keys_, atom() | [String.t()] | [atom()], default: :all
     field :_searchable_keys_, [String.t()], default: []
     field :_sortable_keys_, [String.t()], default: :all
   end

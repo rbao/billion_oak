@@ -16,6 +16,16 @@ defmodule BillionOakWeb.Schema.DataSource do
     |> merge_result(pending_map, result)
   end
 
+  def query({:file, _, context}, parents) do
+    {result, pending_map} = split(parents, :primary_file, :primary_file_id)
+
+    context
+    |> build_request(%{ids: Map.keys(pending_map)}, :query)
+    |> BillionOak.list_files()
+    |> build_response(:query)
+    |> merge_result(pending_map, result)
+  end
+
   defp split(parents, assoc_field, id_field) do
     Enum.reduce(parents, {%{}, %{}}, fn parent, {loaded, pending_map} ->
       case Map.get(parent, assoc_field) do

@@ -62,10 +62,9 @@ defmodule BillionOak.ExternalTest do
       assert length(accounts) == 1
     end
 
-    @tag :focus
     test "with the given ids can be retrieved at once" do
-      [account1, account2, _] = insert_list(3, :company_account)
-      filter = %{id: [account1.id, account2.id]}
+      [account1, account2, _] = insert_list(3, :company_account, organization_id: "org_id")
+      filter = [%{id: [account1.id, account2.id]}, %{organization_id: "org_id"}]
 
       assert {:ok, accounts} = External.list_company_accounts(%Request{filter: filter})
       assert length(accounts) == 2

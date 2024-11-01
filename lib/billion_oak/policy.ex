@@ -8,19 +8,22 @@ defmodule BillionOak.Policy do
   @guest_roles @member_roles ++ [:guest]
   @anonymous_roles @guest_roles ++ [:anonymous]
 
+  # TODO: stop using scope, instead push the request down a layer
+  # to process and add in the scope as needed
+
   def scope_authorize(req, api) do
     req
     |> scope(api)
     |> authorize(api)
   end
 
-  def scope(%{_role_: role, _organization_id_: organization_id} = req, :get_or_create_user)
+  def scope(%{_role_: role, organization_id: organization_id} = req, :get_or_create_user)
       when role in @anonymous_roles do
     Request.put(req, :identifier, :organization_id, organization_id)
   end
 
   def scope(
-        %{_role_: role, _organization_id_: organization_id} = req,
+        %{_role_: role, organization_id: organization_id} = req,
         :get_company_account_excerpt
       )
       when role in @guest_roles do
@@ -36,7 +39,7 @@ defmodule BillionOak.Policy do
   end
 
   def scope(
-        %{_role_: role, _organization_id_: organization_id} = req,
+        %{_role_: role, organization_id: organization_id} = req,
         :reserve_file_location
       )
       when role in @admin_roles do
@@ -46,7 +49,7 @@ defmodule BillionOak.Policy do
     |> Request.put(:data, :organization_id, organization_id)
   end
 
-  def scope(%{_role_: role, _organization_id_: organization_id} = req, :register_file)
+  def scope(%{_role_: role, organization_id: organization_id} = req, :register_file)
       when role in @admin_roles do
     req
     |> Request.put(:data, :owner_id, req.requester_id)
@@ -54,7 +57,7 @@ defmodule BillionOak.Policy do
     |> Request.put(:data, :organization_id, organization_id)
   end
 
-  def scope(%{_role_: role, _organization_id_: organization_id} = req, :create_audio)
+  def scope(%{_role_: role, organization_id: organization_id} = req, :create_audio)
       when role in @admin_roles do
     req
     |> Request.put(:data, :organization_id, organization_id)
@@ -62,7 +65,7 @@ defmodule BillionOak.Policy do
 
   def scope(%{_role_: role} = req, :list_audios) when role in @member_roles do
     req
-    |> Request.put(:identifier, :organization_id, req._organization_id_)
+    |> Request.put(:identifier, :organization_id, req.organization_id)
   end
 
   def scope(req, _), do: req
@@ -73,9 +76,9 @@ defmodule BillionOak.Policy do
   def authorize(%{_role_: :sysops} = req, _), do: {:ok, req}
   def authorize(%{_role_: nil}, _), do: {:error, :access_denied}
   def authorize(%{_client_: nil}, _), do: {:error, :access_denied}
-  def authorize(%{_organization_id_: nil}, _), do: {:error, :access_denied}
+  def authorize(%{organization_id: nil}, _), do: {:error, :access_denied}
 
-  def authorize(%{_role_: role, _organization_id_: organization_id} = req, :get_or_create_user)
+  def authorize(%{_role_: role, organization_id: organization_id} = req, :get_or_create_user)
       when role in @anonymous_roles do
     if req.identifier[:organization_id] == organization_id do
       {:ok, req}
@@ -86,13 +89,13 @@ defmodule BillionOak.Policy do
 
   def authorize(%{requester_id: nil}, _), do: {:error, :access_denied}
 
-  def authorize(%{_role_: role, _organization_id_: nil} = req, :get_company_account_excerpt)
+  def authorize(%{_role_: role, organization_id: nil} = req, :get_company_account_excerpt)
       when role in @guest_roles do
     {:ok, req}
   end
 
   def authorize(
-        %{_role_: role, _organization_id_: org_id} = req,
+        %{_role_: role, organization_id: org_id} = req,
         :get_company_account_excerpt
       )
       when role in @guest_roles do
@@ -134,7 +137,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :reserve_file_location) when role in @admin_roles do
-    if req.data[:organization_id] == req._organization_id_ &&
+    if req.data[:organization_id] == req.organization_id &&
          req.data[:owner_id] == req.requester_id do
       {:ok, req}
     else
@@ -143,7 +146,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :register_file) when role in @admin_roles do
-    if req.data[:organization_id] == req._organization_id_ &&
+    if req.data[:organization_id] == req.organization_id &&
          req.data[:owner_id] == req.requester_id do
       {:ok, req}
     else
@@ -152,7 +155,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :create_audio) when role in @admin_roles do
-    if req.data[:organization_id] == req._organization_id_ do
+    if req.data[:organization_id] == req.organization_id do
       {:ok, req}
     else
       {:error, :access_denied}
@@ -160,7 +163,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :list_audios) when role in @admin_roles do
-    if req.identifier[:organization_id] == req._organization_id_ do
+    if req.identifier[:organization_id] == req.organization_id do
       {:ok, req}
     else
       {:error, :access_denied}
@@ -168,12 +171,16 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :list_audios) when role in @member_roles do
-    if req.identifier[:organization_id] == req._organization_id_ &&
+    if req.identifier[:organization_id] == req.organization_id &&
          req.identifier[:status] == "published" do
       {:ok, req}
     else
       {:error, :access_denied}
     end
+  end
+
+  def authorize(%{_role_: role} = req, :list_files) when role in @member_roles do
+    {:ok, req}
   end
 
   def authorize(_, _), do: {:error, :access_denied}

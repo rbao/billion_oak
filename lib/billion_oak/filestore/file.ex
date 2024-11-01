@@ -86,6 +86,10 @@ defmodule BillionOak.Filestore.File do
     end
   end
 
+  def put_url(list) when is_list(list) do
+    Enum.map(list, &put_url/1)
+  end
+
   def put_url(%__MODULE__{} = file) do
     result =
       file
