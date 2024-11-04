@@ -13,7 +13,7 @@ defmodule BillionOakWeb.Schema.DataSource do
     context
     |> build_request(%{id: Map.keys(pending_map)}, :list)
     |> BillionOak.list_company_accounts()
-    |> build_response(:list)
+    |> to_output(:list)
     |> merge_result(pending_map, result)
   end
 
@@ -24,7 +24,7 @@ defmodule BillionOakWeb.Schema.DataSource do
     |> build_request(%{id: Map.keys(pending_map)}, :list)
     |> Request.put(:pagination, nil)
     |> BillionOak.list_files()
-    |> build_response(:list)
+    |> to_output(:list)
     |> merge_result(pending_map, result)
   end
 

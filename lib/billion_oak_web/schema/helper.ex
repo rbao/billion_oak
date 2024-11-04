@@ -25,18 +25,18 @@ defmodule BillionOakWeb.Schema.Helper do
     }
   end
 
-  def build_response({:ok, %Response{data: data}}, :get), do: {:ok, data}
-  def build_response(other, :get), do: other
+  def to_output({:ok, %Response{data: data}}, :get), do: {:ok, data}
+  def to_output(other, :get), do: other
 
-  def build_response({:ok, %Response{} = resp}, :list) do
+  def to_output({:ok, %Response{} = resp}, :list) do
     {:ok, Map.take(resp, [:data, :meta])}
   end
 
-  def build_response(other, :list), do: other
+  def to_output(other, :list), do: other
 
-  def build_response({:ok, %Response{data: data}}, :mutation), do: {:ok, data}
+  def to_output({:ok, %Response{data: data}}, :mutation), do: {:ok, data}
 
-  def build_response(
+  def to_output(
         {:error, {:validation_error, %Response{errors: validation_errors}}},
         :mutation
       ) do
@@ -48,5 +48,5 @@ defmodule BillionOakWeb.Schema.Helper do
     {:error, errors}
   end
 
-  def build_response(other, :mutation), do: other
+  def to_output(other, :mutation), do: other
 end

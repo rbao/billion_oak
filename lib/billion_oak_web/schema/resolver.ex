@@ -8,56 +8,56 @@ defmodule BillionOakWeb.Schema.Resolver do
     context
     |> build_request(args, :mutation)
     |> BillionOak.sign_up()
-    |> build_response(:mutation)
+    |> to_output(:mutation)
   end
 
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
     |> build_request(args, :get)
     |> BillionOak.get_company_account_excerpt()
-    |> build_response(:get)
+    |> to_output(:get)
   end
 
   def create_invitation_code(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
     |> BillionOak.create_invitation_code()
-    |> build_response(:mutation)
+    |> to_output(:mutation)
   end
 
   def get_current_user(_parent, _args, %{context: context}) do
     context
     |> build_request(%{id: context[:requester_id]}, :get)
     |> BillionOak.get_user()
-    |> build_response(:get)
+    |> to_output(:get)
   end
 
   def reserve_file_location(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
     |> BillionOak.reserve_file_location()
-    |> build_response(:mutation)
+    |> to_output(:mutation)
   end
 
   def register_file(_parent, args, %{context: context}) do
     context
     |> build_request(args, :mutation)
     |> BillionOak.register_file()
-    |> build_response(:mutation)
+    |> to_output(:mutation)
   end
 
   def create_audio(_parent, %{input: input}, %{context: context}) do
     context
     |> build_request(input, :mutation)
     |> BillionOak.create_audio()
-    |> build_response(:mutation)
+    |> to_output(:mutation)
   end
 
   def list_audios(_parent, %{input: input}, %{context: context}) do
     context
     |> build_request(input, :list)
     |> BillionOak.list_audios()
-    |> build_response(:list)
+    |> to_output(:list)
   end
 
   def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do
