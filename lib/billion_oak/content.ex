@@ -14,20 +14,25 @@ defmodule BillionOak.Content do
   ## Examples
 
       iex> list_audios()
-      {:ok, [%Audio{}, ...]}
+      [%Audio{}, ...]
 
   """
   def list_audios(req \\ %Request{}) do
-    result =
-      Audio
-      |> Query.to_query()
-      |> Query.for_organization(req.organization_id)
-      |> Query.filter(req.filter, req._filterable_keys_)
-      |> Query.sort(req.sort, req._sortable_keys_)
-      |> Query.paginate(req.pagination)
-      |> Repo.all()
+    Audio
+    |> Query.to_query()
+    |> Query.for_organization(req.organization_id)
+    |> Query.filter(req.filter, req._filterable_keys_)
+    |> Query.sort(req.sort, req._sortable_keys_)
+    |> Query.paginate(req.pagination)
+    |> Repo.all()
+  end
 
-    {:ok, result}
+  def count_audios(req \\ %Request{}) do
+    Audio
+    |> Query.to_query()
+    |> Query.for_organization(req.organization_id)
+    |> Query.filter(req.filter, req._filterable_keys_)
+    |> Repo.aggregate(:count)
   end
 
   @doc """

@@ -134,8 +134,22 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~>> Content.list_audios()
-    |> to_response()
+    ~>> do_list_audio()
+  end
+
+  defp do_list_audio(req) do
+    audios = Content.list_audios(req)
+    total_count = Content.count_audios(req)
+
+    resp = %Response{
+      meta: %{
+        total_count: total_count,
+        pagination: req.pagination
+      },
+      data: audios
+    }
+
+    {:ok, resp}
   end
 
   def list_files(%Request{} = req) do

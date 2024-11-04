@@ -8,8 +8,7 @@ defmodule BillionOak.ContentTest do
 
   test "all audios can be retrieved at once" do
     insert(:audio)
-    assert {:ok, audios} = Content.list_audios()
-    assert length(audios) == 1
+    assert [%Audio{}] = Content.list_audios()
   end
 
   describe "retrieving an audio" do

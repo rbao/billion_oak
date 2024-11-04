@@ -78,4 +78,33 @@ defmodule BillionOakWeb.Schema.Types do
       resolve(&Resolver.load_files/3)
     end
   end
+
+  input_object :pagination_input do
+    field :number, :integer
+    field :size, :integer
+  end
+
+  object :pagination do
+    field :number, :integer
+    field :size, :integer
+  end
+
+  object :list_metadata do
+    field :total_count, :integer
+    field :pagination, :pagination
+  end
+
+  input_object :audio_filter_input do
+    field :status, list_of(:string)
+  end
+
+  input_object :list_audios_input do
+    field :filter, :audio_filter_input
+    field :pagination, :pagination_input
+  end
+
+  object :list_audios_output do
+    field :data, list_of(:audio)
+    field :meta, :list_metadata
+  end
 end

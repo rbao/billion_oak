@@ -25,7 +25,7 @@ defmodule BillionOak.Request do
     field :identifier, map(), default: %{}
     field :filter, list() | map(), default: []
     field :search, String.t()
-    field :pagination, map() | nil, default: %{size: 20, number: 1}
+    field :pagination, map() | nil, default: %{size: 10, number: 1}
     field :sort, list(), default: []
     field :include, [String.t()]
 

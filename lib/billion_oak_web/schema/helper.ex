@@ -28,7 +28,10 @@ defmodule BillionOakWeb.Schema.Helper do
   def build_response({:ok, %Response{data: data}}, :get), do: {:ok, data}
   def build_response(other, :get), do: other
 
-  def build_response({:ok, %Response{data: data}}, :list), do: {:ok, data}
+  def build_response({:ok, %Response{} = resp}, :list) do
+    {:ok, Map.take(resp, [:data, :meta])}
+  end
+
   def build_response(other, :list), do: other
 
   def build_response({:ok, %Response{data: data}}, :mutation), do: {:ok, data}

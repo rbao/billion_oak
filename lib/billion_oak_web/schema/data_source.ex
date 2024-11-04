@@ -40,7 +40,7 @@ defmodule BillionOakWeb.Schema.DataSource do
     end)
   end
 
-  defp merge_result({:ok, data}, pending_map, result) do
+  defp merge_result({:ok, %{data: data}}, pending_map, result) do
     Enum.reduce(data, result, fn item, acc ->
       Enum.reduce(Map.get(pending_map, Map.get(item, :id), []), acc, fn parent, inner_acc ->
         Map.put(inner_acc, parent, item)

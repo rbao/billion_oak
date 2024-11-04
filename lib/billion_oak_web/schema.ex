@@ -16,24 +16,10 @@ defmodule BillionOakWeb.Schema do
     end
 
     @desc "List audios"
-    field :list_audios, list_of(:audio) do
+    field :list_audios, :list_audios_output do
       arg(:input, :list_audios_input)
       resolve(&Resolver.list_audios/3)
     end
-  end
-
-  input_object :list_audios_input do
-    field :filter, :audio_filter
-    field :pagination, :pagination
-  end
-
-  input_object :audio_filter do
-    field :status, list_of(:string)
-  end
-
-  input_object :pagination do
-    field :number, :integer
-    field :size, :integer
   end
 
   mutation do
