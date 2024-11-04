@@ -23,7 +23,17 @@ defmodule BillionOakWeb.Schema do
   end
 
   input_object :list_audios_input do
-    field :status, :string
+    field :filter, :audio_filter
+    field :pagination, :pagination
+  end
+
+  input_object :audio_filter do
+    field :status, list_of(:string)
+  end
+
+  input_object :pagination do
+    field :number, :integer
+    field :size, :integer
   end
 
   mutation do

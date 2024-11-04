@@ -68,6 +68,7 @@ defmodule BillionOak.FilestoreTest do
 
   test "all files can be retrieved at once" do
     insert(:file)
+
     expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
       {:ok, "url"}
     end)

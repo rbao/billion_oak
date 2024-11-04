@@ -4,7 +4,7 @@ defmodule BillionOak.Content do
   """
 
   import Ecto.Query, warn: false
-  alias BillionOak.Repo
+  alias BillionOak.{Repo, Request, Query}
 
   alias BillionOak.Content.Audio
 
@@ -17,8 +17,17 @@ defmodule BillionOak.Content do
       {:ok, [%Audio{}, ...]}
 
   """
-  def list_audios(_ \\ %{}) do
-    {:ok, Repo.all(Audio)}
+  def list_audios(req \\ %Request{}) do
+    result =
+      Audio
+      |> Query.to_query()
+      |> Query.for_organization(req.organization_id)
+      |> Query.filter(req.filter, req._filterable_keys_)
+      |> Query.sort(req.sort, req._sortable_keys_)
+      |> Query.paginate(req.pagination)
+      |> Repo.all()
+
+    {:ok, result}
   end
 
   @doc """

@@ -1,6 +1,7 @@
 defmodule BillionOakWeb.Schema.DataSource do
   use OK.Pipe
   import BillionOakWeb.Schema.Helper
+  alias BillionOak.Request
 
   def data do
     Dataloader.KV.new(&query/2)
@@ -10,9 +11,9 @@ defmodule BillionOakWeb.Schema.DataSource do
     {result, pending_map} = split(parents, :company_account, :company_account_id)
 
     context
-    |> build_request(%{ids: Map.keys(pending_map)}, :query)
+    |> build_request(%{id: Map.keys(pending_map)}, :list)
     |> BillionOak.list_company_accounts()
-    |> build_response(:query)
+    |> build_response(:list)
     |> merge_result(pending_map, result)
   end
 
@@ -20,9 +21,10 @@ defmodule BillionOakWeb.Schema.DataSource do
     {result, pending_map} = split(parents, :primary_file, :primary_file_id)
 
     context
-    |> build_request(%{ids: Map.keys(pending_map)}, :query)
+    |> build_request(%{id: Map.keys(pending_map)}, :list)
+    |> Request.put(:pagination, nil)
     |> BillionOak.list_files()
-    |> build_response(:query)
+    |> build_response(:list)
     |> merge_result(pending_map, result)
   end
 

@@ -50,6 +50,15 @@ defmodule BillionOak.Request do
 
   def put(req, key, value), do: Map.put(req, key, value)
 
+  # Only merges key with non nil values
+  def merge(req, args, permitted_keys) do
+    args
+    |> Map.take(permitted_keys)
+    |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+    |> Enum.into(%{})
+    |> then(&Map.merge(req, &1))
+  end
+
   def delete(req, root_key, key) do
     root_value =
       req

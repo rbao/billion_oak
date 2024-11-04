@@ -134,7 +134,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:identifier)
     ~>> Content.list_audios()
     |> to_response()
   end
@@ -176,9 +175,7 @@ defmodule BillionOak do
   defp put_requester(%Request{requester_id: nil} = req), do: req
   defp put_requester(%Request{requester_id: "anon_" <> _} = req), do: req
 
-  defp put_requester(
-         %Request{requester_id: requester_id, organization_id: organization_id} = req
-       ) do
+  defp put_requester(%Request{requester_id: requester_id, organization_id: organization_id} = req) do
     case Identity.get_user(%{id: requester_id, organization_id: organization_id}) do
       {:ok, requester} -> %{req | _requester_: requester}
       {:error, :not_found} -> req

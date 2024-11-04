@@ -1,7 +1,15 @@
 defmodule BillionOakWeb.Schema.Helper do
   alias BillionOak.{Request, Response}
 
-  def build_request(context, args, :query) do
+  def build_request(context, args, :list) do
+    %Request{
+      client_id: context[:client_id],
+      requester_id: context[:requester_id]
+    }
+    |> Request.merge(args, [:filter, :pagination])
+  end
+
+  def build_request(context, args, :get) do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
@@ -17,8 +25,11 @@ defmodule BillionOakWeb.Schema.Helper do
     }
   end
 
-  def build_response({:ok, %Response{data: data}}, :query), do: {:ok, data}
-  def build_response(other, :query), do: other
+  def build_response({:ok, %Response{data: data}}, :get), do: {:ok, data}
+  def build_response(other, :get), do: other
+
+  def build_response({:ok, %Response{data: data}}, :list), do: {:ok, data}
+  def build_response(other, :list), do: other
 
   def build_response({:ok, %Response{data: data}}, :mutation), do: {:ok, data}
 

@@ -18,6 +18,7 @@ defmodule BillionOak.Normalization do
   end
 
   def stringify_keys(list) when is_list(list), do: Enum.map(list, &do_stringify_value/1)
+
   def stringify_keys(map) when is_map(map) do
     map
     |> Enum.map(fn {k, v} -> {do_stringify_key(k), do_stringify_value(v)} end)
@@ -40,5 +41,6 @@ defmodule BillionOak.Normalization do
       end
     end)
   end
+
   def stringify_list(other), do: other
 end

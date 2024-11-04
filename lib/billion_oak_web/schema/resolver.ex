@@ -13,9 +13,9 @@ defmodule BillionOakWeb.Schema.Resolver do
 
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :query)
+    |> build_request(args, :get)
     |> BillionOak.get_company_account_excerpt()
-    |> build_response(:query)
+    |> build_response(:get)
   end
 
   def create_invitation_code(_parent, args, %{context: context}) do
@@ -27,9 +27,9 @@ defmodule BillionOakWeb.Schema.Resolver do
 
   def get_current_user(_parent, _args, %{context: context}) do
     context
-    |> build_request(%{id: context[:requester_id]}, :query)
+    |> build_request(%{id: context[:requester_id]}, :get)
     |> BillionOak.get_user()
-    |> build_response(:query)
+    |> build_response(:get)
   end
 
   def reserve_file_location(_parent, args, %{context: context}) do
@@ -55,9 +55,9 @@ defmodule BillionOakWeb.Schema.Resolver do
 
   def list_audios(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :query)
+    |> build_request(input, :list)
     |> BillionOak.list_audios()
-    |> build_response(:query)
+    |> build_response(:list)
   end
 
   def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do

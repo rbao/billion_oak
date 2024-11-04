@@ -126,7 +126,7 @@ defmodule BillionOak.Query.Filter do
   end
 
   defp compare_attr(attr, %{"$nin" => value}) do
-    dynamic([q], not (field(q, ^attr) in ^value))
+    dynamic([q], field(q, ^attr) not in ^value)
   end
 
   defp compare_attr(attr, %{"$btwn" => [s, e]}) do
