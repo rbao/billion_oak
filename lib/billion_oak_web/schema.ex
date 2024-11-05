@@ -71,7 +71,7 @@ defmodule BillionOakWeb.Schema do
   end
 
   input_object :update_audios_input do
-    field :id, list_of(non_null(:id))
+    field :id, non_null(list_of(non_null(:id)))
     field :status, :string
   end
 
