@@ -51,13 +51,13 @@ defmodule BillionOak.Validation.Error do
   end
 
   @doc """
-  Similar to `from_changeset/1` except it takes in a list of `{index, changeset}`
-  and return a list of `{index, [t]}`.
+  Similar to `from_changeset/1` except it takes in a list of changesets
+  and return a list of `{id, [t]}`.
   """
-  @spec from_changesets([{integer(), changeset()}]) :: [{integer(), [t]}]
+  @spec from_changesets([changeset()]) :: [{String.t(), [t]}]
   def from_changesets(changesets) do
-    Enum.map(changesets, fn {index, changeset} ->
-      {index, from_changeset(changeset)}
+    Enum.map(changesets, fn changeset ->
+      {changeset.data.id, from_changeset(changeset)}
     end)
   end
 

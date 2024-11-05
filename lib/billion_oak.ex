@@ -1,9 +1,19 @@
 defmodule BillionOak do
   use OK.Pipe
   import BillionOak.Policy
-  alias BillionOak.{External, Identity, Ingestion, Filestore, Content, Request, Response}
+
+  alias BillionOak.{
+    External,
+    Identity,
+    Ingestion,
+    Filestore,
+    Content,
+    Request,
+    Response,
+    Validation
+  }
+
   alias BillionOak.Identity.{Client, User}
-  alias BillionOak.Validation.Error
 
   @moduledoc """
   BillionOak keeps the contexts that define your domain
@@ -152,6 +162,14 @@ defmodule BillionOak do
     {:ok, resp}
   end
 
+  def update_audios(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Content.update_audios()
+    |> to_response()
+  end
+
   def list_files(%Request{} = req) do
     req
     |> expand()
@@ -206,8 +224,10 @@ defmodule BillionOak do
   defp to_response({:ok, data}), do: {:ok, %Response{data: data}}
 
   defp to_response({:error, %Ecto.Changeset{} = changeset}) do
-    {:error, {:validation_error, %Response{errors: Error.from_changeset(changeset)}}}
+    {:error, {:validation_error, %Response{errors: Validation.errors(changeset)}}}
   end
 
-  defp to_response(other), do: other
+  defp to_response({:error, [%Ecto.Changeset{} | _] = changesets}) do
+    {:error, {:validation_error, %Response{errors: Validation.errors(changesets)}}}
+  end
 end

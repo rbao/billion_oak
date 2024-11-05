@@ -46,7 +46,7 @@ defmodule BillionOak.External.CompanyRecord do
   defp put_dedupe_id(changeset), do: changeset
 
   def insert_all(changesets) do
-    error_changesets = Validation.invalid_changesets(changesets)
+    error_changesets = Validation.invalid_changesets(changesets, :index)
 
     if Enum.empty?(error_changesets) do
       {count, _} =

@@ -7,7 +7,11 @@ defmodule BillionOak.Query do
 
   @spec filter(Query.t(), map, [String.t()]) :: Query.t()
   def filter(query, filter, filterable_keys) when is_map(filter) do
-    filter(query, [filter], filterable_keys)
+    if map_size(filter) > 0 do
+      filter(query, [filter], filterable_keys)
+    else
+      query
+    end
   end
 
   @spec filter(Query.t(), [map], [String.t()]) :: Query.t()

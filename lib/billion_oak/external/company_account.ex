@@ -45,7 +45,7 @@ defmodule BillionOak.External.CompanyAccount do
   end
 
   def upsert_all(changesets, opts \\ []) do
-    error_changesets = Validation.invalid_changesets(changesets)
+    error_changesets = Validation.invalid_changesets(changesets, :index)
 
     if Enum.empty?(error_changesets) do
       {count, fields} =

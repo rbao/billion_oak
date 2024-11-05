@@ -4,7 +4,8 @@ defmodule BillionOak.Content do
   """
 
   import Ecto.Query, warn: false
-  alias BillionOak.{Repo, Request, Query}
+  alias Ecto.Multi
+  alias BillionOak.{Repo, Request, Query, Validation}
 
   alias BillionOak.Content.Audio
 
@@ -88,6 +89,43 @@ defmodule BillionOak.Content do
     audio
     |> Audio.changeset(attrs)
     |> Repo.update()
+  end
+
+  def update_audios(req \\ %Request{}) do
+    audios =
+      Audio
+      |> Query.to_query()
+      |> Query.for_organization(req.organization_id)
+      |> Query.filter(req.filter, req._filterable_keys_)
+      |> Repo.all()
+
+    changesets =
+      Enum.map(audios, fn audio ->
+        Audio.changeset(audio, req.data)
+      end)
+
+    invalid_changesets = Validation.invalid_changesets(changesets)
+
+    case invalid_changesets do
+      [] -> do_update_audios(changesets)
+      invalid_changesets -> {:error, invalid_changesets}
+    end
+  end
+
+  defp do_update_audios(changesets) do
+    multi =
+      Enum.reduce(changesets, Multi.new(), fn changeset, multi ->
+        Multi.update(multi, changeset.data.id, changeset)
+      end)
+
+    case Repo.transaction(multi) do
+      {:ok, results} ->
+        updated_audios = Enum.map(results, fn {_, audio} -> audio end)
+        {:ok, updated_audios}
+
+      {:error, _, changeset, _} ->
+        {:error, [changeset]}
+    end
   end
 
   @doc """

@@ -3,7 +3,7 @@ defmodule BillionOak.ContentTest do
   import BillionOak.Factory
   import Mox
 
-  alias BillionOak.Content
+  alias BillionOak.{Content, Request}
   alias BillionOak.Content.Audio
 
   test "all audios can be retrieved at once" do
@@ -54,6 +54,29 @@ defmodule BillionOak.ContentTest do
     test "returns an error if the given input is invalid" do
       audio = insert(:audio)
       assert {:error, %Ecto.Changeset{}} = Content.update_audio(audio, %{title: nil})
+    end
+  end
+
+  describe "updating multiple audios" do
+    test "returns the updated audios if all given inputs are valid" do
+      [audio1, audio2] = insert_list(2, :audio)
+      input = %{status: "published"}
+
+      assert {:ok, updated_audios} =
+               Content.update_audios(%Request{filter: %{id: [audio1.id, audio2.id]}, data: input})
+
+      assert length(updated_audios) == 2
+      assert Enum.all?(updated_audios, fn audio -> audio.status == :published end)
+    end
+
+    test "returns an error if any of the given inputs are invalid" do
+      [audio1, audio2] = insert_list(2, :audio)
+      input = %{status: nil}
+
+      assert {:error, errors} =
+               Content.update_audios(%Request{filter: %{id: [audio1.id, audio2.id]}, data: input})
+
+      assert length(errors) == 2
     end
   end
 

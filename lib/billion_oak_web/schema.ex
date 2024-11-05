@@ -56,6 +56,11 @@ defmodule BillionOakWeb.Schema do
       arg(:input, non_null(:create_audio_input))
       resolve(&Resolver.create_audio/3)
     end
+
+    field :update_audios, type: list_of(:audio) do
+      arg(:input, non_null(:update_audios_input))
+      resolve(&Resolver.update_audios/3)
+    end
   end
 
   input_object :create_audio_input do
@@ -63,6 +68,11 @@ defmodule BillionOakWeb.Schema do
     field :number, non_null(:string)
     field :title, non_null(:string)
     field :speaker_names, non_null(:string)
+  end
+
+  input_object :update_audios_input do
+    field :id, list_of(non_null(:id))
+    field :status, :string
   end
 
   def context(ctx) do
