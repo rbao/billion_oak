@@ -170,6 +170,14 @@ defmodule BillionOak do
     |> to_response()
   end
 
+  def delete_audios(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Content.delete_audios()
+    |> to_delete_response()
+  end
+
   def list_files(%Request{} = req) do
     req
     |> expand()
@@ -229,5 +237,9 @@ defmodule BillionOak do
 
   defp to_response({:error, [%Ecto.Changeset{} | _] = changesets}) do
     {:error, {:validation_error, %Response{errors: Validation.errors(changesets)}}}
+  end
+
+  defp to_delete_response({:ok, {count, data}}) do
+    {:ok, %Response{meta: %{count: count}, data: data}}
   end
 end

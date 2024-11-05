@@ -35,6 +35,14 @@ defmodule BillionOakWeb.Schema.Helper do
     }
   end
 
+  def build_delete_request(context, args, filter_keys \\ [:id]) do
+    %Request{
+      client_id: context[:client_id],
+      requester_id: context[:requester_id],
+      filter: Map.take(args, filter_keys)
+    }
+  end
+
   defp put_sort(req, %{sort: sort}) when is_list(sort) do
     sort =
       Enum.reduce(sort, [], fn %{field: field, ordering: ordering}, acc ->
@@ -43,6 +51,7 @@ defmodule BillionOakWeb.Schema.Helper do
 
     Request.put(req, :sort, sort)
   end
+
   defp put_sort(req, _), do: req
 
   def to_output({:ok, %Response{data: data}}, :get), do: {:ok, data}
@@ -84,4 +93,10 @@ defmodule BillionOakWeb.Schema.Helper do
   end
 
   def to_output(other, :update), do: other
+
+  def to_output({:ok, %Response{} = resp}, :list) do
+    {:ok, Map.take(resp, [:data, :meta])}
+  end
+
+  def to_output(other, :delete), do: other
 end

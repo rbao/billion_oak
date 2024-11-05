@@ -96,9 +96,13 @@ defmodule BillionOakWeb.Schema.Types do
     field :size, :integer
   end
 
-  object :list_metadata do
+  object :metadata_for_list do
     field :total_count, :integer
     field :pagination, :pagination
+  end
+
+  object :metadata_for_delete do
+    field :count, :integer
   end
 
   input_object :audio_filter_input do
@@ -113,6 +117,11 @@ defmodule BillionOakWeb.Schema.Types do
 
   object :list_audios_output do
     field :data, list_of(:audio)
-    field :meta, :list_metadata
+    field :meta, :metadata_for_list
+  end
+
+  object :delete_audios_output do
+    field :data, list_of(:audio)
+    field :meta, :metadata_for_delete
   end
 end

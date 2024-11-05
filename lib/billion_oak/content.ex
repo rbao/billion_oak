@@ -5,7 +5,7 @@ defmodule BillionOak.Content do
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
-  alias BillionOak.{Repo, Request, Query, Validation}
+  alias BillionOak.{Repo, Request, Query, Validation, Filestore}
 
   alias BillionOak.Content.Audio
 
@@ -142,6 +142,40 @@ defmodule BillionOak.Content do
   """
   def delete_audio(%Audio{} = audio) do
     Repo.delete(audio)
+  end
+
+  def delete_audios(req \\ %Request{}) do
+    audio_query =
+      Audio
+      |> Query.to_query()
+      |> Query.for_organization(req.organization_id)
+      |> Query.filter(req.filter, req._filterable_keys_)
+
+    audios = Repo.all(audio_query)
+
+    file_ids =
+      audios
+      |> Enum.map(& &1.primary_file_id)
+      |> Enum.uniq()
+
+    multi =
+      Multi.new()
+      |> Multi.delete_all(:delete_audios, audio_query)
+      |> Multi.run(:delete_files, fn _repo, _changes ->
+        {:ok, _} =
+          Filestore.delete_files(%Request{
+            organization_id: req.organization_id,
+            filter: %{id: file_ids}
+          })
+      end)
+
+    case Repo.transaction(multi) do
+      {:ok, %{delete_audios: {count, _}}} ->
+        {:ok, {count, audios}}
+
+      {:error, _failed_operation, failed_value, _changes} ->
+        {:error, failed_value}
+    end
   end
 
   @doc """

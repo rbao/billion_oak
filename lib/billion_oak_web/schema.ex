@@ -57,9 +57,16 @@ defmodule BillionOakWeb.Schema do
       resolve(&Resolver.create_audio/3)
     end
 
+    @desc "Update audios"
     field :update_audios, type: list_of(:audio) do
       arg(:input, non_null(:update_audios_input))
       resolve(&Resolver.update_audios/3)
+    end
+
+    @desc "Delete audios"
+    field :delete_audios, type: :delete_audios_output do
+      arg(:input, non_null(:delete_audios_input))
+      resolve(&Resolver.delete_audios/3)
     end
   end
 
@@ -73,6 +80,10 @@ defmodule BillionOakWeb.Schema do
   input_object :update_audios_input do
     field :id, non_null(list_of(non_null(:id)))
     field :status, :string
+  end
+
+  input_object :delete_audios_input do
+    field :id, non_null(list_of(non_null(:id)))
   end
 
   def context(ctx) do

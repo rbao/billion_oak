@@ -195,4 +195,15 @@ defmodule BillionOak.Filestore do
   def delete_file(%File{} = file) do
     Repo.delete(file)
   end
+
+  def delete_files(req \\ %Request{}) do
+    {count, _} =
+      File
+      |> Query.to_query()
+      |> Query.for_organization(req.organization_id)
+      |> Query.filter(req.filter, req._filterable_keys_)
+      |> Repo.delete_all()
+
+    {:ok, {count, nil}}
+  end
 end
