@@ -73,10 +73,17 @@ defmodule BillionOakWeb.Schema.Types do
     field :title, :string
     field :speaker_names, :string
     field :duration_seconds, :integer
+    field :inserted_at, :datetime
+    field :updated_at, :datetime
 
     field :primary_file, :file do
       resolve(&Resolver.load_files/3)
     end
+  end
+
+  input_object :sort_input do
+    field :field, non_null(:string)
+    field :ordering, non_null(:string)
   end
 
   input_object :pagination_input do
@@ -100,6 +107,7 @@ defmodule BillionOakWeb.Schema.Types do
 
   input_object :list_audios_input do
     field :filter, :audio_filter_input
+    field :sort, list_of(non_null(:sort_input))
     field :pagination, :pagination_input
   end
 

@@ -7,6 +7,7 @@ defmodule BillionOakWeb.Schema.Helper do
       requester_id: context[:requester_id]
     }
     |> Request.merge(args, [:filter, :pagination])
+    |> put_sort(args)
   end
 
   def build_request(context, args, :get) do
@@ -33,6 +34,16 @@ defmodule BillionOakWeb.Schema.Helper do
       data: Map.drop(args, filter_keys)
     }
   end
+
+  defp put_sort(req, %{sort: sort}) when is_list(sort) do
+    sort =
+      Enum.reduce(sort, [], fn %{field: field, ordering: ordering}, acc ->
+        acc ++ [%{Macro.underscore(field) => ordering}]
+      end)
+
+    Request.put(req, :sort, sort)
+  end
+  defp put_sort(req, _), do: req
 
   def to_output({:ok, %Response{data: data}}, :get), do: {:ok, data}
   def to_output(other, :get), do: other
