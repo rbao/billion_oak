@@ -41,15 +41,15 @@ defmodule BillionOak.Content do
 
   ## Examples
 
-      iex> get_audio!(123)
+      iex> get_audio(123)
       {:ok, %Audio{}}
 
-      iex> get_audio!(456)
+      iex> get_audio(456)
       {:error, :not_found}
 
   """
-  def get_audio(id) do
-    case Repo.get(Audio, id) do
+  def get_audio(req \\ %Request{}) do
+    case Repo.get_by(Audio, req.identifier) do
       nil -> {:error, :not_found}
       audio -> {:ok, audio}
     end

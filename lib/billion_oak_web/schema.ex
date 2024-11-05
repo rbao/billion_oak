@@ -11,7 +11,7 @@ defmodule BillionOakWeb.Schema do
     end
 
     @desc "Get the current user"
-    field :current_user, :user do
+    field :get_current_user, :get_current_user_output do
       resolve(&Resolver.get_current_user/3)
     end
 
@@ -19,6 +19,12 @@ defmodule BillionOakWeb.Schema do
     field :list_audios, :list_audios_output do
       arg(:input, :list_audios_input)
       resolve(&Resolver.list_audios/3)
+    end
+
+    @desc "Get an audio"
+    field :get_audio, :get_audio_output do
+      arg(:input, non_null(:get_audio_input))
+      resolve(&Resolver.get_audio/3)
     end
   end
 

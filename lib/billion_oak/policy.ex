@@ -68,8 +68,12 @@ defmodule BillionOak.Policy do
     |> Request.put(:identifier, :organization_id, req.organization_id)
   end
 
-  def scope(%{_role_: role} = req, :update_audios) when role in @admin_roles, do: req
-  def scope(%{_role_: role} = req, :delete_audios) when role in @admin_roles, do: req
+  def scope(%{_role_: role} = req, :get_audio) when role in @admin_roles, do: req
+
+  def scope(%{_role_: role} = req, :get_audio) when role in @guest_roles do
+    req
+    |> Request.put(:identifier, :status, "published")
+  end
 
   def scope(req, _), do: req
 
@@ -193,6 +197,10 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :list_files) when role in @member_roles do
+    {:ok, req}
+  end
+
+  def authorize(%{_role_: role} = req, :get_audio) when role in @guest_roles do
     {:ok, req}
   end
 

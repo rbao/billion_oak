@@ -124,4 +124,16 @@ defmodule BillionOakWeb.Schema.Types do
     field :data, list_of(:audio)
     field :meta, :metadata_for_delete
   end
+
+  input_object :get_audio_input do
+    field :id, non_null(:id)
+  end
+
+  object :get_audio_output do
+    field :data, :audio
+  end
+
+  object :get_current_user_output do
+    field :data, :user
+  end
 end

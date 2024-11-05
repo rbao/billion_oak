@@ -74,6 +74,13 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> to_output(:delete)
   end
 
+  def get_audio(_parent, %{input: input}, %{context: context}) do
+    context
+    |> build_request(input, :get)
+    |> BillionOak.get_audio()
+    |> to_output(:get)
+  end
+
   def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do
     context = Map.drop(context, [:loader])
 

@@ -14,11 +14,11 @@ defmodule BillionOak.ContentTest do
   describe "retrieving an audio" do
     test "returns the audio with the given id if exists" do
       audio = insert(:audio)
-      assert {:ok, %Audio{}} = Content.get_audio(audio.id)
+      assert {:ok, %Audio{}} = Content.get_audio(%Request{identifier: %{id: audio.id}})
     end
 
     test "returns an error if no audio is found with the given id" do
-      assert {:error, :not_found} = Content.get_audio("some id")
+      assert {:error, :not_found} = Content.get_audio(%Request{identifier: %{id: "some id"}})
     end
   end
 
@@ -84,6 +84,6 @@ defmodule BillionOak.ContentTest do
     audio = insert(:audio)
 
     assert {:ok, %Audio{}} = Content.delete_audio(audio)
-    assert {:error, :not_found} = Content.get_audio(audio.id)
+    assert {:error, :not_found} = Content.get_audio(%Request{identifier: %{id: audio.id}})
   end
 end

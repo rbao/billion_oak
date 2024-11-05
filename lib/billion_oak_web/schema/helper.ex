@@ -54,7 +54,10 @@ defmodule BillionOakWeb.Schema.Helper do
 
   defp put_sort(req, _), do: req
 
-  def to_output({:ok, %Response{data: data}}, :get), do: {:ok, data}
+  def to_output({:ok, %Response{} = resp}, :get) do
+    {:ok, Map.take(resp, [:data, :meta])}
+  end
+
   def to_output(other, :get), do: other
 
   def to_output({:ok, %Response{} = resp}, :list) do
