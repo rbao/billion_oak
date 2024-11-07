@@ -77,6 +77,7 @@ defmodule BillionOakWeb.Schema do
   end
 
   input_object :create_audio_input do
+    field :status, :string
     field :primary_file_id, non_null(:id)
     field :number, non_null(:string)
     field :title, non_null(:string)
