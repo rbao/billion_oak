@@ -86,9 +86,18 @@ defmodule BillionOak.Content do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_audio(%Audio{} = audio, attrs) do
+  def update_audio(req \\ %Request{}) do
+    audio = Repo.get_by(Audio, req.identifier)
+
+    case audio do
+      nil -> {:error, :not_found}
+      audio -> do_update_audio(audio, req)
+    end
+  end
+
+  defp do_update_audio(audio, req) do
     audio
-    |> Audio.changeset(attrs)
+    |> Audio.changeset(req.data)
     |> Repo.update()
   end
 

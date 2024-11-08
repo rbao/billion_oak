@@ -75,6 +75,11 @@ defmodule BillionOak.Policy do
     |> Request.put(:identifier, :status, "published")
   end
 
+  def scope(%{_role_: role} = req, :update_audio) when role in @admin_roles do
+    req
+    |> Request.put(:identifier, :organization_id, req.organization_id)
+  end
+
   def scope(req, _), do: req
 
   def authorize(%{_role_: :sysdev} = req, _), do: {:ok, req}
@@ -188,6 +193,10 @@ defmodule BillionOak.Policy do
 
   # TODO: disallow updating audios without a filter to prevent accidentally updating all audios
   def authorize(%{_role_: role} = req, :update_audios) when role in @admin_roles do
+    {:ok, req}
+  end
+
+  def authorize(%{_role_: role} = req, :update_audio) when role in @admin_roles do
     {:ok, req}
   end
 

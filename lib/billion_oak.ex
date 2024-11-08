@@ -162,6 +162,14 @@ defmodule BillionOak do
     {:ok, resp}
   end
 
+  def update_audio(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Content.update_audio()
+    |> to_update_response()
+  end
+
   def update_audios(%Request{} = req) do
     req
     |> expand()
@@ -246,6 +254,9 @@ defmodule BillionOak do
   defp to_response({:error, [%Ecto.Changeset{} | _] = changesets}) do
     {:error, {:validation_error, %Response{errors: Validation.errors(changesets)}}}
   end
+
+  defp to_update_response({:ok, data}), do: {:ok, %Response{data: data}}
+  defp to_update_response(other), do: other
 
   defp to_get_response({:ok, data}), do: {:ok, %Response{data: data}}
   defp to_get_response(other), do: other

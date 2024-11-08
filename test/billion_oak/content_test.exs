@@ -47,13 +47,18 @@ defmodule BillionOak.ContentTest do
     test "returns the updated audio if the given input is valid" do
       audio = insert(:audio)
       input = %{title: "some updated title"}
-      assert {:ok, %Audio{} = audio} = Content.update_audio(audio, input)
+
+      assert {:ok, %Audio{} = audio} =
+               Content.update_audio(%Request{identifier: %{id: audio.id}, data: input})
+
       assert audio.title == input.title
     end
 
     test "returns an error if the given input is invalid" do
       audio = insert(:audio)
-      assert {:error, %Ecto.Changeset{}} = Content.update_audio(audio, %{title: nil})
+
+      assert {:error, %Ecto.Changeset{}} =
+               Content.update_audio(%Request{identifier: %{id: audio.id}, data: %{title: nil}})
     end
   end
 

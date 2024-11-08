@@ -62,9 +62,16 @@ defmodule BillionOakWeb.Schema.Resolver do
 
   def update_audios(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :update)
+    |> build_request(input, :bulk_update)
     |> BillionOak.update_audios()
-    |> to_output(:update)
+    |> to_output(:bulk_update)
+  end
+
+  def update_audio(_parent, %{input: input}, %{context: context}) do
+    context
+    |> build_update_request(input)
+    |> BillionOak.update_audio()
+    |> to_update_output()
   end
 
   def delete_audios(_parent, %{input: input}, %{context: context}) do

@@ -26,12 +26,21 @@ defmodule BillionOakWeb.Schema.Helper do
     }
   end
 
-  def build_request(context, args, :update, filter_keys \\ [:id]) do
+  def build_request(context, args, :bulk_update, filter_keys \\ [:id]) do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
       filter: Map.take(args, filter_keys),
       data: Map.drop(args, filter_keys)
+    }
+  end
+
+  def build_update_request(context, args, identifier_keys \\ [:id]) do
+    %Request{
+      client_id: context[:client_id],
+      requester_id: context[:requester_id],
+      identifier: Map.take(args, identifier_keys),
+      data: Map.drop(args, identifier_keys)
     }
   end
 
@@ -53,6 +62,19 @@ defmodule BillionOakWeb.Schema.Helper do
   end
 
   defp put_sort(req, _), do: req
+
+  def to_update_output({:ok, %Response{} = resp}), do: {:ok, Map.take(resp, [:data, :meta])}
+
+  def to_update_output({:error, {:validation_error, %Response{errors: validation_errors}}}) do
+    errors =
+      Enum.reduce(validation_errors, [], fn {key, error_code, message, details}, acc ->
+        acc ++ [%{key: key, error_code: error_code, message: message, details: details}]
+      end)
+
+    {:error, errors}
+  end
+
+  def to_update_output(other), do: other
 
   def to_output({:ok, %Response{} = resp}, :get) do
     {:ok, Map.take(resp, [:data, :meta])}
@@ -82,9 +104,9 @@ defmodule BillionOakWeb.Schema.Helper do
 
   def to_output(other, :create), do: other
 
-  def to_output({:ok, %Response{data: data}}, :update), do: {:ok, data}
+  def to_output({:ok, %Response{data: data}}, :bulk_update), do: {:ok, data}
 
-  def to_output({:error, {:validation_error, %Response{errors: validation_errors}}}, :update) do
+  def to_output({:error, {:validation_error, %Response{errors: validation_errors}}}, :bulk_update) do
     errors =
       Enum.reduce(validation_errors, [], fn {id, errors}, acc ->
         Enum.reduce(errors, acc, fn {key, error_code, message, details}, acc ->
@@ -95,7 +117,7 @@ defmodule BillionOakWeb.Schema.Helper do
     {:error, errors}
   end
 
-  def to_output(other, :update), do: other
+  def to_output(other, :bulk_update), do: other
 
   def to_output({:ok, %Response{} = resp}, :list) do
     {:ok, Map.take(resp, [:data, :meta])}
