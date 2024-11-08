@@ -25,6 +25,7 @@ defmodule BillionOak.Content do
     |> Query.filter(req.filter, req._filterable_keys_)
     |> Query.sort(req.sort, req._sortable_keys_)
     |> Query.paginate(req.pagination)
+    |> Query.search(req.search, [:title, :number, :speaker_names])
     |> Repo.all()
   end
 

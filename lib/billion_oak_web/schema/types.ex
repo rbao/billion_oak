@@ -111,6 +111,7 @@ defmodule BillionOakWeb.Schema.Types do
 
   input_object :list_audios_input do
     field :filter, :audio_filter_input
+    field :search, :string
     field :sort, list_of(non_null(:sort_input))
     field :pagination, :pagination_input
   end

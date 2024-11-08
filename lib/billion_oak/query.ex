@@ -108,4 +108,25 @@ defmodule BillionOak.Query do
   def to_query(queryable) do
     Queryable.to_query(queryable)
   end
+
+  def search(query, nil, _), do: query
+  def search(query, "", _), do: query
+  def search(query, _, []), do: query
+
+  def search(query, keyword, [field | rest]) do
+    keyword = "%#{keyword}%"
+    field = to_atom(field)
+    dynamics = dynamic([q], ilike(fragment("?::varchar", field(q, ^field)), ^keyword))
+
+    dynamics =
+      Enum.reduce(rest, dynamics, fn field, dynamics ->
+        field = to_atom(field)
+        dynamic([q], ^dynamics or ilike(fragment("?::varchar", field(q, ^field)), ^keyword))
+      end)
+
+    from(q in query, where: ^dynamics)
+  end
+
+  defp to_atom(field) when is_atom(field), do: field
+  defp to_atom(field), do: String.to_existing_atom(field)
 end

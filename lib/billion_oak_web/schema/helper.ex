@@ -6,7 +6,7 @@ defmodule BillionOakWeb.Schema.Helper do
       client_id: context[:client_id],
       requester_id: context[:requester_id]
     }
-    |> Request.merge(args, [:filter, :pagination])
+    |> Request.merge(args, [:filter, :pagination, :search])
     |> put_sort(args)
   end
 
