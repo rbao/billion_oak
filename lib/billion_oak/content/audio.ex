@@ -13,11 +13,12 @@ defmodule BillionOak.Content.Audio do
     field :duration_seconds, :integer
     field :bit_rate, :integer
     field :speaker_names, :string
+    field :primary_file_id, :string
+    field :primary_file, :map, virtual: true
 
     timestamps()
 
     belongs_to :organization, Organization
-    belongs_to :primary_file, File
     belongs_to :cover_image_file, File
   end
 

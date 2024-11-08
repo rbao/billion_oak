@@ -31,8 +31,8 @@ defmodule BillionOakWeb.Schema.DataSource do
   defp split(parents, assoc_field, id_field) do
     Enum.reduce(parents, {%{}, %{}}, fn parent, {loaded, pending_map} ->
       case Map.get(parent, assoc_field) do
-        %{id: id} = company_account ->
-          {Map.put(loaded, id, company_account), pending_map}
+        %{id: _} = assoc ->
+          {Map.put(loaded, parent, assoc), pending_map}
 
         _ ->
           {loaded, Map.update(pending_map, Map.get(parent, id_field), [parent], &[parent | &1])}

@@ -4,7 +4,7 @@ defmodule BillionOak.Content do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
+  alias Ecto.{Multi, Changeset}
   alias BillionOak.{Repo, Request, Query, Validation, Filestore}
 
   alias BillionOak.Content.Audio
@@ -96,9 +96,26 @@ defmodule BillionOak.Content do
   end
 
   defp do_update_audio(audio, req) do
-    audio
-    |> Audio.changeset(req.data)
-    |> Repo.update()
+    changeset = Audio.changeset(audio, req.data)
+
+    multi = Multi.update(Multi.new(), :audio, changeset)
+
+    multi =
+      if Changeset.changed?(changeset, :primary_file_id) do
+        Multi.run(multi, :delete_file, fn _, _ ->
+          Filestore.delete_files(%Request{
+            organization_id: req.organization_id,
+            filter: %{id: audio.primary_file_id}
+          })
+        end)
+      else
+        multi
+      end
+
+    case Repo.transaction(multi) do
+      {:ok, %{audio: audio}} -> {:ok, audio}
+      {:error, _op, value, _changes} -> {:error, value}
+    end
   end
 
   def update_audios(req \\ %Request{}) do
