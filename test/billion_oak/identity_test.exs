@@ -61,7 +61,7 @@ defmodule BillionOak.IdentityTest do
     organization = insert(:organization)
     req = %Request{identifier: %{handle: organization.handle}}
 
-    assert {:ok, %Organization{}} = Identity.delete_organization(organization)
+    assert {:ok, %Organization{}} = Identity.delete_organization(req)
     assert {:error, :not_found} = Identity.get_organization(req)
   end
 

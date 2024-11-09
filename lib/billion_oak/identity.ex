@@ -9,15 +9,6 @@ defmodule BillionOak.Identity do
 
   alias BillionOak.Identity.{Client, Organization, User, InvitationCode}
 
-  @doc """
-  Returns the list of External_organizations.
-
-  ## Examples
-
-      iex> list_organizations()
-      {:ok, [%Organization{}, ...]}
-
-  """
   def list_organizations do
     {:ok, Repo.all(Organization)}
   end
@@ -49,38 +40,15 @@ defmodule BillionOak.Identity do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a organization.
-
-  ## Examples
-
-      iex> update_organization(organization, %{field: new_value})
-      {:ok, %Organization{}}
-
-      iex> update_organization(organization, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def update_organization(%Organization{} = organization, attrs) do
     organization
     |> Organization.changeset(attrs)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a organization.
-
-  ## Examples
-
-      iex> delete_organization(organization)
-      {:ok, %Organization{}}
-
-      iex> delete_organization(organization)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_organization(%Organization{} = organization) do
-    Repo.delete(organization)
+  def delete_organization(req) do
+    get_organization(req)
+    ~>> Repo.delete()
   end
 
   @doc """
