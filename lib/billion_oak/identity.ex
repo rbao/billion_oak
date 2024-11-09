@@ -59,18 +59,6 @@ defmodule BillionOak.Identity do
     {:ok, clients}
   end
 
-  @doc """
-  Gets a single client.
-
-  ## Examples
-
-      iex> get_client!(123)
-      {:ok, %Client{}}
-
-      iex> get_client!(456)
-      {:error, :not_found}
-
-  """
   def get_client(%{identifier: identifier}) do
     result =
       Client
@@ -90,21 +78,9 @@ defmodule BillionOak.Identity do
     end
   end
 
-  @doc """
-  Creates a client.
-
-  ## Examples
-
-      iex> create_client(%{field: value})
-      {:ok, %Client{}}
-
-      iex> create_client(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_client(attrs \\ %{}) do
+  def create_client(%{data: data}) do
     %Client{}
-    |> Client.changeset(attrs)
+    |> Client.changeset(data)
     |> Repo.insert()
   end
 
