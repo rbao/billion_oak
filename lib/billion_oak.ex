@@ -39,8 +39,8 @@ defmodule BillionOak do
     |> to_create_response()
   end
 
-  def verify_client(%Request{data: data}) do
-    Identity.verify_client(data.client_id, data.client_secret)
+  def verify_client(%Request{} = req) do
+    Identity.verify_client(req)
     |> to_get_response()
   end
 
@@ -213,7 +213,7 @@ defmodule BillionOak do
   defp put_client(%Request{client_id: nil} = req), do: req
 
   defp put_client(%Request{client_id: client_id} = req) do
-    case Identity.get_client(client_id) do
+    case Identity.get_client(%{identifier: %{id: client_id}}) do
       {:ok, client} -> %{req | _client_: client}
       {:error, :not_found} -> req
     end

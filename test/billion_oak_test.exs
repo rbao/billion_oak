@@ -27,8 +27,9 @@ defmodule BillionOakTest do
 
   test "anyone can verify client" do
     client = insert(:client)
-    data = %{client_id: client.id, client_secret: client.secret}
-    req = anyone(%{data: data})
+    data = %{secret: client.secret}
+    identifier = %{id: client.id}
+    req = anyone(%{identifier: identifier, data: data})
 
     result = BillionOak.verify_client(req)
 

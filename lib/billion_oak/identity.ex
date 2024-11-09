@@ -51,15 +51,6 @@ defmodule BillionOak.Identity do
     ~>> Repo.delete()
   end
 
-  @doc """
-  Returns the list of clients.
-
-  ## Examples
-
-      iex> list_clients()
-      [%Client{}, ...]
-
-  """
   def list_clients do
     clients =
       Repo.all(Client)
@@ -80,10 +71,10 @@ defmodule BillionOak.Identity do
       {:error, :not_found}
 
   """
-  def get_client(id) do
+  def get_client(%{identifier: identifier}) do
     result =
       Client
-      |> Repo.get(id)
+      |> Repo.get_by(identifier)
       |> Client.put_publishable_key()
 
     case result do
@@ -92,8 +83,8 @@ defmodule BillionOak.Identity do
     end
   end
 
-  def verify_client(id, secret) do
-    case get_client(id) do
+  def verify_client(%{identifier: _, data: %{secret: secret}} = req) do
+    case get_client(req) do
       {:ok, %{secret: ^secret} = client} -> {:ok, client}
       _ -> {:error, :invalid}
     end
@@ -147,8 +138,9 @@ defmodule BillionOak.Identity do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_client(%Client{} = client) do
-    Repo.delete(client)
+  def delete_client(%{identifier: identifier}) do
+    get_client(%{identifier: identifier})
+    ~>> Repo.delete()
   end
 
   @doc """

@@ -1,6 +1,6 @@
 defmodule BillionOakWeb.Authentication do
   use OK.Pipe
-  alias BillionOak.{Request, Identity}
+  alias BillionOak.Request
   alias BillionOakWeb.JWT
 
   @error_detail [
@@ -46,7 +46,7 @@ defmodule BillionOakWeb.Authentication do
         client_secret: client_secret
       }) do
     result =
-      %Request{data: %{client_id: client_id, client_secret: client_secret}}
+      %Request{identifier: %{id: client_id}, data: %{secret: client_secret}}
       |> BillionOak.verify_client()
       ~> Map.get(:data)
       ~>> get_openid(code)
@@ -74,7 +74,9 @@ defmodule BillionOakWeb.Authentication do
         client_id: client_id,
         client_secret: client_secret
       }) do
-    case Identity.verify_client(client_id, client_secret) do
+    req = %Request{identifier: %{id: client_id}, data: %{secret: client_secret}}
+
+    case BillionOak.verify_client(req) do
       {:ok, client} ->
         claims = %{"aud" => client.id, "sub" => "anon_" <> XCUID.generate()}
         {:ok, JWT.generate_and_sign!(claims)}

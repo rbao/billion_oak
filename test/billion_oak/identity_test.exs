@@ -73,11 +73,13 @@ defmodule BillionOak.IdentityTest do
   describe "retrieving a client" do
     test "returns the client with the given id if exists" do
       client = insert(:client)
-      assert {:ok, %Client{}} = Identity.get_client(client.id)
+      req = %{identifier: %{id: client.id}}
+
+      assert {:ok, %Client{}} = Identity.get_client(req)
     end
 
     test "returns an error if no client is found with the given id" do
-      assert {:error, :not_found} = Identity.get_client("456")
+      assert {:error, :not_found} = Identity.get_client(%{identifier: %{id: "456"}})
     end
   end
 
@@ -110,23 +112,30 @@ defmodule BillionOak.IdentityTest do
 
   test "a client can be deleted" do
     client = insert(:client)
-    assert {:ok, %Client{}} = Identity.delete_client(client)
-    assert {:error, :not_found} = Identity.get_client(client.id)
+    req = %Request{identifier: %{id: client.id}}
+
+    assert {:ok, %Client{}} = Identity.delete_client(req)
+    assert {:error, :not_found} = Identity.get_client(req)
   end
 
   describe "verifying a client with an id and secret" do
     test "returns the client if they match a client" do
       client = insert(:client)
-      assert {:ok, %Client{}} = Identity.verify_client(client.id, client.secret)
+      req = %{identifier: %{id: client.id}, data: %{secret: client.secret}}
+
+      assert {:ok, %Client{}} = Identity.verify_client(req)
     end
 
     test "returns an error if the client is not found" do
-      assert {:error, :invalid} = Identity.verify_client("456", "some secret")
+      req = %{identifier: %{id: "456"}, data: %{secret: "some secret"}}
+      assert {:error, :invalid} = Identity.verify_client(req)
     end
 
     test "returns an error if the secret is incorrect" do
       client = insert(:client)
-      assert {:error, :invalid} = Identity.verify_client(client.id, "some incorrect secret")
+      req = %{identifier: %{id: client.id}, data: %{secret: "some incorrect secret"}}
+
+      assert {:error, :invalid} = Identity.verify_client(req)
     end
   end
 
