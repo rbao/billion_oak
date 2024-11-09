@@ -16,10 +16,12 @@ alias BillionOak.{External, Identity}
 
 {:ok, happyteam} =
   Identity.create_organization(%{
-    company_id: mannatech.id,
-    handle: "happyteam",
-    name: "Happy Team",
-    root_company_account_rid: "1168402"
+    data: %{
+      company_id: mannatech.id,
+      handle: "happyteam",
+      name: "Happy Team",
+      root_company_account_rid: "1168402"
+    }
   })
 
 {:ok, _} =

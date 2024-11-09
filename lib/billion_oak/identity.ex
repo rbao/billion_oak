@@ -43,21 +43,9 @@ defmodule BillionOak.Identity do
     end
   end
 
-  @doc """
-  Creates a organization.
-
-  ## Examples
-
-      iex> create_organization(%{field: value})
-      {:ok, %Organization{}}
-
-      iex> create_organization(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_organization(attrs \\ %{}) do
+  def create_organization(%{data: data}) do
     %Organization{}
-    |> Organization.changeset(attrs)
+    |> Organization.changeset(data)
     |> Repo.insert()
   end
 
