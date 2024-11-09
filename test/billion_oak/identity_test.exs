@@ -27,14 +27,13 @@ defmodule BillionOak.IdentityTest do
   describe "creating an organization" do
     test "returns the created organization if the given input is valid" do
       input = params_for(:organization)
-      req = %{data: input}
 
-      assert {:ok, %Organization{} = organization} = Identity.create_organization(req)
+      assert {:ok, %Organization{} = organization} = Identity.create_organization(input)
       assert organization.name == input.name
     end
 
     test "returns an error if the given input is invalid" do
-      assert {:error, %Ecto.Changeset{}} = Identity.create_organization(%{data: %{}})
+      assert {:error, %Ecto.Changeset{}} = Identity.create_organization(%{})
     end
   end
 

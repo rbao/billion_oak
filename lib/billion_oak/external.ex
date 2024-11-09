@@ -22,18 +22,6 @@ defmodule BillionOak.External do
     {:ok, Repo.all(Company)}
   end
 
-  @doc """
-  Gets a single company.
-
-  ## Examples
-
-      iex> get_company("some handle")
-      {:ok, %Company{}}
-
-      iex> get_company("some handle")
-      {:error, :not_found}
-
-  """
   def get_company(handle) do
     result = Repo.get_by(Company, handle: handle)
 

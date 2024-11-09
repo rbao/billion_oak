@@ -9,22 +9,10 @@ defmodule BillionOak.Identity do
 
   alias BillionOak.Identity.{Client, Organization, User, InvitationCode}
 
-  def list_organizations do
+  def list_organizations(_ \\ nil) do
     {:ok, Repo.all(Organization)}
   end
 
-  @doc """
-  Gets a single organization.
-
-  ## Examples
-
-      iex> get_organization(%{handle: "happyteam"})
-      {:ok, %Organization{}}
-
-      iex> get_organization(%{handle: "happyteam"})
-      {:error, :not_found}
-
-  """
   def get_organization(%{identifier: identifier}) do
     result = Repo.get_by(Organization, identifier)
 
@@ -34,7 +22,7 @@ defmodule BillionOak.Identity do
     end
   end
 
-  def create_organization(%{data: data}) do
+  def create_organization(data) do
     %Organization{}
     |> Organization.changeset(data)
     |> Repo.insert()
@@ -78,7 +66,8 @@ defmodule BillionOak.Identity do
     end
   end
 
-  def create_client(%{data: data}) do
+  def create_client(%{data: data}), do: create_client(data)
+  def create_client(data) do
     %Client{}
     |> Client.changeset(data)
     |> Repo.insert()

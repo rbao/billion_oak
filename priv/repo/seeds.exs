@@ -16,20 +16,16 @@ alias BillionOak.{External, Identity}
 
 {:ok, happyteam} =
   Identity.create_organization(%{
-    data: %{
-      company_id: mannatech.id,
-      handle: "happyteam",
-      name: "Happy Team",
-      root_company_account_rid: "1168402"
-    }
+    company_id: mannatech.id,
+    handle: "happyteam",
+    name: "Happy Team",
+    root_company_account_rid: "1168402"
   })
 
 {:ok, _} =
   Identity.create_client(%{
-    data: %{
-      name: "WeChat Mini Program",
-      organization_id: happyteam.id,
-      wx_app_id: System.get_env("HT_WX_APP_ID"),
-      wx_app_secret: System.get_env("HT_WX_APP_SECRET")
-    }
+    name: "WeChat Mini Program",
+    organization_id: happyteam.id,
+    wx_app_id: System.get_env("HT_WX_APP_ID"),
+    wx_app_secret: System.get_env("HT_WX_APP_SECRET")
   })
