@@ -169,12 +169,14 @@ defmodule BillionOak.IdentityTest do
   describe "creating a user" do
     test "returns the created user if the given input is valid" do
       input = params_for(:user)
-      assert {:ok, %User{} = user} = Identity.create_user(input)
+      req = %{data: input}
+
+      assert {:ok, %User{} = user} = Identity.create_user(req)
       assert user.first_name == input.first_name
     end
 
     test "returns an error if the given input is invalid" do
-      assert {:error, %Ecto.Changeset{}} = Identity.create_user(%{})
+      assert {:error, %Ecto.Changeset{}} = Identity.create_user(%{data: %{}})
     end
   end
 

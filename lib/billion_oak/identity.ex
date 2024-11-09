@@ -117,30 +117,18 @@ defmodule BillionOak.Identity do
     end
   end
 
-  @doc """
-  Creates a user.
-
-  ## Examples
-
-      iex> create_user(%{field: value})
-      {:ok, %User{}}
-
-      iex> create_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_user(attrs \\ %{}) do
+  def create_user(%{data: data}) do
     %User{}
-    |> User.changeset(attrs)
+    |> User.changeset(data)
     |> Repo.insert()
   end
 
   def get_or_create_user(%{identifier: identifier, data: data} = req) do
-    data = Map.merge(data, identifier)
-
     case get_user(req) do
       {:ok, user} -> {:ok, user}
-      {:error, :not_found} -> create_user(data)
+      {:error, :not_found} ->
+        data = Map.merge(data, identifier)
+        create_user(%{data: data})
     end
   end
 
