@@ -4,67 +4,67 @@ defmodule BillionOakWeb.Schema.Resolver do
   import BillionOakWeb.Schema.Helper
   alias BillionOakWeb.Schema.DataSource
 
-  def sign_up(_parent, args, %{context: context}) do
+  def get_current_user(_parent, _args, %{context: context}) do
     context
-    |> build_request(args, :create)
-    |> BillionOak.sign_up()
-    |> to_output(:create)
+    |> build_get_request(%{id: context[:requester_id]})
+    |> BillionOak.get_user()
+    |> to_get_output()
   end
 
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :get)
+    |> build_get_request(args)
     |> BillionOak.get_company_account_excerpt()
-    |> to_output(:get)
+    |> to_get_output()
+  end
+
+  def sign_up(_parent, args, %{context: context}) do
+    context
+    |> build_create_request(args)
+    |> BillionOak.sign_up()
+    |> to_create_output()
   end
 
   def create_invitation_code(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :create)
+    |> build_create_request(args)
     |> BillionOak.create_invitation_code()
-    |> to_output(:create)
-  end
-
-  def get_current_user(_parent, _args, %{context: context}) do
-    context
-    |> build_request(%{id: context[:requester_id]}, :get)
-    |> BillionOak.get_user()
-    |> to_output(:get)
+    |> to_create_output()
   end
 
   def reserve_file_location(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :create)
+    |> build_create_request(args)
     |> BillionOak.reserve_file_location()
-    |> to_output(:create)
+    |> to_create_output()
   end
 
   def register_file(_parent, args, %{context: context}) do
     context
-    |> build_request(args, :create)
+    |> build_create_request(args)
     |> BillionOak.register_file()
-    |> to_output(:create)
+    |> to_create_output()
   end
 
   def create_audio(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :create)
+    |> build_create_request(input)
     |> BillionOak.create_audio()
-    |> to_output(:create)
+    |> to_create_output()
   end
 
   def list_audios(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :list)
+    |> build_list_request(input)
     |> BillionOak.list_audios()
-    |> to_output(:list)
+    |> to_list_output()
   end
 
   def update_audios(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :bulk_update)
+    |> build_bulk_update_request(input)
     |> BillionOak.update_audios()
-    |> to_output(:bulk_update)
+    |> to_bulk_update_output()
   end
 
   def update_audio(_parent, %{input: input}, %{context: context}) do
@@ -78,14 +78,14 @@ defmodule BillionOakWeb.Schema.Resolver do
     context
     |> build_delete_request(input)
     |> BillionOak.delete_audios()
-    |> to_output(:delete)
+    |> to_delete_output()
   end
 
   def get_audio(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_request(input, :get)
+    |> build_get_request(input)
     |> BillionOak.get_audio()
-    |> to_output(:get)
+    |> to_get_output()
   end
 
   def load_company_accounts(parent, _args, %{context: %{loader: loader} = context}) do

@@ -11,9 +11,9 @@ defmodule BillionOakWeb.Schema.DataSource do
     {result, pending_map} = split(parents, :company_account, :company_account_id)
 
     context
-    |> build_request(%{id: Map.keys(pending_map)}, :list)
+    |> build_list_request(%{id: Map.keys(pending_map)})
     |> BillionOak.list_company_accounts()
-    |> to_output(:list)
+    |> to_list_output()
     |> merge_result(pending_map, result)
   end
 
@@ -21,10 +21,10 @@ defmodule BillionOakWeb.Schema.DataSource do
     {result, pending_map} = split(parents, :primary_file, :primary_file_id)
 
     context
-    |> build_request(%{id: Map.keys(pending_map)}, :list)
+    |> build_list_request(%{id: Map.keys(pending_map)})
     |> Request.put(:pagination, nil)
     |> BillionOak.list_files()
-    |> to_output(:list)
+    |> to_list_output()
     |> merge_result(pending_map, result)
   end
 

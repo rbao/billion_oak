@@ -29,14 +29,8 @@ defmodule BillionOakWeb.Schema do
   end
 
   mutation do
-    @desc "Create an invitation code"
-    field :create_invitation_code, type: :invitation_code do
-      arg(:rid, non_null(:string))
-      resolve(&Resolver.create_invitation_code/3)
-    end
-
     @desc "Sign up with an invitation code"
-    field :sign_up, type: :user do
+    field :sign_up, type: :sign_up_output do
       arg(:company_account_rid, non_null(:string))
       arg(:invitation_code, non_null(:string))
       arg(:first_name, :string)
@@ -44,21 +38,27 @@ defmodule BillionOakWeb.Schema do
       resolve(&Resolver.sign_up/3)
     end
 
+    @desc "Create an invitation code"
+    field :create_invitation_code, type: :create_invitation_code_output do
+      arg(:rid, non_null(:string))
+      resolve(&Resolver.create_invitation_code/3)
+    end
+
     @desc "Reserve a file location"
-    field :reserve_file_location, type: :file_location do
+    field :reserve_file_location, type: :reserve_file_location_output do
       arg(:name, non_null(:string))
       arg(:content_type, :string)
       resolve(&Resolver.reserve_file_location/3)
     end
 
     @desc "Register a file in a given location"
-    field :register_file, type: :file do
+    field :register_file, type: :register_file_output do
       arg(:location_id, non_null(:id))
       resolve(&Resolver.register_file/3)
     end
 
     @desc "Create an audio"
-    field :create_audio, type: :audio do
+    field :create_audio, type: :create_audio_output do
       arg(:input, non_null(:create_audio_input))
       resolve(&Resolver.create_audio/3)
     end
@@ -70,7 +70,7 @@ defmodule BillionOakWeb.Schema do
     end
 
     @desc "Update audios"
-    field :update_audios, type: list_of(:audio) do
+    field :update_audios, type: :update_audios_output do
       arg(:input, non_null(:update_audios_input))
       resolve(&Resolver.update_audios/3)
     end

@@ -36,12 +36,12 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> External.create_company()
-    |> to_response()
+    |> to_create_response()
   end
 
   def verify_client(%Request{data: data}) do
     Identity.verify_client(data.client_id, data.client_secret)
-    |> to_response()
+    |> to_get_response()
   end
 
   def get_or_create_user(%Request{} = req) do
@@ -49,7 +49,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> then(&Identity.get_or_create_user(&1.identifier, &1.data))
-    |> to_response()
+    |> to_create_response()
   end
 
   def get_organization(%Request{} = req) do
@@ -58,7 +58,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:handle])
     ~>> Identity.get_organization()
-    |> to_response()
+    |> to_get_response()
   end
 
   def create_invitation_code(%Request{} = req) do
@@ -67,7 +67,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Identity.create_invitation_code()
-    |> to_response()
+    |> to_create_response()
   end
 
   def sign_up(%Request{} = req) do
@@ -75,7 +75,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> then(&Identity.sign_up(&1.requester_id, &1.data))
-    |> to_response()
+    |> to_create_response()
   end
 
   def get_company_account_excerpt(%Request{} = req) do
@@ -84,7 +84,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:organization_id, :rid])
     ~>> External.get_company_account_excerpt()
-    |> to_response()
+    |> to_get_response()
   end
 
   def get_user(%Request{} = req) do
@@ -93,7 +93,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:id])
     ~>> Identity.get_user()
-    |> to_response()
+    |> to_get_response()
   end
 
   def list_company_accounts(%Request{} = req) do
@@ -101,7 +101,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> External.list_company_accounts()
-    |> to_response()
+    |> to_list_response()
   end
 
   def ingest_external_data(%Request{} = req) do
@@ -110,7 +110,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.take(:identifier, [:handle])
     ~>> Ingestion.run()
-    |> to_response()
+    |> to_bulk_create_response()
   end
 
   def reserve_file_location(%Request{} = req) do
@@ -119,7 +119,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Filestore.reserve_location()
-    |> to_response()
+    |> to_create_response()
   end
 
   def register_file(%Request{} = req) do
@@ -128,7 +128,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Filestore.register_file()
-    |> to_response()
+    |> to_create_response()
   end
 
   def create_audio(%Request{} = req) do
@@ -137,7 +137,7 @@ defmodule BillionOak do
     |> scope_authorize(cfun())
     ~> Request.get(:data)
     ~>> Content.create_audio()
-    |> to_response()
+    |> to_create_response()
   end
 
   def list_audios(%Request{} = req) do
@@ -175,7 +175,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> Content.update_audios()
-    |> to_response()
+    |> to_bulk_update_response()
   end
 
   def delete_audios(%Request{} = req) do
@@ -199,7 +199,7 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> Filestore.list_files()
-    |> to_response()
+    |> to_list_response()
   end
 
   defp expand(%Request{} = req) do
@@ -245,15 +245,27 @@ defmodule BillionOak do
 
   defp put_role(%Request{} = req), do: req
 
-  defp to_response({:ok, data}), do: {:ok, %Response{data: data}}
+  defp to_bulk_update_response({:ok, data}), do: {:ok, %Response{data: data}}
 
-  defp to_response({:error, %Ecto.Changeset{} = changeset}) do
+  defp to_bulk_update_response({:error, [%Ecto.Changeset{} | _] = changesets}) do
+    {:error, {:validation_error, %Response{errors: Validation.errors(changesets)}}}
+  end
+
+  defp to_bulk_update_response(other), do: other
+
+  defp to_bulk_create_response({:ok, data}), do: {:ok, %Response{data: data}}
+  defp to_bulk_create_response(other), do: other
+
+  defp to_create_response({:ok, data}), do: {:ok, %Response{data: data}}
+
+  defp to_create_response({:error, %Ecto.Changeset{} = changeset}) do
     {:error, {:validation_error, %Response{errors: Validation.errors(changeset)}}}
   end
 
-  defp to_response({:error, [%Ecto.Changeset{} | _] = changesets}) do
-    {:error, {:validation_error, %Response{errors: Validation.errors(changesets)}}}
-  end
+  defp to_create_response(other), do: other
+
+  defp to_list_response({:ok, data}), do: {:ok, %Response{data: data}}
+  defp to_list_response(other), do: other
 
   defp to_update_response({:ok, data}), do: {:ok, %Response{data: data}}
   defp to_update_response(other), do: other
@@ -264,4 +276,6 @@ defmodule BillionOak do
   defp to_delete_response({:ok, {count, data}}) do
     {:ok, %Response{meta: %{count: count}, data: data}}
   end
+
+  defp to_delete_response(other), do: other
 end

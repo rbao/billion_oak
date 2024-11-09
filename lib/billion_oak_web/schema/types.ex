@@ -105,6 +105,26 @@ defmodule BillionOakWeb.Schema.Types do
     field :count, :integer
   end
 
+  object :get_current_user_output do
+    field :data, :user
+  end
+
+  object :sign_up_output do
+    field :data, :user
+  end
+
+  object :create_invitation_code_output do
+    field :data, :invitation_code
+  end
+
+  object :reserve_file_location_output do
+    field :data, :file_location
+  end
+
+  object :register_file_output do
+    field :data, :file
+  end
+
   input_object :audio_filter_input do
     field :status, list_of(:string)
   end
@@ -121,12 +141,15 @@ defmodule BillionOakWeb.Schema.Types do
     field :meta, :metadata_for_list
   end
 
-  object :delete_audios_output do
-    field :data, list_of(:audio)
-    field :meta, :metadata_for_delete
+  input_object :create_audio_input do
+    field :status, :string
+    field :primary_file_id, non_null(:id)
+    field :number, non_null(:string)
+    field :title, non_null(:string)
+    field :speaker_names, non_null(:string)
   end
 
-  object :update_audio_output do
+  object :create_audio_output do
     field :data, :audio
   end
 
@@ -138,23 +161,6 @@ defmodule BillionOakWeb.Schema.Types do
     field :data, :audio
   end
 
-  object :get_current_user_output do
-    field :data, :user
-  end
-
-  input_object :create_audio_input do
-    field :status, :string
-    field :primary_file_id, non_null(:id)
-    field :number, non_null(:string)
-    field :title, non_null(:string)
-    field :speaker_names, non_null(:string)
-  end
-
-  input_object :update_audios_input do
-    field :id, non_null(list_of(non_null(:id)))
-    field :status, :string
-  end
-
   input_object :update_audio_input do
     field :id, non_null(:id)
     field :status, :string
@@ -164,7 +170,25 @@ defmodule BillionOakWeb.Schema.Types do
     field :speaker_names, :string
   end
 
+  object :update_audio_output do
+    field :data, :audio
+  end
+
+  input_object :update_audios_input do
+    field :id, non_null(list_of(non_null(:id)))
+    field :status, :string
+  end
+
+  object :update_audios_output do
+    field :data, list_of(:audio)
+  end
+
   input_object :delete_audios_input do
     field :id, non_null(list_of(non_null(:id)))
+  end
+
+  object :delete_audios_output do
+    field :data, list_of(:audio)
+    field :meta, :metadata_for_delete
   end
 end
