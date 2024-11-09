@@ -132,22 +132,10 @@ defmodule BillionOak.Identity do
     end
   end
 
-  @doc """
-  Updates a user.
-
-  ## Examples
-
-      iex> update_user(user, %{field: new_value})
-      {:ok, %User{}}
-
-      iex> update_user(user, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update()
+  def update_user(%{data: data} = req) do
+    get_user(req)
+    ~> User.changeset(data)
+    ~>> Repo.update()
   end
 
   def delete_user(req) do
