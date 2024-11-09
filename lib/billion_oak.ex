@@ -129,7 +129,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:data)
     ~>> Content.create_audio()
     |> to_create_response()
   end
