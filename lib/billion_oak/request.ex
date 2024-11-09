@@ -1,4 +1,5 @@
 defmodule BillionOak.Request do
+  @behaviour Access
   @moduledoc """
   Use this module to wrap and modify request data to pass in to API functions.
 
@@ -83,5 +84,41 @@ defmodule BillionOak.Request do
     req
     |> Map.from_struct()
     |> get_in(key)
+  end
+
+  # Fetch a value from the struct
+  def fetch(struct, key) do
+    if Map.has_key?(struct, key) do
+      {:ok, Map.get(struct, key)}
+    else
+      :error
+    end
+  end
+
+  # Get and update a value in the struct
+  def get_and_update(struct, key, fun) do
+    if Map.has_key?(struct, key) do
+      value = Map.get(struct, key)
+
+      case fun.(value) do
+        {get_value, new_value} ->
+          {get_value, %{struct | key => new_value}}
+
+        :pop ->
+          {value, Map.delete(struct, key)}
+      end
+    else
+      :error
+    end
+  end
+
+  # Pop a value from the struct
+  def pop(struct, key) do
+    if Map.has_key?(struct, key) do
+      value = Map.get(struct, key)
+      {value, Map.delete(struct, key)}
+    else
+      :error
+    end
   end
 end

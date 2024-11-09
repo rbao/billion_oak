@@ -5,6 +5,9 @@ defmodule BillionOak.Query do
   alias BillionOak.Repo
   alias BillionOak.Query.Filter
 
+  def filter(query, nil, _), do: query
+  def filter(query, _, nil), do: query
+
   @spec filter(Query.t(), map, [String.t()]) :: Query.t()
   def filter(query, filter, filterable_keys) when is_map(filter) do
     if map_size(filter) > 0 do
@@ -34,7 +37,8 @@ defmodule BillionOak.Query do
     end)
   end
 
-  @spec sort(Query.t(), [map], [String.t()]) :: Query.t()
+  def sort(query, nil, _), do: query
+  def sort(query, _, nil), do: query
   def sort(query, [], _), do: query
   def sort(query, _, []), do: query
 

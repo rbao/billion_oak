@@ -5,7 +5,7 @@ defmodule BillionOak.External do
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
-  alias BillionOak.{Repo, Request, Query}
+  alias BillionOak.{Repo, Query}
 
   alias BillionOak.External.{Company, CompanyAccount, CompanyRecord}
 
@@ -31,75 +31,29 @@ defmodule BillionOak.External do
     end
   end
 
-  @doc """
-  Creates a company.
-
-  ## Examples
-
-      iex> create_company(%{field: value})
-      {:ok, %Company{}}
-
-      iex> create_company(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_company(attrs \\ %{}) do
+  def create_company(data \\ %{}) do
     %Company{}
-    |> Company.changeset(attrs)
+    |> Company.changeset(data)
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a company.
-
-  ## Examples
-
-      iex> update_company(company, %{field: new_value})
-      {:ok, %Company{}}
-
-      iex> update_company(company, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_company(%Company{} = company, attrs) do
+  def update_company(%Company{} = company, data) do
     company
-    |> Company.changeset(attrs)
+    |> Company.changeset(data)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a company.
-
-  ## Examples
-
-      iex> delete_company(company)
-      {:ok, %Company{}}
-
-      iex> delete_company(company)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_company(%Company{} = company) do
     Repo.delete(company)
   end
 
-  @doc """
-  Returns the list of External_accounts.
-
-  ## Examples
-
-      iex> list_company_accounts()
-      {:ok, [%CompanyAccount{}, ...]}
-
-  """
-  def list_company_accounts(req \\ %Request{}) do
+  def list_company_accounts(req \\ %{}) do
     result =
       CompanyAccount
       |> Query.to_query()
-      |> Query.for_organization(req.organization_id)
-      |> Query.filter(req.filter, req._filterable_keys_)
-      |> Query.sort(req.sort, req._sortable_keys_)
-      |> Query.paginate(req.pagination)
+      |> Query.filter(req[:filter], req[:_filterable_keys_])
+      |> Query.sort(req[:sort], req[:_sortable_keys_])
+      |> Query.paginate(req[:pagination])
       |> Repo.all()
 
     {:ok, result}
@@ -109,18 +63,6 @@ defmodule BillionOak.External do
     {:ok, Repo.aggregate(CompanyAccount, :count)}
   end
 
-  @doc """
-  Gets a single company account.
-
-  ## Examples
-
-      iex> get_company_account(123)
-      {:ok, %CompanyAccount{}}
-
-      iex> get_company_account(456)
-      {:error, :not_found}
-
-  """
   def get_company_account(identifier) do
     result = Repo.get_by(CompanyAccount, identifier)
 
@@ -149,67 +91,22 @@ defmodule BillionOak.External do
     end
   end
 
-  @doc """
-  Creates a account.
-
-  ## Examples
-
-      iex> create_company_account(%{field: value})
-      {:ok, %CompanyAccount{}}
-
-      iex> create_company_account(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_company_account(attrs \\ %{}) do
+  def create_company_account(data \\ %{}) do
     %CompanyAccount{}
-    |> CompanyAccount.changeset(attrs)
+    |> CompanyAccount.changeset(data)
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a account.
-
-  ## Examples
-
-      iex> update_company_account(account, %{field: new_value})
-      {:ok, %CompanyAccount{}}
-
-      iex> update_company_account(account, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_company_account(%CompanyAccount{} = account, attrs) do
+  def update_company_account(%CompanyAccount{} = account, data) do
     account
-    |> CompanyAccount.changeset(attrs)
+    |> CompanyAccount.changeset(data)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a account.
-
-  ## Examples
-
-      iex> delete_account(account)
-      {:ok, %CompanyAccount{}}
-
-      iex> delete_account(account)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_company_account(%CompanyAccount{} = account) do
     Repo.delete(account)
   end
 
-  @doc """
-  Returns the list of company_records.
-
-  ## Examples
-
-      iex> list_company_records()
-      {:ok, [%CompanyRecord{}, ...]}
-
-  """
   def list_company_records(_ \\ nil) do
     {:ok, Repo.all(CompanyRecord)}
   end
@@ -218,18 +115,6 @@ defmodule BillionOak.External do
     {:ok, Repo.aggregate(CompanyRecord, :count)}
   end
 
-  @doc """
-  Gets a single company_record.
-
-  ## Examples
-
-      iex> get_company_record(123)
-      {:ok, %CompanyRecord{}}
-
-      iex> get_company_record(456)
-      {:error, :not_found}
-
-  """
   def get_company_record(id) do
     result = Repo.get(CompanyRecord, id)
 
@@ -239,54 +124,18 @@ defmodule BillionOak.External do
     end
   end
 
-  @doc """
-  Creates a company_record.
-
-  ## Examples
-
-      iex> create_company_record(%{field: value})
-      {:ok, %CompanyRecord{}}
-
-      iex> create_company_record(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_company_record(attrs \\ %{}) do
+  def create_company_record(data \\ %{}) do
     %CompanyRecord{}
-    |> CompanyRecord.changeset(attrs)
+    |> CompanyRecord.changeset(data)
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a company_record.
-
-  ## Examples
-
-      iex> update_company_record(company_record, %{field: new_value})
-      {:ok, %CompanyRecord{}}
-
-      iex> update_company_record(company_record, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_company_record(%CompanyRecord{} = company_record, attrs) do
+  def update_company_record(%CompanyRecord{} = company_record, data) do
     company_record
-    |> CompanyRecord.changeset(attrs)
+    |> CompanyRecord.changeset(data)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a company_record.
-
-  ## Examples
-
-      iex> delete_company_record(company_record)
-      {:ok, %CompanyRecord{}}
-
-      iex> delete_company_record(company_record)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_company_record(%CompanyRecord{} = company_record) do
     Repo.delete(company_record)
   end
