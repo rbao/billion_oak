@@ -85,14 +85,13 @@ defmodule BillionOak.IdentityTest do
   describe "creating a client" do
     test "returns the created client if the given input is valid" do
       input = params_for(:client)
-      req = %{data: input}
 
-      assert {:ok, %Client{} = client} = Identity.create_client(req)
+      assert {:ok, %Client{} = client} = Identity.create_client(input)
       assert client.name == input.name
     end
 
     test "returns an error if the given input is invalid" do
-      assert {:error, %Ecto.Changeset{}} = Identity.create_client(%{data: %{}})
+      assert {:error, %Ecto.Changeset{}} = Identity.create_client(%{})
     end
   end
 
@@ -168,14 +167,13 @@ defmodule BillionOak.IdentityTest do
   describe "creating a user" do
     test "returns the created user if the given input is valid" do
       input = params_for(:user)
-      req = %{data: input}
 
-      assert {:ok, %User{} = user} = Identity.create_user(req)
+      assert {:ok, %User{} = user} = Identity.create_user(input)
       assert user.first_name == input.first_name
     end
 
     test "returns an error if the given input is invalid" do
-      assert {:error, %Ecto.Changeset{}} = Identity.create_user(%{data: %{}})
+      assert {:error, %Ecto.Changeset{}} = Identity.create_user(%{})
     end
   end
 

@@ -39,7 +39,7 @@ defmodule BillionOak.Identity do
     ~>> Repo.delete()
   end
 
-  def list_clients do
+  def list_clients(_ \\ nil) do
     clients =
       Repo.all(Client)
       |> Client.put_publishable_key()
@@ -47,7 +47,8 @@ defmodule BillionOak.Identity do
     {:ok, clients}
   end
 
-  def get_client(%{identifier: identifier}) do
+  def get_client(%{identifier: identifier}), do: get_client(identifier)
+  def get_client(identifier) do
     result =
       Client
       |> Repo.get_by(identifier)
@@ -66,7 +67,6 @@ defmodule BillionOak.Identity do
     end
   end
 
-  def create_client(%{data: data}), do: create_client(data)
   def create_client(data) do
     %Client{}
     |> Client.changeset(data)
@@ -84,20 +84,13 @@ defmodule BillionOak.Identity do
     ~>> Repo.delete()
   end
 
-  @doc """
-  Returns the list of users.
-
-  ## Examples
-
-      iex> list_users()
-      {:ok, [%User{}, ...]}
-
-  """
-  def list_users do
+  def list_users(_ \\ nil) do
     {:ok, Repo.all(User)}
   end
 
-  def get_user(%{identifier: identifier}) do
+
+  def get_user(%{identifier: identifier}), do: get_user(identifier)
+  def get_user(identifier) do
     result = Repo.get_by(User, identifier)
 
     case result do
@@ -106,7 +99,7 @@ defmodule BillionOak.Identity do
     end
   end
 
-  def create_user(%{data: data}) do
+  def create_user(data) do
     %User{}
     |> User.changeset(data)
     |> Repo.insert()
@@ -118,8 +111,9 @@ defmodule BillionOak.Identity do
         {:ok, user}
 
       {:error, :not_found} ->
-        data = Map.merge(data, identifier)
-        create_user(%{data: data})
+        data
+        |> Map.merge(identifier)
+        |> create_user()
     end
   end
 
@@ -134,16 +128,7 @@ defmodule BillionOak.Identity do
     ~>> Repo.delete()
   end
 
-  @doc """
-  Returns the list of invitation_codes.
-
-  ## Examples
-
-      iex> list_invitation_codes()
-      {:ok, [%InvitationCode{}, ...]}
-
-  """
-  def list_invitation_codes do
+  def list_invitation_codes(_ \\ nil) do
     {:ok, Repo.all(InvitationCode)}
   end
 

@@ -211,7 +211,7 @@ defmodule BillionOak do
   defp put_client(%Request{client_id: nil} = req), do: req
 
   defp put_client(%Request{client_id: client_id} = req) do
-    case Identity.get_client(%{identifier: %{id: client_id}}) do
+    case Identity.get_client(id: client_id) do
       {:ok, client} -> %{req | _client_: client}
       {:error, :not_found} -> req
     end
@@ -228,9 +228,7 @@ defmodule BillionOak do
   defp put_requester(%Request{requester_id: "anon_" <> _} = req), do: req
 
   defp put_requester(%Request{requester_id: requester_id, organization_id: organization_id} = req) do
-    user_identifier = %{id: requester_id, organization_id: organization_id}
-
-    case Identity.get_user(%{identifier: user_identifier}) do
+    case Identity.get_user(id: requester_id, organization_id: organization_id) do
       {:ok, requester} -> %{req | _requester_: requester}
       {:error, :not_found} -> req
     end
