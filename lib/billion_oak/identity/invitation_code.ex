@@ -118,4 +118,22 @@ defmodule BillionOak.Identity.InvitationCode do
   defp put_expires_at(changeset) do
     change(changeset, expires_at: DateTime.add(DateTime.utc_now(:second), 30, :day))
   end
+
+  def verify(nil, _, _), do: {:error, :invalid}
+  def verify(_, nil, _), do: {:error, :invalid}
+  def verify(_, _, nil), do: {:error, :invalid}
+
+  def verify(value, org_id, rid) do
+    inv_code =
+      Repo.get_by(__MODULE__,
+        value: value,
+        organization_id: org_id,
+        invitee_company_account_rid: rid
+      )
+
+    case inv_code do
+      nil -> {:error, :invalid}
+      _ -> {:ok, inv_code}
+    end
+  end
 end

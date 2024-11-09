@@ -38,6 +38,11 @@ defmodule BillionOak.Policy do
     |> Request.delete(:data, :invitee_role)
   end
 
+  def scope(%{_role_: role} = req, :sign_up) when role in @guest_roles do
+    req
+    |> Request.put(:identifier, :id, req.requester_id)
+  end
+
   def scope(
         %{_role_: role, organization_id: organization_id} = req,
         :reserve_file_location
@@ -128,7 +133,11 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :sign_up) when role in @guest_roles do
-    {:ok, req}
+    if req.identifier[:id] == req.requester_id do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
   end
 
   def authorize(%{_role_: role} = req, :get_user) when role in @guest_roles do

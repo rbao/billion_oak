@@ -125,7 +125,9 @@ defmodule BillionOak.Identity do
 
   def get_or_create_user(%{identifier: identifier, data: data} = req) do
     case get_user(req) do
-      {:ok, user} -> {:ok, user}
+      {:ok, user} ->
+        {:ok, user}
+
       {:error, :not_found} ->
         data = Map.merge(data, identifier)
         create_user(%{data: data})
@@ -156,22 +158,8 @@ defmodule BillionOak.Identity do
     {:ok, Repo.all(InvitationCode)}
   end
 
-  @doc """
-  Gets a single invitation_code.
-
-  Raises `Ecto.NoResultsError` if the Invitation code does not exist.
-
-  ## Examples
-
-      iex> get_invitation_code(123)
-      {:ok, %InvitationCode{}}
-
-      iex> get_invitation_code!(456)
-      {:error, :not_found}
-
-  """
-  def get_invitation_code(value) do
-    result = Repo.get_by(InvitationCode, value: value)
+  def get_invitation_code(%{identifier: identifier}) do
+    result = Repo.get_by(InvitationCode, identifier)
 
     case result do
       nil -> {:error, :not_found}
@@ -179,51 +167,37 @@ defmodule BillionOak.Identity do
     end
   end
 
-  @doc """
-  Creates a invitation_code.
-
-  ## Examples
-
-      iex> create_invitation_code(%{field: value})
-      {:ok, %InvitationCode{}}
-
-      iex> create_invitation_code(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_invitation_code(attrs \\ %{}) do
-    %InvitationCode{inviter: attrs[:inviter]}
-    |> InvitationCode.changeset(attrs)
+  def create_invitation_code(%{data: data}) do
+    %InvitationCode{inviter: data[:inviter]}
+    |> InvitationCode.changeset(data)
     |> Repo.insert()
   end
 
-  @doc """
-  Deletes a invitation_code.
-
-  ## Examples
-
-      iex> delete_invitation_code(invitation_code)
-      {:ok, %InvitationCode{}}
-
-      iex> delete_invitation_code(invitation_code)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_invitation_code(%InvitationCode{} = invitation_code) do
-    Repo.delete(invitation_code)
+  def delete_invitation_code(req) do
+    get_invitation_code(req)
+    ~>> Repo.delete()
   end
 
-  def sign_up(guest_id, %{company_account_rid: rid, invitation_code: inv_code_value} = params) do
-    guest = Repo.get_by(User, id: guest_id, role: :guest)
-    initial = if guest, do: {:ok, guest}, else: {:error, :not_found}
+  def sign_up(%{identifier: %{id: _} = identifier, data: data}) do
+    identifier = Map.put(identifier, :role, :guest)
+    initial = get_user(%{identifier: identifier})
+
+    guest =
+      case initial do
+        {:ok, guest} -> guest
+        _ -> nil
+      end
+
+    inv_code_value = data[:invitation_code]
+    rid = data[:company_account_rid]
 
     result =
       initial
-      ~>> then(&verify_invitation_code(inv_code_value, &1.organization_id, rid))
+      ~>> then(&InvitationCode.verify(inv_code_value, &1.organization_id, rid))
       ~> then(
         &User.changeset(guest, %{
-          first_name: params[:first_name],
-          last_name: params[:last_name],
+          first_name: data[:first_name],
+          last_name: data[:last_name],
           company_account_rid: &1.invitee_company_account_rid,
           inviter_id: &1.inviter_id,
           role: &1.invitee_role
@@ -234,24 +208,6 @@ defmodule BillionOak.Identity do
     case result do
       {:error, :invalid} -> {:error, :invalid_invitation_code}
       other -> other
-    end
-  end
-
-  defp verify_invitation_code(nil, _, _), do: {:error, :invalid}
-  defp verify_invitation_code(_, nil, _), do: {:error, :invalid}
-  defp verify_invitation_code(_, _, nil), do: {:error, :invalid}
-
-  defp verify_invitation_code(value, org_id, rid) do
-    inv_code =
-      Repo.get_by(InvitationCode,
-        value: value,
-        organization_id: org_id,
-        invitee_company_account_rid: rid
-      )
-
-    case inv_code do
-      nil -> {:error, :invalid}
-      _ -> {:ok, inv_code}
     end
   end
 end

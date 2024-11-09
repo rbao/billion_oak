@@ -64,7 +64,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:data)
     ~>> Identity.create_invitation_code()
     |> to_create_response()
   end
@@ -73,7 +72,7 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~>> then(&Identity.sign_up(&1.requester_id, &1.data))
+    ~>> Identity.sign_up()
     |> to_create_response()
   end
 

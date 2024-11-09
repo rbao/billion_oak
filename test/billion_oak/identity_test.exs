@@ -227,11 +227,14 @@ defmodule BillionOak.IdentityTest do
   describe "retrieving an invitation code" do
     test "returns the invitation code with the given value if exists" do
       invitation_code = insert(:invitation_code)
-      assert {:ok, %InvitationCode{}} = Identity.get_invitation_code(invitation_code.value)
+      req = %{identifier: %{value: invitation_code.value}}
+
+      assert {:ok, %InvitationCode{}} = Identity.get_invitation_code(req)
     end
 
     test "returns an error if no invitation code is found with the given value" do
-      assert {:error, :not_found} = Identity.get_invitation_code("some value")
+      req = %{identifier: %{value: "some value"}}
+      assert {:error, :not_found} = Identity.get_invitation_code(req)
     end
   end
 
@@ -244,20 +247,24 @@ defmodule BillionOak.IdentityTest do
         invitee_company_account_rid: company_account.rid
       }
 
-      assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(input)
+      req = %{data: input}
+
+      assert {:ok, %InvitationCode{} = invitation_code} = Identity.create_invitation_code(req)
       assert invitation_code.value
       assert invitation_code.invitee_company_account_rid == input.invitee_company_account_rid
     end
 
     test "returns an error if the given input is invalid" do
-      assert {:error, %Ecto.Changeset{}} = Identity.create_invitation_code(%{})
+      assert {:error, %Ecto.Changeset{}} = Identity.create_invitation_code(%{data: %{}})
     end
   end
 
   test "invitation code can be deleted" do
     invitation_code = insert(:invitation_code)
-    assert {:ok, %InvitationCode{}} = Identity.delete_invitation_code(invitation_code)
-    assert {:error, :not_found} = Identity.get_invitation_code(invitation_code.value)
+    req = %{identifier: %{value: invitation_code.value}}
+
+    assert {:ok, %InvitationCode{}} = Identity.delete_invitation_code(req)
+    assert {:error, :not_found} = Identity.get_invitation_code(req)
   end
 
   describe "guest signing up with an invitation code and a company account rid" do
@@ -272,8 +279,9 @@ defmodule BillionOak.IdentityTest do
         )
 
       input = %{company_account_rid: company_account.rid, invitation_code: invitation_code.value}
+      req = %{identifier: %{id: guest.id}, data: input}
 
-      assert {:ok, %User{} = user} = Identity.sign_up(guest.id, input)
+      assert {:ok, %User{} = user} = Identity.sign_up(req)
       assert user.company_account_rid == company_account.rid
       assert user.role == :member
     end
@@ -290,28 +298,37 @@ defmodule BillionOak.IdentityTest do
         )
 
       input = %{company_account_rid: company_account.rid, invitation_code: invitation_code.value}
+      req = %{identifier: %{id: guest.id}, data: input}
 
-      assert {:ok, %User{} = user} = Identity.sign_up(guest.id, input)
+      assert {:ok, %User{} = user} = Identity.sign_up(req)
       assert user.company_account_rid == company_account.rid
       assert user.role == :admin
     end
 
     test "returns an error if the guest does not exist" do
-      assert {:error, :not_found} =
-               Identity.sign_up("invalid", %{
-                 company_account_rid: "some rid",
-                 invitation_code: "some code"
-               })
+      req = %{
+        identifier: %{id: "invalid"},
+        data: %{
+          company_account_rid: "some rid",
+          invitation_code: "some code"
+        }
+      }
+
+      assert {:error, :not_found} = Identity.sign_up(req)
     end
 
     test "returns an error if the invitation code is invalid" do
       guest = insert(:user, role: :guest)
 
-      assert {:error, :invalid_invitation_code} =
-               Identity.sign_up(guest.id, %{
-                 company_account_rid: "some rid",
-                 invitation_code: "some code"
-               })
+      req = %{
+        identifier: %{id: guest.id},
+        data: %{
+          company_account_rid: "some rid",
+          invitation_code: "some code"
+        }
+      }
+
+      assert {:error, :invalid_invitation_code} = Identity.sign_up(req)
     end
   end
 end
