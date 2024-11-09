@@ -48,6 +48,7 @@ defmodule BillionOak.Identity do
   end
 
   def get_client(%{identifier: identifier}), do: get_client(identifier)
+
   def get_client(identifier) do
     result =
       Client
@@ -88,8 +89,8 @@ defmodule BillionOak.Identity do
     {:ok, Repo.all(User)}
   end
 
-
   def get_user(%{identifier: identifier}), do: get_user(identifier)
+
   def get_user(identifier) do
     result = Repo.get_by(User, identifier)
 

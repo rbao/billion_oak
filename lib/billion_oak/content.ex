@@ -190,9 +190,9 @@ defmodule BillionOak.Content do
       |> Multi.delete_all(:delete_audios, audio_query)
       |> Multi.run(:delete_files, fn _repo, _changes ->
         {:ok, _} =
-          Filestore.delete_files(%Request{
-            organization_id: req.organization_id,
-            filter: %{id: file_ids}
+          Filestore.delete_files(%{
+            filter: %{id: file_ids},
+            _filterable_keys_: [:id]
           })
       end)
 

@@ -113,7 +113,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:data)
     ~>> Filestore.reserve_location()
     |> to_create_response()
   end
@@ -122,7 +121,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:data)
     ~>> Filestore.register_file()
     |> to_create_response()
   end

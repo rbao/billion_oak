@@ -43,6 +43,11 @@ defmodule BillionOak.Policy do
     |> Request.put(:identifier, :id, req.requester_id)
   end
 
+  def scope(%{_role_: role} = req, :list_files) when role in @member_roles do
+    req
+    |> Request.put(:filter, :organization_id, req.organization_id)
+  end
+
   def scope(
         %{_role_: role, organization_id: organization_id} = req,
         :reserve_file_location
@@ -215,7 +220,11 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :list_files) when role in @member_roles do
-    {:ok, req}
+    if req.filter[:organization_id] == req.organization_id do
+      {:ok, req}
+    else
+      {:error, :access_denied}
+    end
   end
 
   def authorize(%{_role_: role} = req, :get_audio) when role in @guest_roles do
