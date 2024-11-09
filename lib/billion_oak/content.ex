@@ -55,7 +55,7 @@ defmodule BillionOak.Content do
       if Changeset.changed?(changeset, :primary_file_id) do
         Multi.run(multi, :delete_file, fn _, _ ->
           Filestore.delete_files(%{
-            filter: %{id: audio.primary_file_id},
+            filter: [%{id: audio.primary_file_id}],
             _filterable_keys_: [:id]
           })
         end)
@@ -128,7 +128,7 @@ defmodule BillionOak.Content do
       |> Multi.run(:delete_files, fn _repo, _changes ->
         {:ok, _} =
           Filestore.delete_files(%{
-            filter: %{id: file_ids},
+            filter: [%{id: file_ids}],
             _filterable_keys_: [:id]
           })
       end)

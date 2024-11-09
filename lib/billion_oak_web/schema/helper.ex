@@ -22,7 +22,8 @@ defmodule BillionOakWeb.Schema.Helper do
       client_id: context[:client_id],
       requester_id: context[:requester_id]
     }
-    |> Request.merge(args, [:filter, :pagination, :search])
+    |> Request.merge(args, [:pagination, :search])
+    |> put_filter(args, [:filter])
     |> put_sort(args)
   end
 
@@ -30,9 +31,9 @@ defmodule BillionOakWeb.Schema.Helper do
     %Request{
       client_id: context[:client_id],
       requester_id: context[:requester_id],
-      filter: Map.take(args, filter_keys),
       data: Map.drop(args, filter_keys)
     }
+    |> put_filter(args, filter_keys)
   end
 
   def build_update_request(context, args, identifier_keys \\ [:id]) do
@@ -47,9 +48,18 @@ defmodule BillionOakWeb.Schema.Helper do
   def build_delete_request(context, args, filter_keys \\ [:id]) do
     %Request{
       client_id: context[:client_id],
-      requester_id: context[:requester_id],
-      filter: Map.take(args, filter_keys)
+      requester_id: context[:requester_id]
     }
+    |> put_filter(args, filter_keys)
+  end
+
+  defp put_filter(req, args, filter_keys) do
+    filter =
+      args
+      |> Map.take(filter_keys)
+      |> Enum.map(fn {key, value} -> %{key => value} end)
+
+    Request.put(req, :filter, filter)
   end
 
   defp put_sort(req, %{sort: sort}) when is_list(sort) do

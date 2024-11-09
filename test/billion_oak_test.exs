@@ -111,7 +111,7 @@ defmodule BillionOakTest do
           company_account_id: company_account.id
         )
 
-      filter = %{id: [company_account.id]}
+      filter = [%{id: [company_account.id]}]
       req = user(%{filter: filter}, client, member)
 
       result = BillionOak.list_company_accounts(req)

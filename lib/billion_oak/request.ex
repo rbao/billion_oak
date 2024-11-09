@@ -86,6 +86,11 @@ defmodule BillionOak.Request do
     |> get_in(key)
   end
 
+  def add_filter(%{filter: filter} = req, key, value) do
+    filter = filter ++ [%{key => value}]
+    put(req, :filter, filter)
+  end
+
   # Fetch a value from the struct
   def fetch(struct, key) do
     if Map.has_key?(struct, key) do

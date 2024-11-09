@@ -65,7 +65,7 @@ defmodule BillionOak.Policy do
   def scope(%{_role_: role} = req, :list_audios) when role in @member do
     req
     |> put_organization_id(:filter)
-    |> Request.put(:filter, :status, :published)
+    |> Request.add_filter(:status, :published)
   end
 
   def scope(%{_role_: role} = req, :get_audio) when role in @admin do
@@ -121,11 +121,7 @@ defmodule BillionOak.Policy do
   end
 
   def authorize(%{_role_: role} = req, :list_company_accounts) when role in @member do
-    if req.filter[:id] == [req._requester_.company_account_id] do
-      {:ok, req}
-    else
-      {:error, :access_denied}
-    end
+    authorize_has_filter(req, :id, [req._requester_.company_account_id])
   end
 
   def authorize(%{_role_: role} = req, :reserve_file_location) when role in @admin do
@@ -176,8 +172,16 @@ defmodule BillionOak.Policy do
 
   def authorize(_, _), do: {:error, :access_denied}
 
+  def put_organization_id(req, :filter) do
+    Request.add_filter(req, :organization_id, req.organization_id)
+  end
+
   def put_organization_id(req, key) do
     Request.put(req, key, :organization_id, req.organization_id)
+  end
+
+  def authorize_organization_id(req, :filter) do
+    authorize_has_filter(req, :organization_id, req.organization_id)
   end
 
   def authorize_organization_id(%{organization_id: organization_id} = req, key) do
@@ -208,10 +212,16 @@ defmodule BillionOak.Policy do
     end
   end
 
-  def authorize_has_filter(req, filter_key, value) do
-    case get_in(req, [:filter, filter_key]) do
-      ^value -> {:ok, req}
-      _ -> {:error, :access_denied}
+  def authorize_has_filter(%{filter: filter} = req, filter_key, value) do
+    has =
+      Enum.any?(filter, fn item ->
+        is_map(item) && Map.get(item, filter_key) == value
+      end)
+
+    if has do
+      {:ok, req}
+    else
+      {:error, :access_denied}
     end
   end
 end
