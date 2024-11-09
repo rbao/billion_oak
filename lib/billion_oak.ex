@@ -56,7 +56,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.take(:identifier, [:handle])
     ~>> Identity.get_organization()
     |> to_get_response()
   end
@@ -108,7 +107,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.take(:identifier, [:handle])
     ~>> Ingestion.run()
     |> to_bulk_create_response()
   end

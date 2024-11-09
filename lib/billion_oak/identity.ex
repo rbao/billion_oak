@@ -34,17 +34,8 @@ defmodule BillionOak.Identity do
       {:error, :not_found}
 
   """
-  def get_organization(identifier) do
+  def get_organization(%{identifier: identifier}) do
     result = Repo.get_by(Organization, identifier)
-
-    case result do
-      nil -> {:error, :not_found}
-      organization -> {:ok, organization}
-    end
-  end
-
-  def get_organization(company_id, handle) do
-    result = Repo.get_by(Organization, company_id: company_id, handle: handle)
 
     case result do
       nil -> {:error, :not_found}

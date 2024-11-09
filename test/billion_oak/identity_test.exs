@@ -2,7 +2,7 @@ defmodule BillionOak.IdentityTest do
   use BillionOak.DataCase
   import BillionOak.Factory
 
-  alias BillionOak.Identity
+  alias BillionOak.{Request, Identity}
   alias BillionOak.Identity.{Organization, Client, User, InvitationCode}
 
   test "all organizations can be retrieved at once" do
@@ -13,11 +13,14 @@ defmodule BillionOak.IdentityTest do
   describe "retrieving an organization" do
     test "returns the organization with the given handle if exists" do
       organization = insert(:organization)
-      assert {:ok, %Organization{}} = Identity.get_organization(handle: organization.handle)
+      req = %Request{identifier: %{handle: organization.handle}}
+
+      assert {:ok, %Organization{}} = Identity.get_organization(req)
     end
 
     test "returns an error if no organization is found with the given handle" do
-      assert {:error, :not_found} = Identity.get_organization(handle: "some handle")
+      req = %Request{identifier: %{handle: "some handle"}}
+      assert {:error, :not_found} = Identity.get_organization(req)
     end
   end
 
@@ -55,8 +58,10 @@ defmodule BillionOak.IdentityTest do
 
   test "an organization can be deleted" do
     organization = insert(:organization)
+    req = %Request{identifier: %{handle: organization.handle}}
+
     assert {:ok, %Organization{}} = Identity.delete_organization(organization)
-    assert {:error, :not_found} = Identity.get_organization(handle: organization.handle)
+    assert {:error, :not_found} = Identity.get_organization(req)
   end
 
   test "all clients can be retrieved at once" do

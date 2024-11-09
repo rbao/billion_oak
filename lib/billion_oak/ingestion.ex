@@ -16,8 +16,8 @@ defmodule BillionOak.Ingestion do
     Repo.all(Attempt)
   end
 
-  def run(org_identifier) do
-    org_identifier
+  def run(req) do
+    req
     |> Identity.get_organization()
     ~>> Mannatech.ingest()
   end
