@@ -154,13 +154,15 @@ defmodule BillionOak.IdentityTest do
   describe "retrieving a user" do
     test "returns the user with the given id in the given organization if exists" do
       user = insert(:user)
+      req = %{identifier: %{id: user.id, organization_id: user.organization_id}}
 
-      assert {:ok, %User{}} =
-               Identity.get_user(id: user.id, organization_id: user.organization_id)
+      assert {:ok, %User{}} = Identity.get_user(req)
     end
 
     test "returns an error if no user is found matching the input" do
-      assert {:error, :not_found} = Identity.get_user(id: "456", organization_id: "789")
+      req = %{identifier: %{id: "456", organization_id: "789"}}
+
+      assert {:error, :not_found} = Identity.get_user(req)
     end
   end
 
@@ -193,15 +195,18 @@ defmodule BillionOak.IdentityTest do
 
   test "a user can be deleted" do
     user = insert(:user)
-    assert {:ok, %User{}} = Identity.delete_user(user)
-    assert {:error, :not_found} = Identity.get_user(id: user.id)
+    req = %{identifier: %{id: user.id}}
+
+    assert {:ok, %User{}} = Identity.delete_user(req)
+    assert {:error, :not_found} = Identity.get_user(req)
   end
 
   test "a user can be retrieved and if it doesn't exist be created at the same time" do
     identifier = %{wx_app_openid: "123"}
     data = %{organization_id: "test"}
+    req = %{identifier: identifier, data: data}
 
-    assert {:ok, %User{} = user} = Identity.get_or_create_user(identifier, data)
+    assert {:ok, %User{} = user} = Identity.get_or_create_user(req)
 
     assert user.wx_app_openid == "123"
     assert user.organization_id == "test"

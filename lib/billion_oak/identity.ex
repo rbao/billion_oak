@@ -90,8 +90,8 @@ defmodule BillionOak.Identity do
     ~>> Repo.update()
   end
 
-  def delete_client(%{identifier: identifier}) do
-    get_client(%{identifier: identifier})
+  def delete_client(req) do
+    get_client(req)
     ~>> Repo.delete()
   end
 
@@ -108,21 +108,7 @@ defmodule BillionOak.Identity do
     {:ok, Repo.all(User)}
   end
 
-  @doc """
-  Gets a single user.
-
-  Raises `Ecto.NoResultsError` if the User does not exist.
-
-  ## Examples
-
-      iex> get_user(123)
-      {:ok, %User{}}
-
-      iex> get_user(456)
-      {:error, :not_found}
-
-  """
-  def get_user(identifier) do
+  def get_user(%{identifier: identifier}) do
     result = Repo.get_by(User, identifier)
 
     case result do
@@ -149,12 +135,12 @@ defmodule BillionOak.Identity do
     |> Repo.insert()
   end
 
-  def get_or_create_user(identifier, attrs) do
-    attrs = Map.merge(attrs, identifier)
+  def get_or_create_user(%{identifier: identifier, data: data} = req) do
+    data = Map.merge(data, identifier)
 
-    case get_user(identifier) do
+    case get_user(req) do
       {:ok, user} -> {:ok, user}
-      {:error, :not_found} -> create_user(attrs)
+      {:error, :not_found} -> create_user(data)
     end
   end
 
@@ -176,20 +162,9 @@ defmodule BillionOak.Identity do
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a user.
-
-  ## Examples
-
-      iex> delete_user(user)
-      {:ok, %User{}}
-
-      iex> delete_user(user)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
+  def delete_user(req) do
+    get_user(req)
+    ~>> Repo.delete()
   end
 
   @doc """

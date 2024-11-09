@@ -48,7 +48,7 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~>> then(&Identity.get_or_create_user(&1.identifier, &1.data))
+    ~>> Identity.get_or_create_user()
     |> to_create_response()
   end
 
@@ -90,7 +90,6 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.take(:identifier, [:id])
     ~>> Identity.get_user()
     |> to_get_response()
   end
@@ -230,7 +229,9 @@ defmodule BillionOak do
   defp put_requester(%Request{requester_id: "anon_" <> _} = req), do: req
 
   defp put_requester(%Request{requester_id: requester_id, organization_id: organization_id} = req) do
-    case Identity.get_user(%{id: requester_id, organization_id: organization_id}) do
+    user_identifier = %{id: requester_id, organization_id: organization_id}
+
+    case Identity.get_user(%{identifier: user_identifier}) do
       {:ok, requester} -> %{req | _requester_: requester}
       {:error, :not_found} -> req
     end
