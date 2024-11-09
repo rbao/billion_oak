@@ -101,14 +101,17 @@ defmodule BillionOak.IdentityTest do
     test "returns the updated client if the given input is valid" do
       client = insert(:client)
       input = %{name: "some updated name"}
+      req = %{identifier: %{id: client.id}, data: input}
 
-      assert {:ok, %Client{} = client} = Identity.update_client(client, input)
+      assert {:ok, %Client{} = client} = Identity.update_client(req)
       assert client.name == input.name
     end
 
     test "returns an error if the given input is invalid" do
       client = insert(:client)
-      assert {:error, %Ecto.Changeset{}} = Identity.update_client(client, %{name: nil})
+      req = %{identifier: %{id: client.id}, data: %{name: nil}}
+
+      assert {:error, %Ecto.Changeset{}} = Identity.update_client(req)
     end
   end
 

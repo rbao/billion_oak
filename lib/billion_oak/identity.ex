@@ -84,36 +84,12 @@ defmodule BillionOak.Identity do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a client.
-
-  ## Examples
-
-      iex> update_client(client, %{field: new_value})
-      {:ok, %Client{}}
-
-      iex> update_client(client, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_client(%Client{} = client, attrs) do
-    client
-    |> Client.changeset(attrs)
-    |> Repo.update()
+  def update_client(%{identifier: _, data: data} = req) do
+    get_client(req)
+    ~> Client.changeset(data)
+    ~>> Repo.update()
   end
 
-  @doc """
-  Deletes a client.
-
-  ## Examples
-
-      iex> delete_client(client)
-      {:ok, %Client{}}
-
-      iex> delete_client(client)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_client(%{identifier: identifier}) do
     get_client(%{identifier: identifier})
     ~>> Repo.delete()
