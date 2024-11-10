@@ -23,7 +23,7 @@ defmodule BillionOakWeb.Schema.Helper do
       requester_id: context[:requester_id]
     }
     |> Request.merge(args, [:pagination, :search])
-    |> put_filter(args, [:filter])
+    |> merge_filter(args)
     |> put_sort(args)
   end
 
@@ -52,6 +52,13 @@ defmodule BillionOakWeb.Schema.Helper do
     }
     |> put_filter(args, filter_keys)
   end
+
+  defp merge_filter(req, %{filter: filter}) when is_map(filter) do
+    filter = Enum.map(filter, fn {key, value} -> %{key => value} end)
+    Request.put(req, :filter, filter)
+  end
+
+  defp merge_filter(req, _), do: req
 
   defp put_filter(req, args, filter_keys) do
     filter =
