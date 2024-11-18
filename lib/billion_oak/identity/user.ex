@@ -6,6 +6,7 @@ defmodule BillionOak.Identity.User do
   alias BillionOak.Identity.Organization
 
   schema "users" do
+    field :share_id, :string
     field :status, Ecto.Enum, values: [:active, :suspended], default: :active
     field :role, Ecto.Enum, values: [:guest, :member, :admin], default: :guest
     field :first_name, :string
@@ -29,8 +30,17 @@ defmodule BillionOak.Identity.User do
       :role,
       :organization_id
     ])
+    |> put_share_id()
     |> put_company_account()
     |> put_company_account_id()
+  end
+
+  defp put_share_id(cs) do
+    if get_field(cs, :share_id) do
+      cs
+    else
+      change(cs, share_id: generate_id())
+    end
   end
 
   defp put_company_account(%{valid?: false} = cs), do: cs
