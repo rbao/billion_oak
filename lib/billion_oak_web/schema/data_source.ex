@@ -17,8 +17,8 @@ defmodule BillionOakWeb.Schema.DataSource do
     |> merge_result(pending_map, result)
   end
 
-  def query({:file, _, context}, parents) do
-    {result, pending_map} = split(parents, :primary_file, :primary_file_id)
+  def query({:file, %{id_field: id_field, file_field: file_field}, context}, parents) do
+    {result, pending_map} = split(parents, file_field, id_field)
 
     context
     |> build_list_request(%{id: Map.keys(pending_map)})
@@ -41,9 +41,22 @@ defmodule BillionOakWeb.Schema.DataSource do
   end
 
   defp merge_result({:ok, %{data: data}}, pending_map, result) do
-    Enum.reduce(data, result, fn item, acc ->
-      Enum.reduce(Map.get(pending_map, Map.get(item, :id), []), acc, fn parent, inner_acc ->
-        Map.put(inner_acc, parent, item)
+    # Merge found result to the result
+    found_result =
+      Enum.reduce(data, result, fn item, acc ->
+        Enum.reduce(Map.get(pending_map, Map.get(item, :id), []), acc, fn parent, inner_acc ->
+          Map.put(inner_acc, parent, item)
+        end)
+      end)
+
+    # Set any parent that did not found the child as nil
+    Enum.reduce(pending_map, found_result, fn {_, parents}, acc ->
+      Enum.reduce(parents, acc, fn parent, inner_acc ->
+        if not Map.has_key?(inner_acc, parent) do
+          Map.put(inner_acc, parent, nil)
+        else
+          inner_acc
+        end
       end)
     end)
   end

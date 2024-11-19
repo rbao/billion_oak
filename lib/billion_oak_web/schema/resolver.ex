@@ -3,6 +3,8 @@ defmodule BillionOakWeb.Schema.Resolver do
   import Absinthe.Resolution.Helpers
   import BillionOakWeb.Schema.Helper
   alias BillionOakWeb.Schema.DataSource
+  alias BillionOak.Content.Audio
+  alias BillionOak.Identity.User
 
   def get_current_user(_parent, _args, %{context: context}) do
     context
@@ -106,12 +108,24 @@ defmodule BillionOakWeb.Schema.Resolver do
   end
 
   def load_files(parent, _args, %{context: %{loader: loader} = context}) do
-    context = Map.drop(context, [:loader])
+    do_load_files(loader, context, parent)
+  end
 
+  defp do_load_files(loader, context, %Audio{} = audio) do
+    args = %{id_field: :primary_file_id, file_field: :primary_file}
+    do_load_files(loader, args, context, audio)
+  end
+
+  defp do_load_files(loader, context, %User{} = user) do
+    args = %{id_field: :avatar_file_id, file_field: :avatar_file}
+    do_load_files(loader, args, context, user)
+  end
+
+  defp do_load_files(loader, args, context, parent) do
     loader
-    |> Dataloader.load(DataSource, {:file, %{}, context}, parent)
+    |> Dataloader.load(DataSource, {:file, args, context}, parent)
     |> on_load(fn loader ->
-      {:ok, Dataloader.get(loader, DataSource, {:file, %{}, context}, parent)}
+      {:ok, Dataloader.get(loader, DataSource, {:file, args, context}, parent)}
     end)
   end
 end

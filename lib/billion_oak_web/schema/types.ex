@@ -40,9 +40,14 @@ defmodule BillionOakWeb.Schema.Types do
     field :role, :string
     field :company_account_id, :id
     field :organization_id, :id
+    field :avatar_file_id, :id
 
     field :company_account, :company_account do
       resolve(&Resolver.load_company_accounts/3)
+    end
+
+    field :avatar_file, :file do
+      resolve(&Resolver.load_files/3)
     end
   end
 
