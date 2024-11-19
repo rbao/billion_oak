@@ -76,6 +76,15 @@ defmodule BillionOak do
     |> to_create_response()
   end
 
+  def update_current_user(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Identity.update_user()
+    |> IO.inspect()
+    |> to_update_response()
+  end
+
   def get_company_account_excerpt(%Request{} = req) do
     req
     |> expand()
@@ -261,6 +270,11 @@ defmodule BillionOak do
   defp to_list_response(other), do: other
 
   defp to_update_response({:ok, data}), do: {:ok, %Response{data: data}}
+
+  defp to_update_response({:error, %Ecto.Changeset{} = changeset}) do
+    {:error, {:validation_error, %Response{errors: Validation.errors(changeset)}}}
+  end
+
   defp to_update_response(other), do: other
 
   defp to_get_response({:ok, data}), do: {:ok, %Response{data: data}}

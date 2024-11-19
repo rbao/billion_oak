@@ -4,6 +4,8 @@ defmodule BillionOak.Identity.User do
   alias BillionOak.External
   alias BillionOak.External.CompanyAccount
   alias BillionOak.Identity.Organization
+  alias BillionOak.Filestore.File
+  alias BillionOak.Repo
 
   schema "users" do
     field :share_id, :string
@@ -13,6 +15,8 @@ defmodule BillionOak.Identity.User do
     field :last_name, :string
     field :company_account_rid, :string, virtual: true
     field :wx_app_openid, :string
+    field :avatar_file_id, :string
+    field :avatar_file, :map, virtual: true
 
     timestamps()
 
@@ -33,6 +37,8 @@ defmodule BillionOak.Identity.User do
     |> put_share_id()
     |> put_company_account()
     |> put_company_account_id()
+    |> put_avatar_file()
+    |> validate_avatar_file()
   end
 
   defp put_share_id(cs) do
@@ -68,4 +74,27 @@ defmodule BillionOak.Identity.User do
   end
 
   defp put_company_account_id(cs), do: cs
+
+  defp put_avatar_file(%{valid?: true, changes: %{avatar_file_id: avatar_file_id}} = cs) do
+    organization_id = get_field(cs, :organization_id)
+
+    file =
+      File
+      |> Repo.get_by(id: avatar_file_id, organization_id: organization_id)
+      |> File.put_url()
+
+    change(cs, avatar_file: file)
+  end
+
+  defp put_avatar_file(cs), do: cs
+
+  defp validate_avatar_file(%{valid?: true, changes: %{avatar_file_id: _}} = cs) do
+    if get_field(cs, :avatar_file) do
+      cs
+    else
+      add_error(cs, :avatar_file_id, "does not exist", validation: :must_exist)
+    end
+  end
+
+  defp validate_avatar_file(cs), do: cs
 end

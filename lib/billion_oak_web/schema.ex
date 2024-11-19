@@ -38,6 +38,12 @@ defmodule BillionOakWeb.Schema do
       resolve(&Resolver.sign_up/3)
     end
 
+    @desc "Update the current user"
+    field :update_current_user, type: :update_current_user_output do
+      arg(:input, non_null(:update_current_user_input))
+      resolve(&Resolver.update_current_user/3)
+    end
+
     @desc "Create an invitation code"
     field :create_invitation_code, type: :create_invitation_code_output do
       arg(:rid, non_null(:string))

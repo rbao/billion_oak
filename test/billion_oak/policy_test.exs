@@ -89,7 +89,7 @@ defmodule BillionOak.PolicyTest do
           _requester_: member,
           _role_: :member,
           requester_id: member.id,
-          filter: [%{id: ["company_account_id"]}]
+          filter: [%{id: "company_account_id"}]
         )
 
       assert {:ok, ^req} = Policy.authorize(req, :list_company_accounts)

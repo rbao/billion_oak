@@ -23,6 +23,12 @@ defmodule BillionOak.Policy do
     put_organization_id(req, :identifier)
   end
 
+  def scope(%{_role_: role} = req, :list_company_accounts) when role in @member do
+    req
+    |> put_organization_id(:filter)
+    |> Request.add_filter(:id, req._requester_.company_account_id)
+  end
+
   # TODO: need to add organization_id of the requester as well
   def scope(%{_role_: role} = req, :create_invitation_code) when role in @member do
     req
@@ -33,6 +39,12 @@ defmodule BillionOak.Policy do
 
   def scope(%{_role_: role} = req, :sign_up) when role in @guest do
     req
+    |> Request.put(:identifier, :id, req.requester_id)
+  end
+
+  def scope(%{_role_: role} = req, :update_current_user) when role in @member do
+    req
+    |> put_organization_id(:identifier)
     |> Request.put(:identifier, :id, req.requester_id)
   end
 
@@ -116,12 +128,18 @@ defmodule BillionOak.Policy do
     authorize_requester_id(req, [:identifier, :id])
   end
 
+  def authorize(%{_role_: role} = req, :update_current_user) when role in @member do
+    req
+    |> authorize_organization_id(:identifier)
+    ~>> authorize_requester_id([:identifier, :id])
+  end
+
   def authorize(%{_role_: role} = req, :get_user) when role in @guest do
     authorize_requester_id(req, [:identifier, :id])
   end
 
   def authorize(%{_role_: role} = req, :list_company_accounts) when role in @member do
-    authorize_has_filter(req, :id, [req._requester_.company_account_id])
+    authorize_has_filter(req, :id, req._requester_.company_account_id)
   end
 
   def authorize(%{_role_: role} = req, :reserve_file_location) when role in @admin do

@@ -25,6 +25,13 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> to_create_output()
   end
 
+  def update_current_user(_parent, %{input: input}, %{context: context}) do
+    context
+    |> build_update_request(input)
+    |> BillionOak.update_current_user()
+    |> to_update_output()
+  end
+
   def create_invitation_code(_parent, args, %{context: context}) do
     context
     |> build_create_request(args)

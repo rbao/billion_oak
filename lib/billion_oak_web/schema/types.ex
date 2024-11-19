@@ -34,6 +34,7 @@ defmodule BillionOakWeb.Schema.Types do
 
   object :user do
     field :id, :id
+    field :share_id, :id
     field :first_name, :string
     field :last_name, :string
     field :role, :string
@@ -110,6 +111,16 @@ defmodule BillionOakWeb.Schema.Types do
   end
 
   object :sign_up_output do
+    field :data, :user
+  end
+
+  input_object :update_current_user_input do
+    field :first_name, :string
+    field :last_name, :string
+    field :avatar_file_id, :id
+  end
+
+  object :update_current_user_output do
     field :data, :user
   end
 
