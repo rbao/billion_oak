@@ -51,6 +51,15 @@ defmodule BillionOakWeb.Schema.Types do
     end
   end
 
+  object :sharer do
+    field :first_name, :string
+    field :last_name, :string
+
+    field :avatar_file, :file do
+      resolve(&Resolver.load_files/3)
+    end
+  end
+
   object :file_form_field do
     field :name, :string
     field :value, :string
@@ -113,6 +122,14 @@ defmodule BillionOakWeb.Schema.Types do
 
   object :get_current_user_output do
     field :data, :user
+  end
+
+  input_object :get_sharer_input do
+    field :id, :id
+  end
+
+  object :get_sharer_output do
+    field :data, :sharer
   end
 
   object :sign_up_output do

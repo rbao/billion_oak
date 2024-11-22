@@ -13,6 +13,13 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> to_get_output()
   end
 
+  def get_sharer(_parent, %{input: input}, %{context: context}) do
+    context
+    |> build_get_request(input)
+    |> BillionOak.get_sharer()
+    |> to_get_output()
+  end
+
   def get_company_account_excerpt(_parent, args, %{context: context}) do
     context
     |> build_get_request(args)

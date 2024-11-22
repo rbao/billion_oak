@@ -42,6 +42,11 @@ defmodule BillionOak.Policy do
     |> Request.put(:identifier, :id, req.requester_id)
   end
 
+  def scope(%{_role_: role} = req, :get_sharer) when role in @guest do
+    req
+    |> put_organization_id(:identifier)
+  end
+
   def scope(%{_role_: role} = req, :update_current_user) when role in @member do
     req
     |> put_organization_id(:identifier)
@@ -136,6 +141,10 @@ defmodule BillionOak.Policy do
 
   def authorize(%{_role_: role} = req, :get_user) when role in @guest do
     authorize_requester_id(req, [:identifier, :id])
+  end
+
+  def authorize(%{_role_: role} = req, :get_sharer) when role in @guest do
+    authorize_organization_id(req, :identifier)
   end
 
   def authorize(%{_role_: role} = req, :list_company_accounts) when role in @member do

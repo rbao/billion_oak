@@ -102,6 +102,14 @@ defmodule BillionOak do
     |> to_get_response()
   end
 
+  def get_sharer(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Identity.get_sharer()
+    |> to_get_response()
+  end
+
   def list_company_accounts(%Request{} = req) do
     req
     |> expand()

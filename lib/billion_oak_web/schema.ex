@@ -15,6 +15,12 @@ defmodule BillionOakWeb.Schema do
       resolve(&Resolver.get_current_user/3)
     end
 
+    @desc "Get the sharer"
+    field :get_sharer, :get_sharer_output do
+      arg(:input, non_null(:get_sharer_input))
+      resolve(&Resolver.get_sharer/3)
+    end
+
     @desc "List audios"
     field :list_audios, :list_audios_output do
       arg(:input, :list_audios_input)

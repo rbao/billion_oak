@@ -100,6 +100,17 @@ defmodule BillionOak.Identity do
     end
   end
 
+  def get_sharer(%{identifier: identifier} = req) do
+    identifier =
+      identifier
+      |> Map.put(:share_id, identifier[:id])
+      |> Map.drop([:id])
+
+    req
+    |> Map.put(:identifier, identifier)
+    |> get_user()
+  end
+
   def create_user(data) do
     %User{}
     |> User.changeset(data)
