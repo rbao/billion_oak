@@ -88,7 +88,7 @@ defmodule BillionOakWeb.Schema.Helper do
   def to_create_output({:error, {:validation_error, %Response{errors: validation_errors}}}) do
     errors =
       Enum.reduce(validation_errors, [], fn {key, error_code, message, details}, acc ->
-        acc ++ [%{key: key, error_code: error_code, message: message, details: details}]
+        acc ++ [%{key: key, code: error_code, message: message, details: details}]
       end)
 
     {:error, errors}
@@ -101,7 +101,7 @@ defmodule BillionOakWeb.Schema.Helper do
   def to_update_output({:error, {:validation_error, %Response{errors: validation_errors}}}) do
     errors =
       Enum.reduce(validation_errors, [], fn {key, error_code, message, details}, acc ->
-        acc ++ [%{key: key, error_code: error_code, message: message, details: details}]
+        acc ++ [%{key: key, code: error_code, message: message, details: details}]
       end)
 
     {:error, errors}
@@ -118,7 +118,7 @@ defmodule BillionOakWeb.Schema.Helper do
     errors =
       Enum.reduce(validation_errors, [], fn {id, errors}, acc ->
         Enum.reduce(errors, acc, fn {key, error_code, message, details}, acc ->
-          acc ++ [%{id: id, key: key, error_code: error_code, message: message, details: details}]
+          acc ++ [%{id: id, key: key, code: error_code, message: message, details: details}]
         end)
       end)
 
