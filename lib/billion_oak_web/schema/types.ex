@@ -146,6 +146,11 @@ defmodule BillionOakWeb.Schema.Types do
     field :data, :user
   end
 
+  input_object :create_invitation_code_input do
+    field :invitee_company_account_rid, non_null(:string)
+    field :payment_due_date, :date
+  end
+
   object :create_invitation_code_output do
     field :data, :invitation_code
   end

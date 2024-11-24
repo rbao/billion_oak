@@ -10,6 +10,7 @@ defmodule BillionOak.Repo.Migrations.CreateInvitationCodes do
       add :invitee_company_account_rid, :string, null: false
       add :invitee_role, :string, null: false
       add :expires_at, :utc_datetime, null: false
+      add :payment_due_date, :date
 
       timestamps()
     end

@@ -41,9 +41,9 @@ defmodule BillionOakWeb.Schema.Resolver do
     |> to_update_output()
   end
 
-  def create_invitation_code(_parent, args, %{context: context}) do
+  def create_invitation_code(_parent, %{input: input}, %{context: context}) do
     context
-    |> build_create_request(args)
+    |> build_create_request(input)
     |> BillionOak.create_invitation_code()
     |> to_create_output()
   end

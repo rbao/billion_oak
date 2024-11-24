@@ -25,6 +25,7 @@ defmodule BillionOakWeb.Schema.DataSource do
     |> Request.put(:pagination, nil)
     |> BillionOak.list_files()
     |> to_list_output()
+    |> treat_access_denied_as_empty()
     |> merge_result(pending_map, result)
   end
 
@@ -67,5 +68,12 @@ defmodule BillionOakWeb.Schema.DataSource do
         Map.put(inner_acc, parent, other)
       end)
     end)
+  end
+
+  defp treat_access_denied_as_empty(result) do
+    case result do
+      {:error, :access_denied} -> {:ok, %{data: []}}
+      other -> other
+    end
   end
 end

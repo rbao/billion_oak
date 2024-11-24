@@ -29,9 +29,9 @@ defmodule BillionOak.Policy do
     |> Request.add_filter(:id, req._requester_.company_account_id)
   end
 
-  # TODO: need to add organization_id of the requester as well
-  def scope(%{_role_: role} = req, :create_invitation_code) when role in @member do
+  def scope(%{_role_: role} = req, :create_invitation_code) when role in @admin do
     req
+    |> put_organization_id(:data)
     |> Request.put(:data, :inviter_id, req.requester_id)
     |> Request.put(:data, :inviter, req._requester_)
     |> Request.delete(:data, :invitee_role)
@@ -123,9 +123,10 @@ defmodule BillionOak.Policy do
 
   def authorize(%{requester_id: nil}, _), do: {:error, :access_denied}
 
-  def authorize(%{_role_: role} = req, :create_invitation_code) when role in @member do
+  def authorize(%{_role_: role} = req, :create_invitation_code) when role in @admin do
     req
-    |> authorize_requester_id([:data, :inviter_id])
+    |> authorize_organization_id(:data)
+    ~>> authorize_requester_id([:data, :inviter_id])
     ~>> authorize_is_nil([:data, :invitee_role])
   end
 

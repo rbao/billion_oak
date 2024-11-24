@@ -13,10 +13,10 @@ defmodule BillionOak.PolicyTest do
     Map.merge(base, attrs)
   end
 
-  describe "when member is creating invitation code" do
+  describe "when admin is creating invitation code" do
     test "the inviter will always be set to themself in the request" do
-      user = build(:user, role: :member)
-      req = req(requester_id: user.id, _requester_: user, _role_: :member)
+      user = build(:user, role: :admin)
+      req = req(requester_id: user.id, _requester_: user, _role_: :admin)
 
       req = Policy.scope(req, :create_invitation_code)
 
@@ -25,9 +25,9 @@ defmodule BillionOak.PolicyTest do
     end
 
     test "the invitee role will be removed from the request if given" do
-      user = build(:user, role: :member)
+      user = build(:user, role: :admin)
       data = %{invitee_role: :admin}
-      req = req(_requester_: user, _role_: :member, requester_id: user.id, data: data)
+      req = req(_requester_: user, _role_: :admin, requester_id: user.id, data: data)
 
       req = Policy.scope(req, :create_invitation_code)
 
@@ -37,12 +37,21 @@ defmodule BillionOak.PolicyTest do
     end
 
     test "the request is authorized only if the inviter is themself and invitee role is not given" do
-      req = req(requester_id: "user_id", _role_: :member, data: %{inviter_id: "user_id"})
+      user = build(:user, role: :admin)
+
+      req =
+        req(
+          _requester_: user,
+          _role_: :admin,
+          requester_id: user.id,
+          data: %{inviter_id: user.id, organization_id: user.organization_id}
+        )
+
       assert {:ok, ^req} = Policy.authorize(req, :create_invitation_code)
     end
 
     test "the request is denied if the inviter is not set" do
-      req = req(requester_id: "user_id", _role_: :member)
+      req = req(requester_id: "user_id", _role_: :admin)
       assert {:error, :access_denied} == Policy.authorize(req, :create_invitation_code)
     end
 
@@ -50,7 +59,7 @@ defmodule BillionOak.PolicyTest do
       req =
         req(
           requester_id: "user_id",
-          _role_: :member,
+          _role_: :admin,
           data: %{inviter_id: "user_id", invitee_role: :admin}
         )
 

@@ -13,6 +13,7 @@ defmodule BillionOak.Identity.User do
     field :role, Ecto.Enum, values: [:guest, :member, :admin], default: :guest
     field :first_name, :string
     field :last_name, :string
+    field :payment_due_date, :date
     field :company_account_rid, :string, virtual: true
     field :wx_app_openid, :string
     field :avatar_file_id, :string

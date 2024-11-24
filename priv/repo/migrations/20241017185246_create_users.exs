@@ -14,6 +14,7 @@ defmodule BillionOak.Repo.Migrations.CreateUsers do
       add :wx_app_openid, :string
       add :inviter_id, :string
       add :avatar_file_id, :string
+      add :payment_due_date, :date
 
       timestamps()
     end

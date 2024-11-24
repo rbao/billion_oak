@@ -52,7 +52,7 @@ defmodule BillionOakWeb.Schema do
 
     @desc "Create an invitation code"
     field :create_invitation_code, type: :create_invitation_code_output do
-      arg(:rid, non_null(:string))
+      arg(:input, non_null(:create_invitation_code_input))
       resolve(&Resolver.create_invitation_code/3)
     end
 

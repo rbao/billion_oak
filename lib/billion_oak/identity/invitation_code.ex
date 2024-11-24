@@ -10,6 +10,7 @@ defmodule BillionOak.Identity.InvitationCode do
     field :invitee_company_account_rid, :string
     field :invitee_role, Ecto.Enum, values: [:member, :admin], default: :member
     field :expires_at, :utc_datetime
+    field :payment_due_date, :date
 
     timestamps()
 
@@ -21,13 +22,7 @@ defmodule BillionOak.Identity.InvitationCode do
   def changeset(invitation_code, attrs) do
     invitation_code
     |> changeset()
-    |> cast(attrs, [
-      :inviter_id,
-      :organization_id,
-      :invitee_company_account_rid,
-      :invitee_role,
-      :expires_at
-    ])
+    |> cast(attrs, castable_fields() -- [:value])
     |> validate_required([:invitee_company_account_rid])
     |> put_inviter()
     |> validate_inviter_id()

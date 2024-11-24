@@ -164,6 +164,24 @@ defmodule BillionOakTest do
       assert audio.duration_seconds == 100
       assert audio.bit_rate == 100
     end
+
+    test "can create an invitation code" do
+      client = insert(:client)
+      company_account = insert(:company_account, organization_id: client.organization_id)
+      admin = insert(:user, role: :admin, organization_id: client.organization_id)
+
+      data = %{
+        organization_id: company_account.organization_id,
+        invitee_company_account_rid: company_account.rid
+      }
+
+      req = user(%{data: data}, client, admin)
+
+      result = BillionOak.create_invitation_code(req)
+
+      assert {:ok, %{data: code}} = result
+      assert String.length(code.value) == 6
+    end
   end
 
   describe "system operator" do
@@ -184,22 +202,6 @@ defmodule BillionOakTest do
 
       assert {:ok, %{data: organization}} = result
       assert organization.handle == "happyteam"
-    end
-
-    test "can create an invitation code" do
-      company_account = insert(:company_account)
-
-      data = %{
-        organization_id: company_account.organization_id,
-        invitee_company_account_rid: company_account.rid
-      }
-
-      req = sysops(%{data: data})
-
-      result = BillionOak.create_invitation_code(req)
-
-      assert {:ok, %{data: code}} = result
-      assert String.length(code.value) == 6
     end
 
     test "can ingest external data" do
