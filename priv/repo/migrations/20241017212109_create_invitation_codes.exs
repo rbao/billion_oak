@@ -4,6 +4,7 @@ defmodule BillionOak.Repo.Migrations.CreateInvitationCodes do
   def change do
     create table(:invitation_codes, primary_key: false) do
       add :id, :string, primary_key: true
+      add :status, :string, null: false
       add :organization_id, :string, null: false
       add :value, :string, null: false
       add :inviter_id, :string
