@@ -14,7 +14,7 @@ defmodule BillionOakTest do
     |> Map.put(:client_id, client.id)
   end
 
-  def user(user, client, attrs) do
+  def user(user, client, attrs \\ %{}) do
     anyone(attrs)
     |> Map.put(:client_id, client.id)
     |> Map.put(:requester_id, user.id)
@@ -129,6 +129,19 @@ defmodule BillionOakTest do
   end
 
   describe "member" do
+    test "can list published audios" do
+      client = insert(:client)
+      member = insert(:user, role: :member, organization_id: client.organization_id)
+      insert_list(3, :audio, status: :published, organization_id: client.organization_id)
+      insert_list(3, :audio, status: :draft, organization_id: client.organization_id)
+      req = user(member, client)
+
+      result = BillionOak.list_audios(req)
+
+      assert {:ok, %{data: audios}} = result
+      assert length(audios) == 3
+    end
+
     test "can get their own user detail" do
       client = insert(:client)
       member = insert(:user, role: :member, organization_id: client.organization_id)
@@ -139,6 +152,17 @@ defmodule BillionOakTest do
 
       assert {:ok, %{data: user}} = result
       assert user.id == member.id
+    end
+
+    test "can update their user detail" do
+      client = insert(:client)
+      member = insert(:user, role: :member, organization_id: client.organization_id)
+      req = user(member, client, %{data: %{first_name: "Updated"}})
+
+      result = BillionOak.update_current_user(req)
+
+      assert {:ok, %{data: user}} = result
+      assert user.first_name == "Updated"
     end
 
     test "can get their own company account" do

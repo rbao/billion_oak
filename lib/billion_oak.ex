@@ -81,7 +81,6 @@ defmodule BillionOak do
     |> expand()
     |> scope_authorize(cfun())
     ~>> Identity.update_user()
-    |> IO.inspect()
     |> to_update_response()
   end
 
