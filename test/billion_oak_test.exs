@@ -260,6 +260,26 @@ defmodule BillionOakTest do
       assert company.handle == data.handle
     end
 
+    test "can create an organization" do
+      data = params_for(:organization)
+      req = sysops(%{data: data})
+
+      result = BillionOak.create_organization(req)
+
+      assert {:ok, %{data: organization}} = result
+      assert organization.handle == data.handle
+    end
+
+    test "can create a client" do
+      data = params_for(:client)
+      req = sysops(%{data: data})
+
+      result = BillionOak.create_client(req)
+
+      assert {:ok, %{data: client}} = result
+      assert client.publishable_key
+    end
+
     test "can get an organization's detail by handle" do
       req = sysops(%{identifier: %{handle: "happyteam"}})
 

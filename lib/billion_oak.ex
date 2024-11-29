@@ -34,8 +34,23 @@ defmodule BillionOak do
     req
     |> expand()
     |> scope_authorize(cfun())
-    ~> Request.get(:data)
     ~>> External.create_company()
+    |> to_create_response()
+  end
+
+  def create_organization(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Identity.create_organization()
+    |> to_create_response()
+  end
+
+  def create_client(%Request{} = req) do
+    req
+    |> expand()
+    |> scope_authorize(cfun())
+    ~>> Identity.create_client()
     |> to_create_response()
   end
 

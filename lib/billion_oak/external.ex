@@ -31,7 +31,9 @@ defmodule BillionOak.External do
     end
   end
 
-  def create_company(data \\ %{}) do
+  def create_company(%{data: data}), do: create_company(data)
+
+  def create_company(data) do
     %Company{}
     |> Company.changeset(data)
     |> Repo.insert()

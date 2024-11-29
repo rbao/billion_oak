@@ -23,6 +23,8 @@ defmodule BillionOak.Identity do
     end
   end
 
+  def create_organization(%{data: data}), do: create_organization(data)
+
   def create_organization(data) do
     %Organization{}
     |> Organization.changeset(data)
@@ -69,10 +71,13 @@ defmodule BillionOak.Identity do
     end
   end
 
+  def create_client(%{data: data}), do: create_client(data)
+
   def create_client(data) do
     %Client{}
     |> Client.changeset(data)
     |> Repo.insert()
+    ~> then(&Client.put_publishable_key(&1))
   end
 
   def update_client(%{identifier: _, data: data} = req) do
