@@ -9,12 +9,12 @@ defmodule BillionOakTest do
     Map.merge(%Request{}, attrs)
   end
 
-  def anonymous(attrs, client) do
+  def anonymous(client, attrs) do
     anyone(attrs)
     |> Map.put(:client_id, client.id)
   end
 
-  def user(attrs, client, user) do
+  def user(user, client, attrs) do
     anyone(attrs)
     |> Map.put(:client_id, client.id)
     |> Map.put(:requester_id, user.id)
@@ -40,7 +40,7 @@ defmodule BillionOakTest do
   test "anonymous user can become guest" do
     client = insert(:client)
     data = %{wx_app_openid: "openid"}
-    req = anonymous(%{data: data}, client)
+    req = anonymous(client, %{data: data})
 
     result = BillionOak.get_or_create_user(req)
 
@@ -50,10 +50,10 @@ defmodule BillionOakTest do
   end
 
   describe "guest" do
-    test "can sign up to become a member by using their company account rid and a invitation code" do
+    test "can sign up to become a member" do
       client = insert(:client)
 
-      user =
+      guest =
         insert(:user,
           role: :guest,
           company_account_id: nil,
@@ -75,15 +75,56 @@ defmodule BillionOakTest do
         last_name: "Doe"
       }
 
-      req = user(%{data: data}, client, user)
+      req = user(guest, client, %{data: data})
 
       result = BillionOak.sign_up(req)
 
-      assert {:ok, %{data: user}} = result
-      assert user.role == :member
-      assert user.company_account_id == company_account.id
-      assert user.first_name == data.first_name
-      assert user.last_name == data.last_name
+      assert {:ok, %{data: member}} = result
+      assert member.role == :member
+      assert member.company_account_id == company_account.id
+      assert member.first_name == data.first_name
+      assert member.last_name == data.last_name
+    end
+
+    test "can get published audio" do
+      client = insert(:client)
+      guest = insert(:user, role: :guest, organization_id: client.organization_id)
+      audio = insert(:audio, status: :published, organization_id: client.organization_id)
+      req = user(guest, client, %{identifier: %{id: audio.id}})
+
+      result = BillionOak.get_audio(req)
+
+      assert {:ok, %{data: audio}} = result
+      assert audio.id == audio.id
+    end
+
+    test "can get sharer" do
+      client = insert(:client)
+      sharer = insert(:user, role: :member, organization_id: client.organization_id)
+      guest = insert(:user, role: :guest, organization_id: client.organization_id)
+      req = user(guest, client, %{identifier: %{id: sharer.share_id}})
+
+      result = BillionOak.get_sharer(req)
+
+      assert {:ok, %{data: sharer}} = result
+      assert sharer.id == sharer.id
+    end
+
+    test "can list files base on ids" do
+      client = insert(:client)
+      file = insert(:file, organization_id: client.organization_id)
+      guest = insert(:user, role: :guest, organization_id: client.organization_id)
+      filter = [%{id: [file.id]}]
+      req = user(guest, client, %{filter: filter})
+
+      expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
+        {:ok, "url"}
+      end)
+
+      result = BillionOak.list_files(req)
+
+      assert {:ok, %{data: [file]}} = result
+      assert file.id == file.id
     end
   end
 
@@ -92,7 +133,7 @@ defmodule BillionOakTest do
       client = insert(:client)
       member = insert(:user, role: :member, organization_id: client.organization_id)
       identifier = %{id: member.id}
-      req = user(%{identifier: identifier}, client, member)
+      req = user(member, client, %{identifier: identifier})
 
       result = BillionOak.get_user(req)
 
@@ -112,7 +153,7 @@ defmodule BillionOakTest do
         )
 
       filter = [%{id: [company_account.id]}]
-      req = user(%{filter: filter}, client, member)
+      req = user(member, client, %{filter: filter})
 
       result = BillionOak.list_company_accounts(req)
 
@@ -126,7 +167,7 @@ defmodule BillionOakTest do
       client = insert(:client)
       admin = insert(:user, role: :admin, organization_id: client.organization_id)
       data = %{name: "test.txt", content_type: "text/plain"}
-      req = user(%{data: data}, client, admin)
+      req = user(admin, client, %{data: data})
 
       expect(BillionOak.Filestore.ClientMock, :presigned_post, fn key, custom_conditions ->
         BillionOak.Filestore.S3Client.presigned_post(key, custom_conditions)
@@ -146,7 +187,7 @@ defmodule BillionOakTest do
       admin = insert(:user, role: :admin, organization_id: client.organization_id)
       file = insert(:file, organization_id: client.organization_id)
       data = params_for(:audio, primary_file_id: file.id)
-      req = user(%{data: data}, client, admin)
+      req = user(admin, client, %{data: data})
 
       expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
         {:ok, "url"}
@@ -175,7 +216,7 @@ defmodule BillionOakTest do
         invitee_company_account_rid: company_account.rid
       }
 
-      req = user(%{data: data}, client, admin)
+      req = user(admin, client, %{data: data})
 
       result = BillionOak.create_invitation_code(req)
 

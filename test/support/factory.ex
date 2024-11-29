@@ -63,6 +63,7 @@ defmodule BillionOak.Factory do
   def user_factory do
     %User{
       id: User.generate_id(),
+      share_id: User.generate_id(),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
       organization_id: Organization.generate_id(),
