@@ -206,6 +206,28 @@ defmodule BillionOakTest do
       assert location.form_url
     end
 
+    test "can register a file" do
+      client = insert(:client)
+      admin = insert(:user, role: :admin, organization_id: client.organization_id)
+      location = insert(:file_location, owner_id: admin.id, organization_id: client.organization_id)
+      data = %{location_id: location.id}
+      req = user(admin, client, %{data: data})
+
+      expect(BillionOak.Filestore.ClientMock, :head_object, fn _ ->
+        {:ok, %{"Content-Type" => "text/plain", "Content-Length" => "100"}}
+      end)
+
+      expect(BillionOak.Filestore.ClientMock, :presigned_url, fn _ ->
+        {:ok, "url"}
+      end)
+
+      result = BillionOak.register_file(req)
+
+      assert {:ok, %{data: file}} = result
+      assert file.id
+      assert file.name == location.name
+    end
+
     test "can create an audio" do
       client = insert(:client)
       admin = insert(:user, role: :admin, organization_id: client.organization_id)
