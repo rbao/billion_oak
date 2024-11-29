@@ -209,7 +209,10 @@ defmodule BillionOakTest do
     test "can register a file" do
       client = insert(:client)
       admin = insert(:user, role: :admin, organization_id: client.organization_id)
-      location = insert(:file_location, owner_id: admin.id, organization_id: client.organization_id)
+
+      location =
+        insert(:file_location, owner_id: admin.id, organization_id: client.organization_id)
+
       data = %{location_id: location.id}
       req = user(admin, client, %{data: data})
 

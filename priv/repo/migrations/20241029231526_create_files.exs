@@ -13,5 +13,7 @@ defmodule BillionOak.Repo.Migrations.CreateFiles do
 
       timestamps()
     end
+
+    create index(:files, [:organization_id, :status])
   end
 end

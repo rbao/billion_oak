@@ -16,5 +16,7 @@ defmodule BillionOak.Repo.Migrations.CreateAudios do
 
       timestamps()
     end
+
+    create index(:audios, [:organization_id, :status])
   end
 end

@@ -16,7 +16,7 @@ defmodule BillionOak.Repo.Migrations.CreateInvitationCodes do
       timestamps()
     end
 
-    create index(:invitation_codes, :organization_id)
+    create unique_index(:invitation_codes, [:organization_id, :value])
     create index(:invitation_codes, :inviter_id)
   end
 end
