@@ -19,8 +19,14 @@ defmodule BillionOak.Identity.InvitationCode do
     belongs_to :inviter, User
   end
 
+  def changeset(invitation_code, :update, attrs) do
+    invitation_code
+    |> changeset()
+    |> cast(attrs, [:status])
+  end
+
   @doc false
-  def changeset(invitation_code, attrs) do
+  def changeset(invitation_code, :create, attrs) do
     invitation_code
     |> changeset()
     |> cast(attrs, castable_fields() -- [:value])
@@ -123,6 +129,7 @@ defmodule BillionOak.Identity.InvitationCode do
     inv_code =
       Repo.get_by(__MODULE__,
         value: value,
+        status: :active,
         organization_id: org_id,
         invitee_company_account_rid: rid
       )

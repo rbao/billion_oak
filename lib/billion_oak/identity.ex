@@ -5,6 +5,7 @@ defmodule BillionOak.Identity do
 
   use OK.Pipe
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias BillionOak.Repo
 
   alias BillionOak.Identity.{Client, Organization, User, InvitationCode}
@@ -155,7 +156,7 @@ defmodule BillionOak.Identity do
 
   def create_invitation_code(%{data: data}) do
     %InvitationCode{inviter: data[:inviter]}
-    |> InvitationCode.changeset(data)
+    |> InvitationCode.changeset(:create, data)
     |> Repo.insert()
   end
 
@@ -180,20 +181,35 @@ defmodule BillionOak.Identity do
     result =
       initial
       ~>> then(&InvitationCode.verify(inv_code_value, &1.organization_id, rid))
-      ~> then(
-        &User.changeset(guest, %{
-          first_name: data[:first_name],
-          last_name: data[:last_name],
-          company_account_rid: &1.invitee_company_account_rid,
-          inviter_id: &1.inviter_id,
-          role: &1.invitee_role
-        })
-      )
-      ~>> Repo.update()
+      ~>> then(&do_sign_up(guest, data, &1))
 
     case result do
       {:error, :invalid} -> {:error, :invalid_invitation_code}
       other -> other
+    end
+  end
+
+  defp do_sign_up(guest, data, inv_code) do
+    inv_changeset = InvitationCode.changeset(inv_code, :update, %{status: :used})
+
+    user_changeset =
+      User.changeset(guest, %{
+        first_name: data[:first_name],
+        last_name: data[:last_name],
+        company_account_rid: inv_code.invitee_company_account_rid,
+        inviter_id: inv_code.inviter_id,
+        role: inv_code.invitee_role
+      })
+
+    result =
+      Multi.new()
+      |> Multi.update(:user, user_changeset)
+      |> Multi.update(:invitation_code, inv_changeset)
+      |> Repo.transaction()
+
+    case result do
+      {:ok, %{user: user}} -> {:ok, user}
+      {:error, _op, value, _changes} -> {:error, value}
     end
   end
 end
