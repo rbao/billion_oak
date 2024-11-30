@@ -21,7 +21,7 @@ defmodule BillionOakWeb.Schema.DataSource do
     {result, pending_map} = split(parents, file_field, id_field)
 
     context
-    |> build_list_request(%{id: Map.keys(pending_map)})
+    |> build_list_request(%{filter: %{id: Map.keys(pending_map)}})
     |> Request.put(:pagination, nil)
     |> BillionOak.list_files()
     |> to_list_output()
