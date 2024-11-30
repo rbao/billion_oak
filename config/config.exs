@@ -45,12 +45,6 @@ config :ex_aws,
 config :ex_aws, :s3,
   host: "fly.storage.tigris.dev"
 
-config :joken,
-  rs256: [
-    signer_alg: "RS256",
-    key_pem: System.get_env("JWT_PRIVATE_KEY")
-  ]
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
