@@ -12,6 +12,7 @@ defmodule BillionOak.Content.FFmpeg do
 end
 
 defmodule BillionOak.Content.DefaultFFmpeg do
+  require Logger
   alias BillionOak.Content.IFFmpeg
   @behaviour IFFmpeg
 
@@ -24,6 +25,7 @@ defmodule BillionOak.Content.DefaultFFmpeg do
         {:ok, Map.get(json_output, "format", %{})}
 
       {result, code} ->
+        Logger.warning("FFprobe failed with #{result} and code #{code}")
         {:error, {result, code}}
     end
   end
