@@ -5,7 +5,6 @@ defmodule Mix.Tasks.Bo.Ht.Client do
   @requirements ["app.start"]
   @impl Mix.Task
   def run(_args) do
-    BillionOak.Identity.list_clients()
-    |> IO.inspect()
+    IO.inspect(BillionOak.Devop.all_clients())
   end
 end
