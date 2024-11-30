@@ -5,7 +5,7 @@ defmodule BillionOak.Filestore.S3Client do
   @impl IClient
   def stream_object(key) do
     result =
-      "AWS_S3_BUCKET"
+      "BUCKET_NAME"
       |> System.fetch_env!()
       |> ExAws.S3.download_file(key, :memory)
       |> ExAws.stream!()
@@ -18,7 +18,7 @@ defmodule BillionOak.Filestore.S3Client do
 
   @impl IClient
   def list_objects(prefix, start_after \\ nil) do
-    "AWS_S3_BUCKET"
+    "BUCKET_NAME"
     |> System.fetch_env!()
     |> ExAws.S3.list_objects_v2(prefix: prefix, max_keys: 1000, start_after: start_after)
     |> ExAws.request()
@@ -30,7 +30,7 @@ defmodule BillionOak.Filestore.S3Client do
 
   @impl IClient
   def presigned_url(key) do
-    bucket = System.fetch_env!("AWS_S3_BUCKET")
+    bucket = System.fetch_env!("BUCKET_NAME")
 
     ExAws.Config.new(:s3)
     |> ExAws.S3.presigned_url(:get, bucket, key, expires_in: 86_400)
@@ -38,7 +38,7 @@ defmodule BillionOak.Filestore.S3Client do
 
   @impl IClient
   def presigned_post(key, conditions \\ []) do
-    bucket = System.fetch_env!("AWS_S3_BUCKET")
+    bucket = System.fetch_env!("BUCKET_NAME")
     default_opts = [expires_in: 86_400]
 
     ExAws.Config.new(:s3)
@@ -48,7 +48,7 @@ defmodule BillionOak.Filestore.S3Client do
   @impl IClient
   def head_object(key) do
     resp =
-      System.fetch_env!("AWS_S3_BUCKET")
+      System.fetch_env!("BUCKET_NAME")
       |> ExAws.S3.head_object(key)
       |> ExAws.request()
 

@@ -50,7 +50,7 @@ defmodule BillionOak.Filestore.FileLocation do
   def key(%{id: id, name: name}), do: key(id, name)
 
   def key(id, name) do
-    key_prefix = System.get_env("AWS_S3_KEY_PREFIX")
+    key_prefix = System.get_env("BUCKET_KEY_PREFIX")
     "#{key_prefix}/filestore/#{id}/#{name}"
   end
 
