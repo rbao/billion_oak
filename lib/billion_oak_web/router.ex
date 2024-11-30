@@ -1,6 +1,8 @@
 defmodule BillionOakWeb.Router do
   use BillionOakWeb, :router
 
+  get "/", BillionOakWeb.WelcomeController, :show
+
   pipeline :api do
     plug :accepts, ["json"]
   end
