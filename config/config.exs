@@ -42,6 +42,9 @@ config :phoenix, :json_library, Jason
 config :ex_aws,
   region: {:system, "AWS_REGION"}
 
+config :ex_aws, :s3,
+  host: "fly.storage.tigris.dev"
+
 config :joken,
   rs256: [
     signer_alg: "RS256",
