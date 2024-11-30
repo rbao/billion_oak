@@ -17,7 +17,7 @@ defmodule BillionOak.Content.DefaultFFmpeg do
   @behaviour IFFmpeg
 
   def probe(url) do
-    args = ["-output_format", "json", "-show_format", "-loglevel", "panic", url]
+    args = ["-print_format", "json", "-show_format", "-loglevel", "panic", url]
 
     case System.cmd("ffprobe", args) do
       {result, 0} ->
