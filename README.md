@@ -25,3 +25,8 @@ $ openssl rsa -in jwt_private.pem -outform PEM -pubout -out jwt_public.pem
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+
+```
+fly ssh console --pty -C "/app/bin/billion_oak remote"
+``

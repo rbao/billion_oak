@@ -63,4 +63,8 @@ defmodule BillionOak.Devop do
   def all_clients() do
     BillionOak.Identity.list_clients()
   end
+
+  def all_users() do
+    BillionOak.Identity.list_users()
+  end
 end
